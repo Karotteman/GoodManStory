@@ -1,4 +1,4 @@
-﻿#Pipeline de Production : A good Man Story
+﻿#Pipeline de Production ![](ScreenShoot/Logo.png)
 
 ##Groupe:
 - GD:
