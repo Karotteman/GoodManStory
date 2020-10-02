@@ -20,9 +20,11 @@ Dailymeeting tous les matins à 9h30 dans la cours d’Isart digital pour faire 
 
 ##Versionning:
 utilisation de git sur sourcetree
-architecture du git  par feature (tasks)
+architecture du git par feature (tasks)
 commit régulier mais faire des merges uniquement lorsque la feature est terminée 
-Le gitignore ne push pas les contents. Ils sont donc a ajouter a depuis le drive
+Le gitignore ne push pas les Contents/Assets. Ils sont donc a ajouter a depuis le drive.
+Dans le drive 2 type de Contents/Assets sont presente : Celle des sprints avec des assets allege et celui du projet avec toutes les assets meme non utilise (03_Assets (interne)). Lors d'une modification sur une asset, c'est celui ci qui doit etre mis a jour.
+Dans le trello, les bluprints touche par un ticket doivent etre indique. Ainsi lorsque quelque trqvqil sur un blueprint, il DOIT ETRE LE SEUL. Les conflict sont mal gere avec des binaire et ecrase les autre version. Il faut donc etre tres ascidu sur cette regle pour eviter de supprimer le travail de quelau'un d'autre.
 
 Repo : ssh://git@git.isartintra.com:2424/2020/GP_GD_2024Brawler3D/GoodManStory.git
 

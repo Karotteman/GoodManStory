@@ -80,4 +80,4 @@ Plugins/*/Intermediate/*
 DerivedDataCache/*
 
 #exclude Asset and binarie
-Content/*
+Content/Assets/*
