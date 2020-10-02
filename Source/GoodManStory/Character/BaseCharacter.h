@@ -35,4 +35,31 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	/**
+	* @brief Function to inflict dammage to player
+	* @param dammage 
+	* @return 
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Life")
+    void TakeDammage(uint8 dammage) noexcept;
+
+	/**
+	* @brief Function to heal the player
+	* @param dammage
+	* @return
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Life")
+    void TakeLife(uint8 additionnalLife) noexcept;
+
+	/**
+	* @brief return the life of the player
+	* @return 
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Life")
+    FORCEINLINE uint8 GetLife() const noexcept { return Life; }
+
+	
+	UFUNCTION(BlueprintCallable, Category = "Life")
+    FORCEINLINE float GetLifeRatio() const noexcept { return Life / (float)LifeMax; }
+
 };
