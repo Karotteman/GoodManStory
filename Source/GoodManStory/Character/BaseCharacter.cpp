@@ -25,3 +25,26 @@ void ABaseCharacter::Tick(float DeltaTime)
 
 }
 
+void ABaseCharacter::TakeLife(uint8 AdditionnalLife) noexcept
+{
+	if (Life + AdditionnalLife > LifeMax)
+	{
+		Life = LifeMax;
+	}
+	else
+	{
+		Life += AdditionnalLife;
+	}
+}
+
+void ABaseCharacter::TakeDammage(uint8 Dammage) noexcept
+{	
+	if ((int8)Life - Dammage <= 0)
+	{
+		/*Kill*/
+	}
+	else
+	{
+		Life -= Dammage;
+	}
+}
