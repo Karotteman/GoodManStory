@@ -26,7 +26,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Manager")
 	TArray<class ABaseEnemy*> Manager;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpawnSettings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpawnSettings")
 	int NumberMinionToSpawn = 0;
 	int NumberMinionToSpawnCurr = 0;
 	int IndexSpawn = 0;
@@ -36,6 +36,7 @@ protected:
 
 	FTimerHandle TimerActuMinionSpawn;
 
+	UFUNCTION(BlueprintCallable, Category= "Spawn")
 	void Spawn();
 
 
