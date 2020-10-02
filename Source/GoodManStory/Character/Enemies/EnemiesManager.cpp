@@ -21,7 +21,7 @@ AEnemiesManager::AEnemiesManager()
 void AEnemiesManager::BeginPlay()
 {
 	Super::BeginPlay();
-	GetWorldTimerManager().SetTimer(TimerActuMinionSpawn, this,&AEnemiesManager::Spawn, 0.2, true, 1.0f);
+	GetWorldTimerManager().SetTimer(TimerActuMinionSpawn, this,&AEnemiesManager::Spawn, 0.5, true, 1.0f);
 	if(TrashMob)
 	{
 		SpawnParams.Owner = this;
