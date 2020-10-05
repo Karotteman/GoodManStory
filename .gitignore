@@ -81,3 +81,4 @@ DerivedDataCache/*
 
 #exclude Asset and binarie
 Content/Assets/*
+Content/StarterContent/*
