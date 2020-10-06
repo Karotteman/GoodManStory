@@ -19,7 +19,8 @@
 #include "Engine/EngineTypes.h" //FHitResult
 #include "Materials/Material.h"//SetMaterial, GetMaterial
 #include "Materials/MaterialInstanceDynamic.h" //SetVectorParameterValue, UMaterialInstanceDynamic
-
+#include "Components/StaticMeshComponent.h"
+#include "Components/BoxComponent.h"
 /*Debug*/
 #include "Engine/GameEngine.h" //AddOnScreenDebugMessage
 #include "Containers/UnrealString.h"
@@ -45,6 +46,11 @@ ABasePlayer::ABasePlayer()
     // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
     FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+    Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
+    Weapon->SetupAttachment(GetMesh(),"weaponShield_r");
+
+    BoxWeapon = CreateDefaultSubobject<UBoxComponent>("BoxWeapon");
+    BoxWeapon->SetupAttachment(Weapon);
     // Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
     // are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
@@ -86,6 +92,19 @@ void ABasePlayer::Charge()
 
 void ABasePlayer::BasicAttack()
 {
+    if(CanAttack)
+    {
+        Attacking = true;
+        CanAttack = false;
+        PlayAnimMontage(SlotAnimationsAttackCombo[BasicAttackComboCount]);
+
+        if (BasicAttackComboCount >= SlotAnimationsAttackCombo.Num() - 1)
+            BasicAttackComboCount = 0;
+        else
+            BasicAttackComboCount++;
+		
+    }
+    
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("BasicAttack Сombo 1"));
 }
@@ -153,4 +172,24 @@ void ABasePlayer::MoveRight(float Value)
         // add movement in that direction
         AddMovementInput(Direction, Value);
     }
+}
+
+void ABasePlayer::ResetCombo()
+{
+    BasicAttackComboCount = 0;
+    CanAttack = true;
+    Attacking = false;
+
+}
+void ABasePlayer::ValidateHit()
+{
+    CanAttack = true;
+}
+
+void ABasePlayer::AttackActiveHitBox(bool isActive)
+{
+    if (isActive)
+        BoxWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    else
+        BoxWeapon->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }

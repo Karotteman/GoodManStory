@@ -12,104 +12,119 @@
 UCLASS()
 class GOODMANSTORY_API ABasePlayer : public ABaseCharacter
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-	/** Camera boom positioning the camera behind the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* CameraBoom;
+    /** Camera boom positioning the camera behind the character */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+    class USpringArmComponent* CameraBoom;
 
-	/** Follow camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* FollowCamera;
+    /** Follow camera */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+    class UCameraComponent* FollowCamera;
 
-	class UMaterialInstanceDynamic* DynMaterial;
+    class UMaterialInstanceDynamic* DynMaterial;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack, meta = (AllowPrivateAccess = "true"))
-	TArray <UAnimMontage*> SlotAnimationsAttackCombo;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+    class UStaticMeshComponent* Weapon;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category =" Weapon", meta = (AllowPrivateAccess = "true"))
+    class UBoxComponent*       BoxWeapon;
 
-	uint8 BasicAttackComboCount = 0;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack, meta = (AllowPrivateAccess = "true"))
+    TArray<UAnimMontage*> SlotAnimationsAttackCombo;
 
-	public:
-	ABasePlayer();
+    uint8 BasicAttackComboCount = 0;
 
-	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-	float BaseTurnRate;
+public:
+    ABasePlayer();
 
-	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-	float BaseLookUpRate;
+    /** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+    float BaseTurnRate;
 
-	protected:
+    /** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+    float BaseLookUpRate;
 
-	/** Called for forwards/backward input */
-	void MoveForward(float Value);
+protected:
 
-	/** Called for side to side input */
-	void MoveRight(float Value);
+    /** Called for forwards/backward input */
+    void MoveForward(float Value);
 
-	/**
-	* Called via input to turn at a given rate.
-	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	*/
-	void TurnAtRate(float Rate);
+    /** Called for side to side input */
+    void MoveRight(float Value);
 
-	/**
-	* Called via input to turn look up/down at a given rate.
-	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	*/
-	void LookUpAtRate(float Rate);
+    /**
+    * Called via input to turn at a given rate.
+    * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
+    */
+    void TurnAtRate(float Rate);
 
-	/**
-	 * @brief Project the enemies give in direction
-	 */
-	UFUNCTION(BlueprintCallable, Category=Character)
+    /**
+    * Called via input to turn look up/down at a given rate.
+    * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
+    */
+    void LookUpAtRate(float Rate);
+
+    /**
+     * @brief Project the enemies give in direction
+     */
+    UFUNCTION(BlueprintCallable, Category=Character)
     void Charge();
 
-	
-	/**
-	 * @brief Basic attack with combo
-	 */
-	UFUNCTION(BlueprintCallable, Category=Character)
+
+    /**
+     * @brief Basic attack with combo
+     */
+    UFUNCTION(BlueprintCallable, Category=Character)
     void BasicAttack();
 
-	/**
-	 * @brief Turning attack with displacement controlled by the player like a router
-	 */
-	UFUNCTION(BlueprintCallable, Category=Character)
+    /**
+     * @brief Turning attack with displacement controlled by the player like a router
+     */
+    UFUNCTION(BlueprintCallable, Category=Character)
     void TourbilolAttack();
 
-	/**
-	* @brief Can only target Human Torches and Shield Bearers :
-	* - Expel Trash Mobs in its path and repel them
-	* - Torches explode when launched
-	* - Priest have an anti magic barrier and are unaffected
-	* - Injury and stun Shields on impact (stun or loss of shield)
-	* - Just do damage to the Boss
-	 */
-	UFUNCTION(BlueprintCallable, Category=Character)
+    /**
+    * @brief Can only target Human Torches and Shield Bearers :
+    * - Expel Trash Mobs in its path and repel them
+    * - Torches explode when launched
+    * - Priest have an anti magic barrier and are unaffected
+    * - Injury and stun Shields on impact (stun or loss of shield)
+    * - Just do damage to the Boss
+     */
+    UFUNCTION(BlueprintCallable, Category=Character)
     void EvilSpellAttack();
 
-	/**
-	* @brief Slow down time and boost the hero. Each enemy hit give life
-	*/
-	UFUNCTION(BlueprintCallable, Category=Character)
+    /**
+    * @brief Slow down time and boost the hero. Each enemy hit give life
+    */
+    UFUNCTION(BlueprintCallable, Category=Character)
     void EvilSpellCapcity();
 
-	/**
-	* @brief Chang the camera's side view shoulder 
-	*/
-	UFUNCTION(BlueprintCallable, Category=Character)
+    /**
+    * @brief Chang the camera's side view shoulder 
+    */
+    UFUNCTION(BlueprintCallable, Category=Character)
     void SwitchCameraMode();
 
-	protected:
-	// APawn interface
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	// End of APawn interface
+protected:
+    // APawn interface
+    virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+    // End of APawn interface
 
-	public:
-	/** Returns CameraBoom subobject **/
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	/** Returns FollowCamera subobject **/
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+    bool Attacking = false;
+    bool CanAttack = true;
+    
+    UFUNCTION(BlueprintCallable, Category = "Attack")
+    void ResetCombo();
+    UFUNCTION(BlueprintCallable, Category = "Attack")
+    void ValidateHit();
+    UFUNCTION(BlueprintCallable, Category = "Attack")
+    void AttackActiveHitBox(bool isActive);
+    
+public:
+    /** Returns CameraBoom subobject **/
+    FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+    /** Returns FollowCamera subobject **/
+    FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 };
