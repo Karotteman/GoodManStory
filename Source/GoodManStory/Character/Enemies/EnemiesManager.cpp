@@ -47,11 +47,13 @@ void AEnemiesManager::Spawn()
             if (!Spawners[IndexSpawn])
                 GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, "uninitialized spawner:" + IndexSpawn);
 
-            FVector RandLocation = FVector{FMath::RandPointInCircle(1000.f), 200.0f};
+            FVector RandLocation = FVector{FMath::RandPointInCircle(2500.f), 200.0f};
             Manager.Add(GetWorld()->SpawnActor<ABaseEnemy>(TrashMob->GeneratedClass,
                                                            Spawners[IndexSpawn]->GetActorLocation() + RandLocation,
                                                            Spawners[IndexSpawn]->GetActorRotation(), SpawnParams));
-            //NumberMinionToSpawnCurr++;
+
+            FVector RandScale = FVector{0.65,0.65,0.65} + FMath::FRandRange(-0.15,0.1);            
+            Manager.Last()->SetActorScale3D(RandScale);
             IndexSpawn++;
             if (IndexSpawn > Spawners.Num() - 1)
                 IndexSpawn = 0;
