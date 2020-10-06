@@ -29,23 +29,24 @@
 
 ABasePlayer::ABasePlayer()
 {
-	// set our turn rates for input
-	BaseTurnRate = 45.f;
-	BaseLookUpRate = 45.f;
+    // set our turn rates for input
+    BaseTurnRate   = 45.f;
+    BaseLookUpRate = 45.f;
 
-	// Create a camera boom (pulls in towards the player if there is a collision)
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 300.0f; // The camera follows at this distance behind the character	
-	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+    // Create a camera boom (pulls in towards the player if there is a collision)
+    CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+    CameraBoom->SetupAttachment(RootComponent);
+    CameraBoom->TargetArmLength         = 300.0f; // The camera follows at this distance behind the character	
+    CameraBoom->bUsePawnControlRotation = true;   // Rotate the arm based on the controller
 
-	// Create a follow camera
-	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+    // Create a follow camera
+    FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+    FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+    // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
+    FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+    // Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
+    // are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -53,76 +54,103 @@ ABasePlayer::ABasePlayer()
 
 void ABasePlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
-	// Set up gameplay key bindings
-	check(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+    check(PlayerInputComponent);
 
-	PlayerInputComponent->BindAxis("MoveForward", this, &ABasePlayer::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ABasePlayer::MoveRight);
+    //Bind keys inputs actions
+    PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+    PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
-	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
-	// "turn" handles devices that provide an absolute delta, such as a mouse.
-	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("TurnRate", this, &ABasePlayer::TurnAtRate);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis("LookUpRate", this, &ABasePlayer::LookUpAtRate);
+    PlayerInputComponent->BindAction("Charge", IE_Pressed, this, &ABasePlayer::Charge);
+    PlayerInputComponent->BindAction("BasicAttack", IE_Pressed, this, &ABasePlayer::BasicAttack);
+    PlayerInputComponent->BindAction("TourbilolAttack", IE_Pressed, this, &ABasePlayer::TourbilolAttack);
+    PlayerInputComponent->BindAction("EvilSpellAttack", IE_Pressed, this, &ABasePlayer::EvilSpellAttack);
+    PlayerInputComponent->BindAction("EvilSpellCapcity", IE_Pressed, this, &ABasePlayer::EvilSpellCapcity);
+    PlayerInputComponent->BindAction("SwitchCameraMode", IE_Pressed, this, &ABasePlayer::SwitchCameraMode);
 
-	// handle touch devices
-	PlayerInputComponent->BindTouch(IE_Pressed, this, &ABasePlayer::TouchStarted);
-	PlayerInputComponent->BindTouch(IE_Released, this, &ABasePlayer::TouchStopped);
+    //Bind axis inputs actions
+    PlayerInputComponent->BindAxis("MoveForward", this, &ABasePlayer::MoveForward);
+    PlayerInputComponent->BindAxis("MoveRight", this, &ABasePlayer::MoveRight);
 
-	//PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &ABasePlayer::Attack);
+    PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+    PlayerInputComponent->BindAxis("TurnRate", this, &ABasePlayer::LookUpAtRate);
+    PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+
+    //PlayerInputComponent->BindAxis("LookUpRate", this, &ABasePlayer::TurnAtRate);
 }
 
-void ABasePlayer::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
+void ABasePlayer::Charge()
 {
-	Jump();
+    if (GEngine)
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Charge"));
 }
 
-void ABasePlayer::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
+void ABasePlayer::BasicAttack()
 {
-	StopJumping();
+    if (GEngine)
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("BasicAttack Сombo 1"));
+}
+
+void ABasePlayer::TourbilolAttack()
+{
+    if (GEngine)
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("TourbilolAttack")); 
+}
+
+void ABasePlayer::EvilSpellAttack()
+{
+    if (GEngine)
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellAttack"));     
+}
+
+void ABasePlayer::EvilSpellCapcity()
+{
+    if (GEngine)
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellCapcity"));   
+}
+
+void ABasePlayer::SwitchCameraMode()
+{
+    if (GEngine)
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("SwitchCameraMode"));   
 }
 
 void ABasePlayer::TurnAtRate(float Rate)
 {
-	// calculate delta for this frame from the rate information
-	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+    // calculate delta for this frame from the rate information
+    AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
 void ABasePlayer::LookUpAtRate(float Rate)
 {
-	// calculate delta for this frame from the rate information
-	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+    // calculate delta for this frame from the rate information
+    AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
 void ABasePlayer::MoveForward(float Value)
 {
-	if ((Controller != NULL) && (Value != 0.0f))
-	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
+    if ((Controller != NULL) && (Value != 0.0f))
+    {
+        // find out which way is forward
+        const FRotator Rotation = Controller->GetControlRotation();
+        const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-		// get forward vector
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
-	}
+        // get forward vector
+        const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+        AddMovementInput(Direction, Value);
+    }
 }
 
 void ABasePlayer::MoveRight(float Value)
 {
-	if ((Controller != NULL) && (Value != 0.0f))
-	{
-		// find out which way is right
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
+    if ((Controller != NULL) && (Value != 0.0f))
+    {
+        // find out which way is right
+        const FRotator Rotation = Controller->GetControlRotation();
+        const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-		// get right vector 
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		// add movement in that direction
-		AddMovementInput(Direction, Value);
-	}
+        // get right vector 
+        const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+        // add movement in that direction
+        AddMovementInput(Direction, Value);
+    }
 }

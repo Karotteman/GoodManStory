@@ -24,6 +24,10 @@ class GOODMANSTORY_API ABasePlayer : public ABaseCharacter
 
 	class UMaterialInstanceDynamic* DynMaterial;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack, meta = (AllowPrivateAccess = "true"))
+	TArray <UAnimMontage*> SlotAnimationsAttackCombo;
+
+	uint8 BasicAttackComboCount = 0;
 
 	public:
 	ABasePlayer();
@@ -56,11 +60,47 @@ class GOODMANSTORY_API ABasePlayer : public ABaseCharacter
 	*/
 	void LookUpAtRate(float Rate);
 
-	/** Handler for when a touch input begins. */
-	void TouchStarted(ETouchIndex::Type FingerIndex, FVector Location);
+	/**
+	 * @brief Project the enemies give in direction
+	 */
+	UFUNCTION(BlueprintCallable, Category=Character)
+    void Charge();
 
-	/** Handler for when a touch input stops. */
-	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
+	
+	/**
+	 * @brief Basic attack with combo
+	 */
+	UFUNCTION(BlueprintCallable, Category=Character)
+    void BasicAttack();
+
+	/**
+	 * @brief Turning attack with displacement controlled by the player like a router
+	 */
+	UFUNCTION(BlueprintCallable, Category=Character)
+    void TourbilolAttack();
+
+	/**
+	* @brief Can only target Human Torches and Shield Bearers :
+	* - Expel Trash Mobs in its path and repel them
+	* - Torches explode when launched
+	* - Priest have an anti magic barrier and are unaffected
+	* - Injury and stun Shields on impact (stun or loss of shield)
+	* - Just do damage to the Boss
+	 */
+	UFUNCTION(BlueprintCallable, Category=Character)
+    void EvilSpellAttack();
+
+	/**
+	* @brief Slow down time and boost the hero. Each enemy hit give life
+	*/
+	UFUNCTION(BlueprintCallable, Category=Character)
+    void EvilSpellCapcity();
+
+	/**
+	* @brief Chang the camera's side view shoulder 
+	*/
+	UFUNCTION(BlueprintCallable, Category=Character)
+    void SwitchCameraMode();
 
 	protected:
 	// APawn interface
