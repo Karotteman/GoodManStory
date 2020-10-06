@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "../BaseCharacter.h"
+#include "Components/TimelineComponent.h"
+
 #include "BasePlayer.generated.h"
 
 /**
@@ -28,6 +30,17 @@ class GOODMANSTORY_API ABasePlayer : public ABaseCharacter
 	TArray <UAnimMontage*> SlotAnimationsAttackCombo;
 
 	uint8 BasicAttackComboCount = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack, meta = (AllowPrivateAccess = "true"))
+    float FCameraSholderOffset = 100.f;
+
+	/** Timeline for the effectprogress*/
+	FTimeline TimeLine;
+	FTimerHandle TimerHandle;
+	FVector StartPosition;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack, meta = (AllowPrivateAccess = "true"))
+	float FPlayRateCameraTransition = 2.f;
 
 	public:
 	ABasePlayer();
@@ -101,6 +114,18 @@ class GOODMANSTORY_API ABasePlayer : public ABaseCharacter
 	*/
 	UFUNCTION(BlueprintCallable, Category=Character)
     void SwitchCameraMode();
+
+	/** Function which gets called from the Timeline on a Tick */
+	UFUNCTION()
+    void SwitchCameraModeProgress(float FValue);
+
+	/** Function which gets called from the Timeline on a Tick */
+	UFUNCTION()
+    void InvertCameraSholder();
+
+	/** Function which gets called from the Timeline on a Tick */
+	UFUNCTION()
+	void TickTimeline();
 
 	protected:
 	// APawn interface

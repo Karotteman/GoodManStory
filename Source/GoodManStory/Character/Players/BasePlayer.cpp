@@ -21,8 +21,12 @@
 #include "Materials/MaterialInstanceDynamic.h" //SetVectorParameterValue, UMaterialInstanceDynamic
 
 /*Debug*/
+#include <string>
+
+#include "Components/TimelineComponent.h"
 #include "Engine/GameEngine.h" //AddOnScreenDebugMessage
 #include "Containers/UnrealString.h"
+#include "UObject/ConstructorHelpers.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AGladiatorUE4Character
@@ -36,6 +40,7 @@ ABasePlayer::ABasePlayer()
     // Create a camera boom (pulls in towards the player if there is a collision)
     CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
     CameraBoom->SetupAttachment(RootComponent);
+    CameraBoom->SocketOffset            = FVector{0.f, FCameraSholderOffset, 0.f};
     CameraBoom->TargetArmLength         = 300.0f; // The camera follows at this distance behind the character	
     CameraBoom->bUsePawnControlRotation = true;   // Rotate the arm based on the controller
 
@@ -47,6 +52,29 @@ ABasePlayer::ABasePlayer()
 
     // Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
     // are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+
+    TimeLine = FTimeline{};
+    FOnTimelineFloat       progressFunction{};
+    FOnTimelineEventStatic finishFunction{};
+
+    progressFunction.BindUFunction(this, "SwitchCameraModeProgress");
+    finishFunction.BindUFunction(this, "InvertCameraSholder");
+
+    const ConstructorHelpers::FObjectFinder<UCurveFloat> Curve(
+        TEXT("CurveFloat'/Game/Assets/Curve/BasicBlendCurve.BasicBlendCurve'"));
+
+    if (Curve.Object)
+    {
+        TimeLine.AddInterpFloat(Curve.Object, progressFunction, FName{TEXT("BlandCamPos")});
+        TimeLine.SetTimelineFinishedFunc(finishFunction);
+        TimeLine.SetPlayRate(FPlayRateCameraTransition);
+        TimeLine.SetTimelineLength(1.f);
+    }
+    else
+    {
+        if (GEngine)
+            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Cannot find curve"));
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -93,25 +121,61 @@ void ABasePlayer::BasicAttack()
 void ABasePlayer::TourbilolAttack()
 {
     if (GEngine)
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("TourbilolAttack")); 
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("TourbilolAttack"));
 }
 
 void ABasePlayer::EvilSpellAttack()
 {
     if (GEngine)
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellAttack"));     
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellAttack"));
 }
 
 void ABasePlayer::EvilSpellCapcity()
 {
     if (GEngine)
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellCapcity"));   
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellCapcity"));
+}
+
+void ABasePlayer::TickTimeline()
+{
+    if (TimeLine.IsPlaying())
+    {
+        TimeLine.TickTimeline(FApp::GetDeltaTime());
+    }
+    else
+    {
+        GetWorldTimerManager().ClearTimer(TimerHandle);
+        SetLifeSpan(0);
+    }
 }
 
 void ABasePlayer::SwitchCameraMode()
 {
+    StartPosition = CameraBoom->SocketOffset;
+
+    if (TimeLine.IsPlaying())
+    {
+        GetWorldTimerManager().ClearTimer(TimerHandle);
+        SetLifeSpan(0);
+        InvertCameraSholder();
+    }
+
+    TimeLine.PlayFromStart();
+
+    GetWorldTimerManager().SetTimer(TimerHandle, this, &ABasePlayer::TickTimeline, FApp::GetDeltaTime(), true, 0.0f);
+
     if (GEngine)
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("SwitchCameraMode"));   
+        GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, TEXT("SwitchCameraMode"));
+}
+
+void ABasePlayer::SwitchCameraModeProgress(float FValue)
+{
+    CameraBoom->SocketOffset = FMath::Lerp(StartPosition, FVector{0.f, -FCameraSholderOffset, 0.f}, FValue);
+}
+
+void ABasePlayer::InvertCameraSholder()
+{
+    FCameraSholderOffset = -FCameraSholderOffset;
 }
 
 void ABasePlayer::TurnAtRate(float Rate)
