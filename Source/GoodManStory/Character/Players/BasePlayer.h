@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "../BaseCharacter.h"
+#include "Components/TimelineComponent.h"
+
 #include "BasePlayer.generated.h"
 
 /**
@@ -16,7 +18,7 @@ class GOODMANSTORY_API ABasePlayer : public ABaseCharacter
 
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* CameraBoom;
+	class UCharacterCameraBoom* CameraBoom;
 
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -40,10 +42,14 @@ class GOODMANSTORY_API ABasePlayer : public ABaseCharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	float BaseLookUpRate;
 
-	protected:
+public:
 
+	UFUNCTION(BlueprintCallable)
+	virtual void Tick(float DeltaTime) override;
+	
+protected:
 	/** Called for forwards/backward input */
-	void MoveForward(float Value);
+	void         MoveForward(float Value);
 
 	/** Called for side to side input */
 	void MoveRight(float Value);
@@ -65,7 +71,6 @@ class GOODMANSTORY_API ABasePlayer : public ABaseCharacter
 	 */
 	UFUNCTION(BlueprintCallable, Category=Character)
     void Charge();
-
 	
 	/**
 	 * @brief Basic attack with combo
@@ -109,7 +114,7 @@ class GOODMANSTORY_API ABasePlayer : public ABaseCharacter
 
 	public:
 	/** Returns CameraBoom subobject **/
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	FORCEINLINE class UCharacterCameraBoom* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 };
