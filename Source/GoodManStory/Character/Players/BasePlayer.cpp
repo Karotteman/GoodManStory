@@ -101,10 +101,19 @@ void ABasePlayer::EvilSpellCapcity()
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellCapcity"));
 }
 
-
 void ABasePlayer::SwitchCameraMode()
 {
-    CameraBoom->InterpolatePosition(FVector::ZeroVector);
+    CameraBoom->InterpolateOffSet(FVector::ZeroVector);
+}
+
+void ABasePlayer::MoveCameraArmLength(float FScale) noexcept
+{
+    CameraBoom->InterpolateArmLength(FScale);
+}
+
+void ABasePlayer::ResetCameraArmLength() noexcept
+{
+    CameraBoom->InterpolateArmLength(1.f);  
 }
 
 void ABasePlayer::TurnAtRate(float Rate)

@@ -107,6 +107,15 @@ protected:
     UFUNCTION(BlueprintCallable, Category=Character)
     void SwitchCameraMode();
 
+    /**
+    * @brief move forward or back ward the camera
+    */
+    UFUNCTION(BlueprintCallable, Category=Character)
+    void MoveCameraArmLength(float FScale) noexcept;
+    
+    UFUNCTION(BlueprintCallable, Category=Character)
+    void ResetCameraArmLength() noexcept;
+
 protected:
     // APawn interface
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

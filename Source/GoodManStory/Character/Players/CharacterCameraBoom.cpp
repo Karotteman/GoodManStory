@@ -11,23 +11,56 @@ UCharacterCameraBoom::UCharacterCameraBoom()
     SocketOffset            = FVector{0.f, FCameraSholderOffset, 0.f};
     TargetArmLength         = 300.0f; // The camera follows at this distance behind the character	
     bUsePawnControlRotation = true;   // Rotate the arm based on the controller
-    
-    TimeLine = FTimeline{};
+
+    InitOffSetInterpolationTimeLine();
+    InitArmLengthInterpolationTimeLine();
+}
+
+void UCharacterCameraBoom::InterpolateOffSet(FVector NewPosition)
+{
+    StartPositionSocketOffSet = SocketOffset;
+    EndPositionSocketOffSet   = NewPosition;
+
+    if (TimeLineSocketOffSet.IsPlaying())
+    {
+        InvertCameraSholder();
+    }
+
+    TimeLineSocketOffSet.PlayFromStart();
+
+
+    if (GEngine)
+        GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, TEXT("InterpolateOffSet"));
+}
+
+void UCharacterCameraBoom::InterpolateArmLength(float FScale)
+{
+    FStartPositionSocketArmLength = TargetArmLength;
+    FEndPositionSocketArmLength   = FBaseArmLength * FScale;
+
+    TimeLineSocketArmLength.PlayFromStart();
+
+    if (GEngine)
+        GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, TEXT("InterpolateArmLength"));
+}
+
+void UCharacterCameraBoom::InitOffSetInterpolationTimeLine() noexcept
+{
+    TimeLineSocketOffSet = FTimeline{};
     FOnTimelineFloat       progressFunction{};
     FOnTimelineEventStatic finishFunction{};
 
-    progressFunction.BindUFunction(this, "SwitchCameraModeProgress");
+    progressFunction.BindUFunction(this, "InterpolateOffSetProgress");
     finishFunction.BindUFunction(this, "InvertCameraSholder");
 
-    if (!Curve)
+    if (!CurveSocketOffSet)
     {
         const ConstructorHelpers::FObjectFinder<UCurveFloat> DefaultCurve(
             TEXT("CurveFloat'/Game/Assets/Curve/BasicBlendCurve.BasicBlendCurve'"));
-        
+
         if (DefaultCurve.Object)
         {
-            TimeLine.AddInterpFloat(DefaultCurve.Object, progressFunction, FName{TEXT("BlendCamPos")});
-
+            TimeLineSocketOffSet.AddInterpFloat(DefaultCurve.Object, progressFunction, FName{TEXT("BlendCamPos")});
         }
         else
         {
@@ -37,44 +70,77 @@ UCharacterCameraBoom::UCharacterCameraBoom()
     }
     else
     {
-        TimeLine.AddInterpFloat(Curve, progressFunction, FName{TEXT("BlendCamPos")});
+        TimeLineSocketOffSet.AddInterpFloat(CurveSocketOffSet, progressFunction, FName{TEXT("BlendCamPos")});
     }
 
-    TimeLine.SetTimelineFinishedFunc(finishFunction);
-    TimeLine.SetPlayRate(FPlayRateCameraTransition);
-    TimeLine.SetTimelineLength(1.f);
+    TimeLineSocketOffSet.SetTimelineFinishedFunc(finishFunction);
+    TimeLineSocketOffSet.SetPlayRate(FPlayRateSocketOffSetInterpolation);
+    TimeLineSocketOffSet.SetTimelineLength(1.f);
 }
 
-void UCharacterCameraBoom::InterpolatePosition(FVector NewPosition)
+void UCharacterCameraBoom::InitArmLengthInterpolationTimeLine() noexcept
 {
-    StartPosition   = SocketOffset;
-    EndPosition     = NewPosition;
+    TimeLineSocketArmLength = FTimeline{};
+    FOnTimelineFloat progressFunction{};
 
-    if (TimeLine.IsPlaying())
+    progressFunction.BindUFunction(this, "InterpolateArmLengthProgress");
+
+    if (!CurveSocketArmLength)
     {
-        InvertCameraSholder();
+        const ConstructorHelpers::FObjectFinder<UCurveFloat> DefaultCurve(
+            TEXT("CurveFloat'/Game/Assets/Curve/BasicBlendCurve.BasicBlendCurve'"));
+
+        if (DefaultCurve.Object)
+        {
+            TimeLineSocketArmLength.AddInterpFloat(DefaultCurve.Object, progressFunction, FName{TEXT("BlendCamPos")});
+        }
+        else
+        {
+            if (GEngine)
+                GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Cannot find curve"));
+        }
     }
-    
-    TimeLine.PlayFromStart();
-    
+    else
+    {
+        TimeLineSocketArmLength.AddInterpFloat(CurveSocketArmLength, progressFunction, FName{TEXT("BlendCamPos")});
+    }
+
+    TimeLineSocketArmLength.SetPlayRate(FPlayRateSocketArmLengthInterpolation);
+    TimeLineSocketArmLength.SetTimelineLength(1.f);
+    FBaseArmLength = TargetArmLength;
+
     if (GEngine)
-        GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, TEXT("SwitchCameraMode"));
+    {
+        //Print debug message
+        GEngine->AddOnScreenDebugMessage(-10, 1.f, FColor::Yellow, FString::Printf(TEXT("Rotation: %f - %f"), 
+        FBaseArmLength, TargetArmLength));
+    }
 }
 
 void UCharacterCameraBoom::Update(float FDeltaTime)
 {
-    if (TimeLine.IsPlaying())
+    if (TimeLineSocketOffSet.IsPlaying())
     {
-        TimeLine.TickTimeline(FDeltaTime);
+        TimeLineSocketOffSet.TickTimeline(FDeltaTime);
+    }
+
+    if (TimeLineSocketArmLength.IsPlaying())
+    {
+        TimeLineSocketArmLength.TickTimeline(FDeltaTime);
     }
 }
-    
-void UCharacterCameraBoom::SwitchCameraModeProgress(float FValue)
+
+void UCharacterCameraBoom::InterpolateOffSetProgress(float FValue)
 {
     //TODO: Can be replace by end position
-    SocketOffset = FMath::Lerp(StartPosition, FVector{0.f, -FCameraSholderOffset, 0.f}, FValue);
+    SocketOffset = FMath::Lerp(StartPositionSocketOffSet, FVector{0.f, -FCameraSholderOffset, 0.f}, FValue);
 }
-    
+
+void UCharacterCameraBoom::InterpolateArmLengthProgress(float FValue)
+{
+    TargetArmLength = FMath::Lerp(FStartPositionSocketArmLength, FEndPositionSocketArmLength, FValue);
+}
+
 void UCharacterCameraBoom::InvertCameraSholder()
 {
     FCameraSholderOffset = -FCameraSholderOffset;
