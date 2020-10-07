@@ -47,10 +47,12 @@ ABasePlayer::ABasePlayer()
     FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
     Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
-    Weapon->SetupAttachment(GetMesh(),"weaponShield_r");
+    Weapon->SetupAttachment(GetMesh(), "weaponShield_l");
 
     BoxWeapon = CreateDefaultSubobject<UBoxComponent>("BoxWeapon");
     BoxWeapon->SetupAttachment(Weapon);
+    BoxWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
     // Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
     // are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
@@ -92,45 +94,45 @@ void ABasePlayer::Charge()
 
 void ABasePlayer::BasicAttack()
 {
-    if(CanAttack)
+    if (bCanAttack)
     {
-        Attacking = true;
-        CanAttack = false;
+        bAttacking = true;
+        bCanAttack = false;
         PlayAnimMontage(SlotAnimationsAttackCombo[BasicAttackComboCount]);
 
         if (BasicAttackComboCount >= SlotAnimationsAttackCombo.Num() - 1)
             BasicAttackComboCount = 0;
         else
             BasicAttackComboCount++;
-		
     }
-    
+
     if (GEngine)
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("BasicAttack Сombo 1"));
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
+                                         "BasicAttack combo:" + FString::FromInt(BasicAttackComboCount));
 }
 
 void ABasePlayer::TourbilolAttack()
 {
     if (GEngine)
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("TourbilolAttack")); 
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("TourbilolAttack"));
 }
 
 void ABasePlayer::EvilSpellAttack()
 {
     if (GEngine)
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellAttack"));     
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellAttack"));
 }
 
 void ABasePlayer::EvilSpellCapcity()
 {
     if (GEngine)
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellCapcity"));   
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellCapcity"));
 }
 
 void ABasePlayer::SwitchCameraMode()
 {
     if (GEngine)
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("SwitchCameraMode"));   
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("SwitchCameraMode"));
 }
 
 void ABasePlayer::TurnAtRate(float Rate)
@@ -177,13 +179,13 @@ void ABasePlayer::MoveRight(float Value)
 void ABasePlayer::ResetCombo()
 {
     BasicAttackComboCount = 0;
-    CanAttack = true;
-    Attacking = false;
-
+    bCanAttack             = false;
+    bAttacking             = false;
 }
-void ABasePlayer::ValidateHit()
+
+void ABasePlayer::SetCanAttack(bool canAttack)
 {
-    CanAttack = true;
+    bCanAttack = canAttack;
 }
 
 void ABasePlayer::AttackActiveHitBox(bool isActive)

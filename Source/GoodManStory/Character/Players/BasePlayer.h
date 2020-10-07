@@ -112,13 +112,13 @@ protected:
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
     // End of APawn interface
 
-    bool Attacking = false;
-    bool CanAttack = true;
+    bool bAttacking = false;
+    bool bCanAttack = true;
     
     UFUNCTION(BlueprintCallable, Category = "Attack")
     void ResetCombo();
     UFUNCTION(BlueprintCallable, Category = "Attack")
-    void ValidateHit();
+    void SetCanAttack(bool canAttack);
     UFUNCTION(BlueprintCallable, Category = "Attack")
     void AttackActiveHitBox(bool isActive);
     
