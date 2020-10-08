@@ -52,18 +52,14 @@ void AEnemiesManager::Spawn()
                                                            Spawners[IndexSpawn]->GetActorLocation() + RandLocation,
                                                            Spawners[IndexSpawn]->GetActorRotation(), SpawnParams));
 
-            FVector RandScale = FVector{0.65,0.65,0.65} + FMath::FRandRange(-0.15,0.1);            
+            FVector RandScale = FVector{0.60,0.60,0.60} + FMath::FRandRange(-0.1,0.1);            
             Manager.Last()->SetActorScale3D(RandScale);
             IndexSpawn++;
             if (IndexSpawn > Spawners.Num() - 1)
                 IndexSpawn = 0;
 
             if (i == NumberMinionToSpawn)
-            {
                 Spawning = false;
-                //NumberMinionToSpawnCurr = 0;
-                //GetWorldTimerManager().ClearTimer(TimerActuMinionSpawn);
-            }
         }
     }
 }

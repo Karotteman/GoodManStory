@@ -12,6 +12,11 @@
 UCLASS()
 class GOODMANSTORY_API ABaseEnemy : public ABaseCharacter
 {
-	GENERATED_BODY()
-	
+    GENERATED_BODY()
+public:
+    ABaseEnemy();
+    virtual void Dead() override;
+
+protected:
+    
 };

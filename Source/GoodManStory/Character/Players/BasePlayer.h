@@ -149,6 +149,10 @@ protected:
     UFUNCTION(BlueprintCallable, Category = "Attack")
     void AttackActiveHitBox(bool isActive);
 
+    UFUNCTION()
+    void OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+        int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+    
 public:
     /** Returns CameraBoom subobject **/
     FORCEINLINE class UCharacterCameraBoom* GetCameraBoom() const { return CameraBoom; }
@@ -170,4 +174,6 @@ public:
         
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE uint8 GetPlayerLevel() const noexcept { return Level; }
+
+    virtual void Dead() override;
 };

@@ -18,6 +18,10 @@
 #include "Components/BoxComponent.h"
 #include "CharacterCameraBoom.h"
 #include "Engine/Engine.h"
+#include "../Enemies/BaseEnemy.h"
+/*Debug*/
+#include "Engine/GameEngine.h" //AddOnScreenDebugMessage
+#include "Containers/UnrealString.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AGladiatorUE4Character
@@ -27,12 +31,14 @@ ABasePlayer::ABasePlayer()
     bAllowTickBeforeBeginPlay = false;
     
     // set our turn rates for input
-    BaseTurnRate   = 45.f;
+    BaseTurnRate = 45.f;
     BaseLookUpRate = 45.f;
 
     // Create a camera boom (pulls in towards the player if there is a collision)
     CameraBoom = CreateDefaultSubobject<UCharacterCameraBoom>(TEXT("CameraBoom"));
     CameraBoom->SetupAttachment(RootComponent);
+    CameraBoom->TargetArmLength = 300.0f; // The camera follows at this distance behind the character	
+    CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
     // Create a follow camera
     FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
@@ -46,7 +52,7 @@ ABasePlayer::ABasePlayer()
     BoxWeapon = CreateDefaultSubobject<UBoxComponent>("BoxWeapon");
     BoxWeapon->SetupAttachment(Weapon);
     BoxWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
+    BoxWeapon->OnComponentBeginOverlap.AddDynamic(this, &ABasePlayer::OnWeaponBeginOverlap);
     // Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
     // are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
@@ -187,8 +193,8 @@ void ABasePlayer::MoveRight(float Value)
 void ABasePlayer::ResetCombo()
 {
     BasicAttackComboCount = 0;
-    bCanAttack             = false;
-    bAttacking             = false;
+    bCanAttack = false;
+    bAttacking = false;
 }
 
 void ABasePlayer::SetCanAttack(bool canAttack)
@@ -226,4 +232,22 @@ void ABasePlayer::LevelUp() noexcept
     {
         Level ++;
     }
+}
+
+void ABasePlayer::OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+                                       UPrimitiveComponent* OtherComp,
+                                       int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+    GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, OtherActor->GetName());
+
+    if (OtherComp->ComponentHasTag("Body"))
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, OtherActor->GetName());
+        ABaseEnemy* enemy = Cast<ABaseEnemy>(OtherActor);
+        enemy->Dead();
+    }
+}
+
+void ABasePlayer::Dead()
+{
 }

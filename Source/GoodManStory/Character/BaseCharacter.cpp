@@ -48,3 +48,8 @@ void ABaseCharacter::TakeLife(float AdditionnalLife) noexcept
 		Life += AdditionnalLife;
 	}
 }
+
+
+void ABaseCharacter::Dead()
+{
+}
