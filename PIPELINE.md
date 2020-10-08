@@ -5,6 +5,10 @@
     - ANDRIEUX Théophile (Porte-parole)
     - RICHER Baptiste
     - TRINQUET Roséanne
+    
+- Lead GP : 
+    - ROUFFET Maxime
+    
 - GP:
     - SIX Jonathan
     - FRANCILLONNE Tristan (Porte-parole)
