@@ -195,3 +195,20 @@ void ABasePlayer::AttackActiveHitBox(bool isActive)
     else
         BoxWeapon->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
+
+void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
+{
+	if (Rage + AdditionnalRage > MaxRage)
+	{
+		Rage = MaxRage;
+	}
+	else
+	{
+		Rage += AdditionnalRage;
+	}
+}
+
+void ABasePlayer::LevelUp() noexcept
+{
+    Level++;
+}

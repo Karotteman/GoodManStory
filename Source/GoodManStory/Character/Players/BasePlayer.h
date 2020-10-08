@@ -24,15 +24,25 @@ class GOODMANSTORY_API ABasePlayer : public ABaseCharacter
 
     class UMaterialInstanceDynamic* DynMaterial;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
     class UStaticMeshComponent* Weapon;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category =" Weapon", meta = (AllowPrivateAccess = "true"))
-    class UBoxComponent*       BoxWeapon;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
+    class UBoxComponent* BoxWeapon;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack, meta = (AllowPrivateAccess = "true"))
     TArray<UAnimMontage*> SlotAnimationsAttackCombo;
 
     uint8 BasicAttackComboCount = 0;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stats, meta = (AllowPrivateAccess = "true"))
+    float Rage = 0.f;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stats, meta = (AllowPrivateAccess = "true"))
+    float MaxRage = 1000.f;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stats, meta = (AllowPrivateAccess = "true"))
+    uint8 Level = 0;
 
 public:
     ABasePlayer();
@@ -70,7 +80,6 @@ protected:
      */
     UFUNCTION(BlueprintCallable, Category=Character)
     void Charge();
-
 
     /**
      * @brief Basic attack with combo
@@ -114,17 +123,33 @@ protected:
 
     bool bAttacking = false;
     bool bCanAttack = true;
-    
+
     UFUNCTION(BlueprintCallable, Category = "Attack")
     void ResetCombo();
     UFUNCTION(BlueprintCallable, Category = "Attack")
     void SetCanAttack(bool canAttack);
     UFUNCTION(BlueprintCallable, Category = "Attack")
     void AttackActiveHitBox(bool isActive);
-    
+
 public:
     /** Returns CameraBoom subobject **/
     FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+    
     /** Returns FollowCamera subobject **/
     FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void TakeRage(float AdditionnalRage) noexcept;
+    
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    FORCEINLINE float GetRage() const noexcept { return Rage; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    FORCEINLINE float GetRageRatio() const noexcept { return MaxRage / Rage; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void LevelUp() noexcept;
+        
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    FORCEINLINE uint8 GetPlayerLevel() const noexcept { return Level; }
 };
