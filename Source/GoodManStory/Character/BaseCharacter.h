@@ -19,13 +19,13 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	UPROPERTY(Category = "Stats",VisibleAnywhere, blueprintReadWrite)
-	int Life = 100;
+	float Life = 100.f;
 
 	UPROPERTY(Category = "Stats", EditAnywhere, BlueprintReadOnly)
-	int LifeMax = 100;
+	float LifeMax = 100.f;
 
 	UPROPERTY(Category = "Stats", EditAnywhere, blueprintReadWrite)
-	int Damage = 20;
+	float Damage = 20.f;
 
 	UPROPERTY(Category = "Settings", EditAnywhere, blueprintReadWrite)
 	bool IsDead = false;
@@ -41,7 +41,7 @@ public:
 	* @return 
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Life")
-    void TakeDammage(uint8 dammage) noexcept;
+    void TakeDammage(float Dammage) noexcept;
 
 	/**
 	* @brief Function to heal the player
@@ -49,17 +49,17 @@ public:
 	* @return
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Life")
-    void TakeLife(uint8 additionnalLife) noexcept;
+    void TakeLife(float AdditionnalLife) noexcept;
 
 	/**
 	* @brief return the life of the player
 	* @return 
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Life")
-    FORCEINLINE uint8 GetLife() const noexcept { return Life; }
+    FORCEINLINE float GetLife() const noexcept { return Life; }
 
 	
 	UFUNCTION(BlueprintCallable, Category = "Life")
-    FORCEINLINE float GetLifeRatio() const noexcept { return Life / (float)LifeMax; }
+    FORCEINLINE float GetLifeRatio() const noexcept { return Life / LifeMax; }
 
 };
