@@ -15,7 +15,7 @@ class GOODMANSTORY_API ABaseEnemy : public ABaseCharacter
     GENERATED_BODY()
 public:
     ABaseEnemy();
-    virtual void Dead() override;
+    virtual void Kill() override;
 
 protected:
     

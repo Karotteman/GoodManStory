@@ -45,7 +45,7 @@ public:
     void TakeDammage(float Dammage) noexcept;
 
 	UFUNCTION(BlueprintCallable, Category = "Kill")
-	virtual void Dead();
+	virtual void Kill();
 
 	/**
 	* @brief Function to heal the player

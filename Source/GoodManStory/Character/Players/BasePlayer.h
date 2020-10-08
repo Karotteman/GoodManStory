@@ -175,5 +175,5 @@ public:
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE uint8 GetPlayerLevel() const noexcept { return Level; }
 
-    virtual void Dead() override;
+    virtual void Kill() override;
 };

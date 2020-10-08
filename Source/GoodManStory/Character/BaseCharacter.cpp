@@ -50,6 +50,7 @@ void ABaseCharacter::TakeLife(float AdditionnalLife) noexcept
 }
 
 
-void ABaseCharacter::Dead()
+void ABaseCharacter::Kill()
 {
+	IsDead = true;
 }

@@ -244,10 +244,10 @@ void ABasePlayer::OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
     {
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, OtherActor->GetName());
         ABaseEnemy* enemy = Cast<ABaseEnemy>(OtherActor);
-        enemy->Dead();
+        enemy->Kill();
     }
 }
 
-void ABasePlayer::Dead()
+void ABasePlayer::Kill()
 {
 }
