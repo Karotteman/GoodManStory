@@ -18,11 +18,12 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	UPROPERTY(Category = Stats,VisibleAnywhere, blueprintReadWrite)
-	float Life = 100.f;
-
+	
 	UPROPERTY(Category = Stats, EditAnywhere, BlueprintReadOnly)
 	float LifeMax = 100.f;
+	
+	UPROPERTY(Category = Stats,VisibleAnywhere, blueprintReadWrite)
+	float Life = LifeMax;
 
 	UPROPERTY(Category = Stats, EditAnywhere, blueprintReadWrite)
 	float Damage = 20.f;

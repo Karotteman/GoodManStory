@@ -7,42 +7,36 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Camera/CameraComponent.h"
-#include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "TimerManager.h" // FTimerManager::SetTimer
-#include "GameFramework/CharacterMovementComponent.h" //UCharacterMovementComponent::SetMovementMode
 #include "Components/SkeletalMeshComponent.h" //USkeletalMeshComponent
 #include "Components/PrimitiveComponent.h" //OnComponentOverlap
 #include "Engine/EngineTypes.h" //FHitResult
-#include "Materials/Material.h"//SetMaterial, GetMaterial
-#include "Materials/MaterialInstanceDynamic.h" //SetVectorParameterValue, UMaterialInstanceDynamic
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
-/*Debug*/
-#include "Engine/GameEngine.h" //AddOnScreenDebugMessage
-#include "Containers/UnrealString.h"
+#include "CharacterCameraBoom.h"
+#include "Engine/Engine.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AGladiatorUE4Character
 
 ABasePlayer::ABasePlayer()
 {
+    bAllowTickBeforeBeginPlay = false;
+    
     // set our turn rates for input
     BaseTurnRate   = 45.f;
     BaseLookUpRate = 45.f;
 
     // Create a camera boom (pulls in towards the player if there is a collision)
-    CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+    CameraBoom = CreateDefaultSubobject<UCharacterCameraBoom>(TEXT("CameraBoom"));
     CameraBoom->SetupAttachment(RootComponent);
-    CameraBoom->TargetArmLength         = 300.0f; // The camera follows at this distance behind the character	
-    CameraBoom->bUsePawnControlRotation = true;   // Rotate the arm based on the controller
 
     // Create a follow camera
     FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-    FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+    FollowCamera->SetupAttachment(CameraBoom, UCharacterCameraBoom::SocketName);
     // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
     FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
@@ -131,8 +125,17 @@ void ABasePlayer::EvilSpellCapcity()
 
 void ABasePlayer::SwitchCameraMode()
 {
-    if (GEngine)
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("SwitchCameraMode"));
+    CameraBoom->InterpolateOffSet(FVector::ZeroVector);
+}
+
+void ABasePlayer::MoveCameraArmLength(float FScale) noexcept
+{
+    CameraBoom->InterpolateArmLength(FScale);
+}
+
+void ABasePlayer::ResetCameraArmLength() noexcept
+{
+    CameraBoom->InterpolateArmLength(1.f);  
 }
 
 void ABasePlayer::TurnAtRate(float Rate)
@@ -145,6 +148,11 @@ void ABasePlayer::LookUpAtRate(float Rate)
 {
     // calculate delta for this frame from the rate information
     AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void ABasePlayer::Tick(float DeltaTime)
+{
+    CameraBoom->Update(DeltaTime);
 }
 
 void ABasePlayer::MoveForward(float Value)
@@ -210,5 +218,12 @@ void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
 
 void ABasePlayer::LevelUp() noexcept
 {
-    Level++;
+    if (Level + 1 > MaxLevel)
+    {
+        Rage = MaxLevel;
+    }
+    else
+    {
+        Level ++;
+    }
 }

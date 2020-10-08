@@ -16,7 +16,7 @@ class GOODMANSTORY_API ABasePlayer : public ABaseCharacter
 
     /** Camera boom positioning the camera behind the character */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-    class USpringArmComponent* CameraBoom;
+    class UCharacterCameraBoom* CameraBoom;
 
     /** Follow camera */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -35,14 +35,20 @@ class GOODMANSTORY_API ABasePlayer : public ABaseCharacter
 
     uint8 BasicAttackComboCount = 0;
 
+    UPROPERTY(Category = Stats, EditAnywhere)
+    float MaxRage = 1000.f;
+    
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stats, meta = (AllowPrivateAccess = "true"))
     float Rage = 0.f;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stats, meta = (AllowPrivateAccess = "true"))
-    float MaxRage = 1000.f;
-
+    UPROPERTY(Category = Stats, EditAnywhere)
+    uint8 MaxLevel = 3;
+    
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stats, meta = (AllowPrivateAccess = "true"))
     uint8 Level = 0;
+
+    bool bAttacking = false;
+    bool bCanAttack = true;
 
 public:
     ABasePlayer();
@@ -55,8 +61,12 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
     float BaseLookUpRate;
 
-protected:
+public:
 
+    UFUNCTION(BlueprintCallable)
+    virtual void Tick(float DeltaTime) override;
+
+protected:
     /** Called for forwards/backward input */
     void MoveForward(float Value);
 
@@ -116,24 +126,32 @@ protected:
     UFUNCTION(BlueprintCallable, Category=Character)
     void SwitchCameraMode();
 
+    /**
+    * @brief move forward or back ward the camera
+    */
+    UFUNCTION(BlueprintCallable, Category=Character)
+    void MoveCameraArmLength(float FScale) noexcept;
+    
+    UFUNCTION(BlueprintCallable, Category=Character)
+    void ResetCameraArmLength() noexcept;
+
 protected:
     // APawn interface
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
     // End of APawn interface
 
-    bool bAttacking = false;
-    bool bCanAttack = true;
-
     UFUNCTION(BlueprintCallable, Category = "Attack")
     void ResetCombo();
+
     UFUNCTION(BlueprintCallable, Category = "Attack")
     void SetCanAttack(bool canAttack);
+
     UFUNCTION(BlueprintCallable, Category = "Attack")
     void AttackActiveHitBox(bool isActive);
 
 public:
     /** Returns CameraBoom subobject **/
-    FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+    FORCEINLINE class UCharacterCameraBoom* GetCameraBoom() const { return CameraBoom; }
     
     /** Returns FollowCamera subobject **/
     FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
