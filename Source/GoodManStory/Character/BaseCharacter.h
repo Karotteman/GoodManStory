@@ -29,7 +29,7 @@ protected:
 	float Damage = 20.f;
 
 	UPROPERTY(Category = Settings, EditAnywhere, blueprintReadWrite)
-	bool IsDead = false;
+	bool bIsDead = false;
 
 
 public:	
@@ -65,5 +65,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Life")
     FORCEINLINE float GetLifeRatio() const noexcept { return Life / LifeMax; }
+
+	UFUNCTION(BlueprintCallable, Category = "Life")
+	FORCEINLINE bool IsDead() const noexcept { return bIsDead; }
 
 };

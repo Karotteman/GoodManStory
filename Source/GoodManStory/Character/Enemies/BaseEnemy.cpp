@@ -7,13 +7,16 @@
 #include "BrainComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "DesktopPlatform/Private/Windows/WindowsNativeFeedbackContext.h"
+#include "Engine/Channel.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Physics/PhysicsFiltering.h"
 
 #define COLLISION_CHANNEL_PLAYER ECC_GameTraceChannel1
 
 ABaseEnemy::ABaseEnemy()
 {
-    
+    GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 }
 
 void ABaseEnemy::Kill()
@@ -28,4 +31,6 @@ void ABaseEnemy::Kill()
     GetCapsuleComponent()->SetCollisionProfileName("NoCollision");
     
     Cast<AAIController>(GetController())->BrainComponent->StopLogic(TEXT("dead"));
+
+    GetCharacterMovement()->SetAvoidanceEnabled(false);
 }

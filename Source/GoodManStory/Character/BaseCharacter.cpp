@@ -8,14 +8,14 @@ ABaseCharacter::ABaseCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
 // Called when the game starts or when spawned
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	Life = LifeMax;
 }
 
 // Called every frame
@@ -29,7 +29,8 @@ void ABaseCharacter::TakeDammage(float Dammage) noexcept
 {	
 	if (Life - Dammage <= 0.f)
 	{
-		/*Kill*/
+		Life = 0.f;
+		Kill();
 	}
 	else
 	{
@@ -52,5 +53,5 @@ void ABaseCharacter::TakeLife(float AdditionnalLife) noexcept
 
 void ABaseCharacter::Kill()
 {
-	IsDead = true;
+	bIsDead = true;
 }

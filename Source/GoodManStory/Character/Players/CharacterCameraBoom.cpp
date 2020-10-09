@@ -108,13 +108,6 @@ void UCharacterCameraBoom::InitArmLengthInterpolationTimeLine() noexcept
     TimeLineSocketArmLength.SetPlayRate(FPlayRateSocketArmLengthInterpolation);
     TimeLineSocketArmLength.SetTimelineLength(1.f);
     FBaseArmLength = TargetArmLength;
-
-    if (GEngine)
-    {
-        //Print debug message
-        GEngine->AddOnScreenDebugMessage(-10, 1.f, FColor::Yellow, FString::Printf(TEXT("Rotation: %f - %f"), 
-        FBaseArmLength, TargetArmLength));
-    }
 }
 
 void UCharacterCameraBoom::Update(float FDeltaTime)

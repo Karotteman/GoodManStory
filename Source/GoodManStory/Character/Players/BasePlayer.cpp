@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "BasePlayer.h"
 
 
@@ -20,8 +19,11 @@
 #include "Engine/Engine.h"
 #include "../Enemies/BaseEnemy.h"
 /*Debug*/
-#include "Engine/GameEngine.h" //AddOnScreenDebugMessage
 #include "Containers/UnrealString.h"
+
+#include "Components/CapsuleComponent.h"
+
+#define COLLISION_CHANNEL_PLAYER ECC_GameTraceChannel1
 
 //////////////////////////////////////////////////////////////////////////
 // AGladiatorUE4Character
@@ -46,13 +48,28 @@ ABasePlayer::ABasePlayer()
     // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
     FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+    GetMesh()->SetRelativeLocation({0.f, 0.f, -80.f});
+    GetMesh()->SetRelativeRotation({0.f, 0.f, -90.f});
+    
+    GetCapsuleComponent()->SetCollisionObjectType(COLLISION_CHANNEL_PLAYER);
+    
     Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
     Weapon->SetupAttachment(GetMesh(), "weaponShield_l");
-
+    Weapon->SetRelativeScale3D({1.5f, 1.5f, 1.f});
+    Weapon->SetRelativeRotation({0.f, 0.f, 20.f});
+    Weapon->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    Weapon->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Ignore);
+    Weapon->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+    
     BoxWeapon = CreateDefaultSubobject<UBoxComponent>("BoxWeapon");
     BoxWeapon->SetupAttachment(Weapon);
     BoxWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     BoxWeapon->OnComponentBeginOverlap.AddDynamic(this, &ABasePlayer::OnWeaponBeginOverlap);
+    BoxWeapon->SetCollisionObjectType(COLLISION_CHANNEL_PLAYER);
+    BoxWeapon->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Ignore);
+    BoxWeapon->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+    BoxWeapon->SetRelativeLocation({0.f, 70.f, 0.f});
+    BoxWeapon->SetRelativeScale3D({1.f, 0.8f, 0.5f});
     // Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
     // are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
@@ -207,7 +224,7 @@ void ABasePlayer::AttackActiveHitBox(bool isActive)
     if (isActive)
         BoxWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     else
-        BoxWeapon->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+        BoxWeapon->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 
 void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
@@ -238,16 +255,19 @@ void ABasePlayer::OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
                                        UPrimitiveComponent* OtherComp,
                                        int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, OtherActor->GetName());
-
     if (OtherComp->ComponentHasTag("Body"))
     {
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, OtherActor->GetName());
         ABaseEnemy* enemy = Cast<ABaseEnemy>(OtherActor);
-        enemy->Kill();
+        enemy->TakeDammage(Dammage);
+
+        if (enemy->IsDead())
+        {
+            TakeRage(enemy->GetRageRewardOnKill());
+        }
     }
 }
 
 void ABasePlayer::Kill()
 {
+    Super::Kill();
 }

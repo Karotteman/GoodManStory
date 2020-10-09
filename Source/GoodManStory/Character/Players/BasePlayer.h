@@ -35,6 +35,9 @@ class GOODMANSTORY_API ABasePlayer : public ABaseCharacter
 
     uint8 BasicAttackComboCount = 0;
 
+    UPROPERTY(Category = Weapon, EditAnywhere)
+    float Dammage = 20.f;
+    
     UPROPERTY(Category = Stats, EditAnywhere)
     float MaxRage = 1000.f;
     
@@ -167,7 +170,7 @@ public:
     FORCEINLINE float GetRage() const noexcept { return Rage; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
-    FORCEINLINE float GetRageRatio() const noexcept { return MaxRage / Rage; }
+    FORCEINLINE float GetRageRatio() const noexcept { return Rage / MaxRage; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     void LevelUp() noexcept;
