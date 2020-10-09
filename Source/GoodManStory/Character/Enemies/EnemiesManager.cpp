@@ -10,19 +10,27 @@
 #include "Math/UnrealMathUtility.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "UObject/ConstructorHelpers.h"
 
 // Sets default values
 AEnemiesManager::AEnemiesManager()
 {
     // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-    PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.bCanEverTick = false;
+
+    /*
+    static ConstructorHelpers::FClassFinder<APawn> PawnBPClass(TEXT("Blueprint'/Game/Blueprint/Character/Enemies/TrashMob/TrashMob.TrashMob'"));
+    if (PawnBPClass.Class != NULL)
+    {
+        TrashMob = PawnBPClass.Class;
+    }*/
 }
 
 // Called when the game starts or when spawned
 void AEnemiesManager::BeginPlay()
 {
     Super::BeginPlay();
-    //GetWorldTimerManager().SetTimer(TimerActuMinionSpawn, this, &AEnemiesManager::Spawn, 0.5, true, 1.0f);
+
     if (TrashMob)
     {
         SpawnParams.Owner                          = this;
@@ -40,6 +48,13 @@ void AEnemiesManager::Spawn()
 {
     if (Spawning)
     {
+      
+    if (!TrashMob)
+                  {
+                      GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("CANT FIND OBJECT TO SPAWN")));
+                      return;
+                  }  
+  
         GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, FString::FromInt(NumberMinionToSpawn));
 
         for (int i = 0; i < NumberMinionToSpawn; i++)
@@ -48,7 +63,7 @@ void AEnemiesManager::Spawn()
                 GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, "uninitialized spawner:" + IndexSpawn);
 
             FVector RandLocation = FVector{FMath::RandPointInCircle(2500.f), 200.0f};
-            Manager.Add(GetWorld()->SpawnActor<ABaseEnemy>(TrashMob->GeneratedClass,
+            Manager.Add(GetWorld()->SpawnActor<ABaseEnemy>(TrashMob.Get(),
                                                            Spawners[IndexSpawn]->GetActorLocation() + RandLocation,
                                                            Spawners[IndexSpawn]->GetActorRotation(), SpawnParams));
 

@@ -20,14 +20,16 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ObjectSpawn")
-	class UBlueprint* TrashMob;
+	TSubclassOf<class ABaseEnemy> TrashMob = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Manager")
 	TArray<class ABaseEnemy*> Manager;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpawnSettings")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "SpawnSettings")
 	int NumberMinionToSpawn = 0;
+	
 	int NumberMinionToSpawnCurr = 0;
 	int IndexSpawn = 0;
 	
