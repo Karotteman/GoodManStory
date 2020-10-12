@@ -7,6 +7,7 @@
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "BaseEnemy.h"
+#include "GoodManStory/Wave/WaveInfo.h"
 #include "Math/UnrealMathUtility.h"
 
 #include "Kismet/GameplayStatics.h"
@@ -18,6 +19,25 @@ AEnemiesManager::AEnemiesManager()
     // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = false;
 
+    static ConstructorHelpers::FObjectFinder<UDataTable> WaveDataTableObject(TEXT("DataTable'/Game/Assets/LevelDesign/WaveSetting/WaveDataTable.WaveDataTable'"));
+
+    if (WaveDataTableObject.Succeeded())
+    {
+        WaveDataTable = WaveDataTableObject.Object;
+        
+        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red,TEXT("OK"));
+        
+        FWaveInfo* Entry = reinterpret_cast<FWaveInfo*>(WaveDataTable->GetRowMap().begin().Value());
+
+        if (Entry)
+            GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red,FString::Printf(TEXT("%d"), Entry->Zone));
+    }
+    else
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("CANT FIND WAVE DATA TABLE")));
+        return;
+    }
+    
     /*
     static ConstructorHelpers::FClassFinder<APawn> PawnBPClass(TEXT("Blueprint'/Game/Blueprint/Character/Enemies/TrashMob/TrashMob.TrashMob'"));
     if (PawnBPClass.Class != NULL)
@@ -48,29 +68,30 @@ void AEnemiesManager::Spawn()
 {
     if (Spawning)
     {
-      
-    if (!TrashMob)
-                  {
-                      GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("CANT FIND OBJECT TO SPAWN")));
-                      return;
-                  }  
-  
+        if (!TrashMob)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("CANT FIND OBJECT TO SPAWN")));
+            return;
+        }
+
         GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, FString::FromInt(NumberMinionToSpawn));
 
         for (int i = 0; i < NumberMinionToSpawn; i++)
         {
-            if (!Spawners[IndexSpawn])
+            if (!SpawnersContenor[IndexSpawn])
                 GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, "uninitialized spawner:" + IndexSpawn);
 
             FVector RandLocation = FVector{FMath::RandPointInCircle(2500.f), 200.0f};
             Manager.Add(GetWorld()->SpawnActor<ABaseEnemy>(TrashMob.Get(),
-                                                           Spawners[IndexSpawn]->GetActorLocation() + RandLocation,
-                                                           Spawners[IndexSpawn]->GetActorRotation(), SpawnParams));
+                                                           SpawnersContenor[IndexSpawn]->GetActorLocation() +
+                                                           RandLocation,
+                                                           SpawnersContenor[IndexSpawn]->GetActorRotation(),
+                                                           SpawnParams));
 
-            FVector RandScale = FVector{0.60,0.60,0.60} + FMath::FRandRange(-0.1,0.1);            
+            FVector RandScale = FVector{0.60, 0.60, 0.60} + FMath::FRandRange(-0.1, 0.1);
             Manager.Last()->SetActorScale3D(RandScale);
             IndexSpawn++;
-            if (IndexSpawn > Spawners.Num() - 1)
+            if (IndexSpawn > SpawnersContenor.Num() - 1)
                 IndexSpawn = 0;
 
             if (i == NumberMinionToSpawn)
