@@ -2,6 +2,7 @@
 
 
 #include "BaseCharacter.h"
+#include "Components/BoxComponent.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
@@ -54,4 +55,12 @@ void ABaseCharacter::TakeLife(float AdditionnalLife) noexcept
 void ABaseCharacter::Kill()
 {
 	bIsDead = true;
+}
+
+void ABaseCharacter::AttackActiveHitBox(bool isActive, UBoxComponent* BoxWeapon)
+{
+	if (isActive)
+		BoxWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	else
+		BoxWeapon->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }

@@ -23,10 +23,10 @@ void ABaseEnemy::Kill()
 {
     Super::Kill();
     
-    //GetMesh()->SetVisibility(false);
     GetMesh()->SetCollisionProfileName("Ragdoll");
     GetMesh()->SetSimulatePhysics(true);
     GetMesh()->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Ignore);
+    GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECollisionResponse::ECR_Ignore);
     
     GetCapsuleComponent()->SetCollisionProfileName("NoCollision");
     

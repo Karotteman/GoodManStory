@@ -17,13 +17,6 @@ AEnemiesManager::AEnemiesManager()
 {
     // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = false;
-
-    /*
-    static ConstructorHelpers::FClassFinder<APawn> PawnBPClass(TEXT("Blueprint'/Game/Blueprint/Character/Enemies/TrashMob/TrashMob.TrashMob'"));
-    if (PawnBPClass.Class != NULL)
-    {
-        TrashMob = PawnBPClass.Class;
-    }*/
 }
 
 // Called when the game starts or when spawned
@@ -67,7 +60,13 @@ void AEnemiesManager::Spawn()
                                                            Spawners[IndexSpawn]->GetActorLocation() + RandLocation,
                                                            Spawners[IndexSpawn]->GetActorRotation(), SpawnParams));
 
-            FVector RandScale = FVector{0.60,0.60,0.60} + FMath::FRandRange(-0.1,0.1);            
+            float Scale;
+            if (Manager.Last()->bRandomSize)
+                Scale = FMath::RandRange(Manager.Last()->GetSizeMin(),Manager.Last()->GetSizeMax());
+            else
+                Scale = Manager.Last()->GetSize();
+                
+            FVector RandScale = FVector{Scale,Scale,Scale};            
             Manager.Last()->SetActorScale3D(RandScale);
             IndexSpawn++;
             if (IndexSpawn > Spawners.Num() - 1)
