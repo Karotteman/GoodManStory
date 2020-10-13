@@ -17,20 +17,19 @@
 AEnemiesManager::AEnemiesManager()
 {
     // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-    PrimaryActorTick.bCanEverTick = false;
+    PrimaryActorTick.bCanEverTick = true;
 
-    static ConstructorHelpers::FObjectFinder<UDataTable> WaveDataTableObject(TEXT("DataTable'/Game/Assets/LevelDesign/WaveSetting/WaveDataTable.WaveDataTable'"));
+    static ConstructorHelpers::FObjectFinder<UDataTable> WaveDataTableObject(
+        TEXT("DataTable'/Game/Assets/LevelDesign/WaveSetting/WaveDataTable.WaveDataTable'"));
 
     if (WaveDataTableObject.Succeeded())
     {
         WaveDataTable = WaveDataTableObject.Object;
-        
-        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red,TEXT("OK"));
-        
-        FWaveInfo* Entry = reinterpret_cast<FWaveInfo*>(WaveDataTable->GetRowMap().begin().Value());
 
-        if (Entry && GEngine)
-            GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red,FString::Printf(TEXT("%d"), Entry->Zone));
+        pCurrentWave = reinterpret_cast<FWaveInfo*>(WaveDataTable->GetRowMap().begin().Value());
+
+        if (pCurrentWave && GEngine)
+            GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("%d"), pCurrentWave->Zone));
     }
     else
     {
@@ -38,13 +37,6 @@ AEnemiesManager::AEnemiesManager()
             GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("CANT FIND WAVE DATA TABLE")));
         return;
     }
-    
-    /*
-    static ConstructorHelpers::FClassFinder<APawn> PawnBPClass(TEXT("Blueprint'/Game/Blueprint/Character/Enemies/TrashMob/TrashMob.TrashMob'"));
-    if (PawnBPClass.Class != NULL)
-    {
-        TrashMob = PawnBPClass.Class;
-    }*/
 }
 
 // Called when the game starts or when spawned
@@ -55,7 +47,7 @@ void AEnemiesManager::BeginPlay()
     if (TrashMob)
     {
         SpawnParams.Owner                          = this;
-        SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+        SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
     }
 }
 
@@ -63,23 +55,36 @@ void AEnemiesManager::BeginPlay()
 void AEnemiesManager::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
+
+    if (bWaveSpawnerIsRunning && IsAllEnemiesDied())
+    {
+        Spawn(DeltaTime);
+    }
+    else
+    {
+        NextWave();
+    }
 }
 
+/*
 void AEnemiesManager::Spawn()
-{
+{  
     if (Spawning)
     {
         if (!TrashMob)
         {
-            GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("CANT FIND OBJECT TO SPAWN")));
+            if (GEngine)
+                GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red,
+                                                 FString::Printf(TEXT("CANT FIND OBJECT TO SPAWN")));
             return;
         }
 
-        GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, FString::FromInt(NumberMinionToSpawn));
+        if (GEngine)
+            GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, FString::FromInt(NumberMinionToSpawn));
 
         for (int i = 0; i < NumberMinionToSpawn; i++)
         {
-            if (!SpawnersContenor[IndexSpawn])
+            if (!SpawnersContenor[IndexSpawn] && GEngine)
                 GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, "uninitialized spawner:" + IndexSpawn);
 
             FVector RandLocation = FVector{FMath::RandPointInCircle(2500.f), 200.0f};
@@ -98,5 +103,119 @@ void AEnemiesManager::Spawn()
             if (i == NumberMinionToSpawn)
                 Spawning = false;
         }
+    }
+}*/
+
+void AEnemiesManager::CheckIfCurrentWaveSpawnerIsEmpty()
+{
+    for (int i = 0; i < pCurrentWave->SpawnInfoContenor.Num() && bWaveSpawnerIsRunning; ++i)
+    {
+        bWaveSpawnerIsRunning &= (pCurrentWave->SpawnInfoContenor[i].EnemyNumber == 0);
+    }
+}
+
+bool AEnemiesManager::IsAllEnemiesDied()
+{
+    TArray<AActor*> children;
+    GetAttachedActors(children);
+    return children.Num() == 0;
+}
+
+void AEnemiesManager::Spawn(float DeltaTime)
+{    
+    for (int i = 0; i < pCurrentWave->SpawnInfoContenor.Num(); ++i)
+    {        
+        if (pCurrentWave->SpawnInfoContenor[i].EnemyNumber == 0)
+            continue;
+
+        pCurrentWave->SpawnInfoContenor[i].TimeCount += DeltaTime;
+
+        if (pCurrentWave->SpawnInfoContenor[i].TimeCount >= pCurrentWave->SpawnInfoContenor[i].SpawnIntervalDelay)
+        {
+            pCurrentWave->SpawnInfoContenor[i].TimeCount -= pCurrentWave->SpawnInfoContenor[i].SpawnIntervalDelay;
+
+            if (true) //Can spawn with max entity number
+            {
+                const int IndexSpawner = pCurrentWave->SpawnInfoContenor[i].SpawnerID != -1 ? 
+                pCurrentWave->SpawnInfoContenor[i].SpawnerID : FMath::RandRange(0, SpawnersContenor.Num() - 1);
+
+                const FVector RandLocation = FVector{
+                    FMath::RandPointInCircle(pCurrentWave->SpawnInfoContenor[i].SpawnRadius),
+                    200.0f
+                };
+
+                if (pCurrentWave && GEngine)
+                    GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("%d"), 
+                    pCurrentWave->SpawnInfoContenor.Num()));
+
+                if (pCurrentWave && GEngine)
+                    GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("%d"), 
+                    IndexSpawner));
+
+                if (IndexSpawner >= SpawnersContenor.Num())
+                {
+                    if (GEngine)
+                        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red,
+                                                         TEXT(
+                                                             "SpawnerID invalide to spawn entity. Please check the dataTable spawner Id and if spawner is insert on EnemyManager spawner contenor"));
+                    return;
+                }
+                
+                Manager.Add(GetWorld()->SpawnActor<ABaseEnemy>(pCurrentWave->SpawnInfoContenor[i].EnemyType.Get(),
+                                                               SpawnersContenor[IndexSpawner]->GetActorLocation() +
+                                                               RandLocation,
+                                                               SpawnersContenor[IndexSpawner]->GetActorRotation(),
+                                                               SpawnParams));
+
+                if (GEngine)
+                    GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Spawn"));
+
+                pCurrentWave->SpawnInfoContenor[i].EnemyNumber--;
+
+                if (pCurrentWave->SpawnInfoContenor[i].EnemyNumber == 0)
+                {
+                    CheckIfCurrentWaveSpawnerIsEmpty();
+                }
+                
+            }
+        }
+        //SpawnersContenor[pCurrentWave->SpawnInfoContenor[i].SpawnerID].ReceiveSpawnRequest();
+    }
+}
+
+void AEnemiesManager::NextWave()
+{
+    /*Pass to the next wave*/
+    WaveIndex++;
+    TMap<FName, unsigned char*>::TRangedForConstIterator WaveTableIterator = WaveDataTable->GetRowMap().begin();
+
+    for (int i = 0; i < WaveIndex; ++i)
+    {
+        ++WaveTableIterator;
+    }
+    
+    pCurrentWave = reinterpret_cast<FWaveInfo*>(WaveTableIterator.Value());
+
+    if (!pCurrentWave)
+    {
+        pCurrentWave = nullptr;
+
+        if (GEngine)
+            GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Cannot found next wave"));
+
+        return;
+    }
+
+    if (GEngine)
+        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Next wave"));
+
+    bWaveSpawnerIsRunning = true;
+}
+
+void AEnemiesManager::SendSpawnsRequestsToSpawners()
+{
+    for (int i = 0; i < pCurrentWave->SpawnInfoContenor.Num(); ++i)
+    {
+        //SpawnersContenor[pCurrentWave->SpawnInfoContenor[i].SpawnerID].ReceiveSpawnRequest();
     }
 }

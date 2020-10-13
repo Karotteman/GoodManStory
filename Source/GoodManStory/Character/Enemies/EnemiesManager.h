@@ -21,31 +21,50 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inspector")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UDataTable* WaveDataTable = nullptr;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inspector")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<class ABaseEnemy> TrashMob = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inspector")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<class ABaseEnemy*> Manager;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Inspector")
-	int NumberMinionToSpawn = 0;
-	
-	int NumberMinionToSpawnCurr = 0;
-	int IndexSpawn = 0;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inspector")
+
+	UPROPERTY(EditAnywhere)
+	TArray<TSubclassOf<class ABaseEnemy>> EnemiesStatsContenor;
+		
+	UPROPERTY(EditAnywhere)
 	TArray<AActor*> SpawnersContenor;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inspector")
+	UPROPERTY(EditAnywhere)
 	TArray<UShapeComponent*> ZonesContenor;
 
 	FTimerHandle TimerActuMinionSpawn;
 
-	UFUNCTION(BlueprintCallable, Category= "Spawn")
-	void Spawn();
+	bool bWaveSpawnerIsRunning = true;
+
+	UPROPERTY(VisibleAnywhere)
+	uint16 WaveIndex = 0;
+	
+	/**
+	 * @brief Pointor to the struct of the current wave. If nullptr, there is not wave
+	 */
+	struct FWaveInfo* pCurrentWave = nullptr;
+
+	UFUNCTION(BlueprintCallable)
+    void CheckIfCurrentWaveSpawnerIsEmpty();
+    
+ 	UFUNCTION(BlueprintCallable)
+    bool IsAllEnemiesDied();
+	
+	UFUNCTION(BlueprintCallable)
+	void Spawn(float DeltaTime);
+
+	UFUNCTION(BlueprintCallable)
+	void NextWave();
+
+	UFUNCTION(BlueprintCallable)
+	void SendSpawnsRequestsToSpawners();
 
 	FActorSpawnParameters SpawnParams;
 	bool Spawning = true;

@@ -20,5 +20,5 @@ struct FWaveInfo : public FTableRowBase
     int Zone = -1;
 
 	UPROPERTY(EditAnywhere)
-	TArray<FSpawnInfo> SpawninfoContenor;
+	TArray<FSpawnInfo> SpawnInfoContenor;
 };

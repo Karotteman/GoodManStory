@@ -42,4 +42,6 @@ struct FSpawnInfo
 	*/
 	UPROPERTY(EditAnywhere)
 	int SpawnerID = -1;
+
+	float TimeCount = 0.f;
 };
