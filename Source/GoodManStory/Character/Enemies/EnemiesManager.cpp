@@ -29,12 +29,13 @@ AEnemiesManager::AEnemiesManager()
         
         FWaveInfo* Entry = reinterpret_cast<FWaveInfo*>(WaveDataTable->GetRowMap().begin().Value());
 
-        if (Entry)
+        if (Entry && GEngine)
             GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red,FString::Printf(TEXT("%d"), Entry->Zone));
     }
     else
     {
-        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("CANT FIND WAVE DATA TABLE")));
+        if (GEngine)
+            GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("CANT FIND WAVE DATA TABLE")));
         return;
     }
     
