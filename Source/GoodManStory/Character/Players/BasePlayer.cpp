@@ -54,7 +54,7 @@ ABasePlayer::ABasePlayer()
     GetCapsuleComponent()->SetCollisionObjectType(COLLISION_CHANNEL_PLAYER);
     
     Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
-    Weapon->SetupAttachment(GetMesh(), "hand_r");
+    Weapon->SetupAttachment(GetMesh(), "LeftWeaponShield");
     Weapon->SetRelativeScale3D({1.5f, 1.5f, 1.f});
     Weapon->SetRelativeRotation({0.f, 0.f, 20.f});
     Weapon->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
