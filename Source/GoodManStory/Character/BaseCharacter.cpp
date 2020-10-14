@@ -26,16 +26,16 @@ void ABaseCharacter::Tick(float DeltaTime)
 
 }
 
-void ABaseCharacter::TakeDammage(float Dammage) noexcept
+void ABaseCharacter::TakeDamageCharacter(float dmg) noexcept
 {	
-	if (Life - Dammage <= 0.f)
+	if (Life - dmg <= 0.f)
 	{
 		Life = 0.f;
 		Kill();
 	}
 	else
 	{
-		Life -= Dammage;
+		Life -= dmg;
 	}
 }
 
@@ -59,8 +59,8 @@ void ABaseCharacter::Kill()
 
 void ABaseCharacter::AttackActiveHitBox(bool isActive, UBoxComponent* BoxWeapon)
 {
-	if (isActive)
+	if (!isActive)
 		BoxWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	else
-		BoxWeapon->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		BoxWeapon->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }

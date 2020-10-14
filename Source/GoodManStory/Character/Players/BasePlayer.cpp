@@ -252,7 +252,7 @@ void ABasePlayer::OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
     if (OtherComp->ComponentHasTag("Body"))
     {
         ABaseEnemy* enemy = Cast<ABaseEnemy>(OtherActor);
-        enemy->TakeDammage(Dammage);
+        enemy->TakeDamageCharacter(Damage);
 
         if (enemy->IsDead())
         {

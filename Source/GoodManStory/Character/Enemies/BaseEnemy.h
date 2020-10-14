@@ -61,6 +61,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetAvoidanceLimitDistance() const noexcept { return AvoidanceLimitDistance; }
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack, meta = (AllowPrivateAccess = "true"))
+    bool bAttacking = false;
+    
     ABaseEnemy();
     virtual void Kill() override;
 
@@ -84,6 +87,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetSize() const noexcept { return Size; }
+public:
+    UPROPERTY(EditAnywhere,BlueprintReadOnly, Category=Attack)
+    class UAnimMontage* Attack;
 
 protected:
 };

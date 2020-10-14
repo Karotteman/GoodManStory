@@ -37,12 +37,12 @@ public:
     virtual void Tick(float DeltaTime) override;
 
     /**
-    * @brief Function to inflict dammage to player
-    * @param dammage 
+    * @brief Function to inflict damage to player
+    * @param damage 
     * @return 
     */
     UFUNCTION(BlueprintCallable, Category = "Life")
-    void TakeDammage(float Dammage) noexcept;
+    void TakeDamageCharacter(float dmg) noexcept;
 
     UFUNCTION(BlueprintCallable, Category = "Kill")
     virtual void Kill();
