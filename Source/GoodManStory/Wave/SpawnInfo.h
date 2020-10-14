@@ -12,12 +12,15 @@ USTRUCT(BlueprintType)
 struct FSpawnInfo
 {
 	GENERATED_USTRUCT_BODY()
-
+	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ABaseEnemy> EnemyType = nullptr;
 	
 	UPROPERTY(EditAnywhere)
     int EnemyNumber = 0;
+
+	UPROPERTY(VisibleAnywhere)
+	int EnemyCounter = EnemyNumber;
 
 	/**
 	 * @brief Interval between two spawn in second

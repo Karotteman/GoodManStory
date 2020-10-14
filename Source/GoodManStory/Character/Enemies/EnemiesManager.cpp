@@ -28,8 +28,10 @@ AEnemiesManager::AEnemiesManager()
 
         pCurrentWave = reinterpret_cast<FWaveInfo*>(WaveDataTable->GetRowMap().begin().Value());
 
-        if (pCurrentWave && GEngine)
-            GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("%d"), pCurrentWave->Zone));
+        for (int i = 0; i < pCurrentWave->SpawnInfoContenor.Num(); ++i)
+        {
+           pCurrentWave->SpawnInfoContenor[i].EnemyCounter = pCurrentWave->SpawnInfoContenor[i].EnemyNumber;
+        }
     }
     else
     {
@@ -55,62 +57,29 @@ void AEnemiesManager::BeginPlay()
 void AEnemiesManager::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-
+   
     if (bWaveSpawnerIsRunning && IsAllEnemiesDied())
     {
         Spawn(DeltaTime);
     }
     else
     {
-        NextWave();
+        if (bPlayerCanStartTheWave)
+        {
+            NextWave();
+        }
+        else
+        {
+            CheckIfPlayerCanStartTheWave();
+        }
     }
 }
-
-/*
-void AEnemiesManager::Spawn()
-{  
-    if (Spawning)
-    {
-        if (!TrashMob)
-        {
-            if (GEngine)
-                GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red,
-                                                 FString::Printf(TEXT("CANT FIND OBJECT TO SPAWN")));
-            return;
-        }
-
-        if (GEngine)
-            GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, FString::FromInt(NumberMinionToSpawn));
-
-        for (int i = 0; i < NumberMinionToSpawn; i++)
-        {
-            if (!SpawnersContenor[IndexSpawn] && GEngine)
-                GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, "uninitialized spawner:" + IndexSpawn);
-
-            FVector RandLocation = FVector{FMath::RandPointInCircle(2500.f), 200.0f};
-            Manager.Add(GetWorld()->SpawnActor<ABaseEnemy>(TrashMob.Get(),
-                                                           SpawnersContenor[IndexSpawn]->GetActorLocation() +
-                                                           RandLocation,
-                                                           SpawnersContenor[IndexSpawn]->GetActorRotation(),
-                                                           SpawnParams));
-
-            FVector RandScale = FVector{0.60, 0.60, 0.60} + FMath::FRandRange(-0.1, 0.1);
-            Manager.Last()->SetActorScale3D(RandScale);
-            IndexSpawn++;
-            if (IndexSpawn > SpawnersContenor.Num() - 1)
-                IndexSpawn = 0;
-
-            if (i == NumberMinionToSpawn)
-                Spawning = false;
-        }
-    }
-}*/
 
 void AEnemiesManager::CheckIfCurrentWaveSpawnerIsEmpty()
 {
     for (int i = 0; i < pCurrentWave->SpawnInfoContenor.Num() && bWaveSpawnerIsRunning; ++i)
     {
-        bWaveSpawnerIsRunning &= (pCurrentWave->SpawnInfoContenor[i].EnemyNumber == 0);
+        bWaveSpawnerIsRunning &= (pCurrentWave->SpawnInfoContenor[i].EnemyCounter == 0);
     }
 }
 
@@ -121,11 +90,17 @@ bool AEnemiesManager::IsAllEnemiesDied()
     return children.Num() == 0;
 }
 
+void AEnemiesManager::CheckIfPlayerCanStartTheWave()
+{
+    if (pCurrentWave->ZoneID == -1 || ZonesContenor[pCurrentWave->ZoneID]->IsPlayerOnThisZone())
+        bPlayerCanStartTheWave = true;
+}
+
 void AEnemiesManager::Spawn(float DeltaTime)
 {    
     for (int i = 0; i < pCurrentWave->SpawnInfoContenor.Num(); ++i)
-    {        
-        if (pCurrentWave->SpawnInfoContenor[i].EnemyNumber == 0)
+    {
+        if (pCurrentWave->SpawnInfoContenor[i].EnemyCounter == 0)
             continue;
 
         pCurrentWave->SpawnInfoContenor[i].TimeCount += DeltaTime;
@@ -144,14 +119,6 @@ void AEnemiesManager::Spawn(float DeltaTime)
                     200.0f
                 };
 
-                if (pCurrentWave && GEngine)
-                    GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("%d"), 
-                    pCurrentWave->SpawnInfoContenor.Num()));
-
-                if (pCurrentWave && GEngine)
-                    GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("%d"), 
-                    IndexSpawner));
-
                 if (IndexSpawner >= SpawnersContenor.Num())
                 {
                     if (GEngine)
@@ -167,12 +134,9 @@ void AEnemiesManager::Spawn(float DeltaTime)
                                                                SpawnersContenor[IndexSpawner]->GetActorRotation(),
                                                                SpawnParams));
 
-                if (GEngine)
-                    GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Spawn"));
+                pCurrentWave->SpawnInfoContenor[i].EnemyCounter--;
 
-                pCurrentWave->SpawnInfoContenor[i].EnemyNumber--;
-
-                if (pCurrentWave->SpawnInfoContenor[i].EnemyNumber == 0)
+                if (pCurrentWave->SpawnInfoContenor[i].EnemyCounter == 0)
                 {
                     CheckIfCurrentWaveSpawnerIsEmpty();
                 }
@@ -186,15 +150,20 @@ void AEnemiesManager::Spawn(float DeltaTime)
 void AEnemiesManager::NextWave()
 {
     /*Pass to the next wave*/
-    WaveIndex++;
     TMap<FName, unsigned char*>::TRangedForConstIterator WaveTableIterator = WaveDataTable->GetRowMap().begin();
 
     for (int i = 0; i < WaveIndex; ++i)
     {
         ++WaveTableIterator;
     }
+    WaveIndex++; //Increment for the next wave
     
     pCurrentWave = reinterpret_cast<FWaveInfo*>(WaveTableIterator.Value());
+
+    for (int i = 0; i < pCurrentWave->SpawnInfoContenor.Num(); ++i)
+    {
+        pCurrentWave->SpawnInfoContenor[i].EnemyCounter = pCurrentWave->SpawnInfoContenor[i].EnemyNumber;
+    }
 
     if (!pCurrentWave)
     {
@@ -210,6 +179,7 @@ void AEnemiesManager::NextWave()
         GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Next wave"));
 
     bWaveSpawnerIsRunning = true;
+    bPlayerCanStartTheWave = false;
 }
 
 void AEnemiesManager::SendSpawnsRequestsToSpawners()

@@ -17,7 +17,7 @@ struct FWaveInfo : public FTableRowBase
 	 * @brief Zone index in ZoneContenor. -1 for no zone
 	 */
 	UPROPERTY(EditAnywhere)
-    int Zone = -1;
+    int ZoneID = -1;
 
 	UPROPERTY(EditAnywhere)
 	TArray<FSpawnInfo> SpawnInfoContenor;

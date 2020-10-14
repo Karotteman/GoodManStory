@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 
+
+#include "WaveZone.h"
 #include "Engine/World.h"
 #include "EnemiesManager.generated.h"
 
@@ -37,11 +39,13 @@ protected:
 	TArray<AActor*> SpawnersContenor;
 
 	UPROPERTY(EditAnywhere)
-	TArray<UShapeComponent*> ZonesContenor;
+	TArray<AWaveZone*> ZonesContenor;
 
 	FTimerHandle TimerActuMinionSpawn;
 
-	bool bWaveSpawnerIsRunning = true;
+	bool bWaveSpawnerIsRunning = false;
+	bool bPlayerCanStartTheWave = false;
+
 
 	UPROPERTY(VisibleAnywhere)
 	uint16 WaveIndex = 0;
@@ -56,6 +60,9 @@ protected:
     
  	UFUNCTION(BlueprintCallable)
     bool IsAllEnemiesDied();
+
+	UFUNCTION(BlueprintCallable)
+	void CheckIfPlayerCanStartTheWave();
 	
 	UFUNCTION(BlueprintCallable)
 	void Spawn(float DeltaTime);
