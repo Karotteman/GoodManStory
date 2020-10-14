@@ -26,13 +26,7 @@ AEnemiesManager::AEnemiesManager()
     if (WaveDataTableObject.Succeeded())
     {
         WaveDataTable = WaveDataTableObject.Object;
-
-        /*pCurrentWave = reinterpret_cast<FWaveInfo*>(WaveDataTable->GetRowMap().begin().Value());
-
-        for (int i = 0; i < pCurrentWave->SpawnInfoContainer.Num(); ++i)
-        {
-            pCurrentWave->SpawnInfoContainer[i].EnemyCounter = pCurrentWave->SpawnInfoContainer[i].EnemyNumber;
-        }*/
+        DeathEnemyContainer.Reserve(MaxDeathEnemies);
     }
     else
     {
@@ -61,19 +55,16 @@ void AEnemiesManager::Tick(float DeltaTime)
 
     if (bWaveSpawnerIsRunning)
     {
-        PRINTSTRING("Spawn")
         Spawn(DeltaTime);
     }
     else if ( WaveIndex < WaveDataTable->GetRowMap().Num() && IsAllEnemiesDied())
     {
         if (bPlayerCanStartTheWave)
         {
-            PRINTSTRING("NextWave")
             NextWave();
         }
         else
         {
-            PRINTSTRING("CheckIfPlayerCanStartTheWave")
             CheckIfPlayerCanStartTheWave();
         }
     }
@@ -208,5 +199,12 @@ void AEnemiesManager::SendSpawnsRequestsToSpawners()
 void AEnemiesManager::MoveLivingEnemyOnDeathContainer(ABaseCharacter* pCharacter)
 {
     LivingEnemyContainer.Remove(Cast<ABaseEnemy>(pCharacter));
-    DeathEnemyContainer.Add(Cast<ABaseEnemy>(pCharacter));
+
+    if (DeathEnemyContainer.Num() == MaxDeathEnemies)
+    {
+        DeathEnemyContainer[0]->Destroy();
+        DeathEnemyContainer.RemoveAt(0);
+    }
+
+    DeathEnemyContainer.Add(Cast<ABaseEnemy>(pCharacter));   
 }

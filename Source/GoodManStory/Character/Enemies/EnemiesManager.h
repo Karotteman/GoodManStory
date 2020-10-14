@@ -36,8 +36,11 @@ protected:
 	TArray<class ABaseEnemy*> DeathEnemyContainer;
 
 	UPROPERTY(EditAnywhere)
+	uint16 MaxDeathEnemies = 100;
+	
+	UPROPERTY(EditAnywhere)
 	TArray<TSubclassOf<class ABaseEnemy>> EnemiesStatsContainer;
-		
+
 	UPROPERTY(EditAnywhere)
 	TArray<AActor*> SpawnersContainer;
 
@@ -48,7 +51,6 @@ protected:
 
 	bool bWaveSpawnerIsRunning = false;
 	bool bPlayerCanStartTheWave = false;
-
 
 	UPROPERTY(VisibleAnywhere)
 	uint16 WaveIndex = 0;
