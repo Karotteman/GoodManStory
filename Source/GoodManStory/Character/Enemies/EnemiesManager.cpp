@@ -12,6 +12,7 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Utility/Utility.h"
 
 // Sets default values
 AEnemiesManager::AEnemiesManager()
@@ -26,12 +27,12 @@ AEnemiesManager::AEnemiesManager()
     {
         WaveDataTable = WaveDataTableObject.Object;
 
-        pCurrentWave = reinterpret_cast<FWaveInfo*>(WaveDataTable->GetRowMap().begin().Value());
+        /*pCurrentWave = reinterpret_cast<FWaveInfo*>(WaveDataTable->GetRowMap().begin().Value());
 
-        for (int i = 0; i < pCurrentWave->SpawnInfoContenor.Num(); ++i)
+        for (int i = 0; i < pCurrentWave->SpawnInfoContainer.Num(); ++i)
         {
-           pCurrentWave->SpawnInfoContenor[i].EnemyCounter = pCurrentWave->SpawnInfoContenor[i].EnemyNumber;
-        }
+            pCurrentWave->SpawnInfoContainer[i].EnemyCounter = pCurrentWave->SpawnInfoContainer[i].EnemyNumber;
+        }*/
     }
     else
     {
@@ -57,19 +58,22 @@ void AEnemiesManager::BeginPlay()
 void AEnemiesManager::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-   
-    if (bWaveSpawnerIsRunning && IsAllEnemiesDied())
+
+    if (bWaveSpawnerIsRunning)
     {
+        PRINTSTRING("Spawn")
         Spawn(DeltaTime);
     }
-    else
+    else if ( WaveIndex < WaveDataTable->GetRowMap().Num() && IsAllEnemiesDied())
     {
         if (bPlayerCanStartTheWave)
         {
+            PRINTSTRING("NextWave")
             NextWave();
         }
         else
         {
+            PRINTSTRING("CheckIfPlayerCanStartTheWave")
             CheckIfPlayerCanStartTheWave();
         }
     }
@@ -77,49 +81,60 @@ void AEnemiesManager::Tick(float DeltaTime)
 
 void AEnemiesManager::CheckIfCurrentWaveSpawnerIsEmpty()
 {
-    for (int i = 0; i < pCurrentWave->SpawnInfoContenor.Num() && bWaveSpawnerIsRunning; ++i)
+    bool rst = false;
+    for (int i = 0; i < pCurrentWave->SpawnInfoContainer.Num() && !rst; ++i)
     {
-        bWaveSpawnerIsRunning &= (pCurrentWave->SpawnInfoContenor[i].EnemyCounter == 0);
+         rst |= (pCurrentWave->SpawnInfoContainer[i].EnemyCounter != 0);
     }
+    
+    bWaveSpawnerIsRunning = rst;
 }
 
 bool AEnemiesManager::IsAllEnemiesDied()
 {
-    TArray<AActor*> children;
-    GetAttachedActors(children);
-    return children.Num() == 0;
+    return LivingEnemyContainer.Num() == 0;
 }
 
 void AEnemiesManager::CheckIfPlayerCanStartTheWave()
 {
-    if (pCurrentWave->ZoneID == -1 || ZonesContenor[pCurrentWave->ZoneID]->IsPlayerOnThisZone())
-        bPlayerCanStartTheWave = true;
+    if (pCurrentWave == nullptr)
+    {
+        FWaveInfo* pFirstWave = reinterpret_cast<FWaveInfo*>(WaveDataTable->GetRowMap().begin().Value());
+        if (pFirstWave->ZoneID == -1 || ZonesContainer[pFirstWave->ZoneID]->IsPlayerOnThisZone())
+            bPlayerCanStartTheWave = true;
+    }
+    else
+    {
+        if (pCurrentWave->ZoneID == -1 || ZonesContainer[pCurrentWave->ZoneID]->IsPlayerOnThisZone())
+            bPlayerCanStartTheWave = true;
+    }
 }
 
 void AEnemiesManager::Spawn(float DeltaTime)
-{    
-    for (int i = 0; i < pCurrentWave->SpawnInfoContenor.Num(); ++i)
+{
+    for (int i = 0; i < pCurrentWave->SpawnInfoContainer.Num(); ++i)
     {
-        if (pCurrentWave->SpawnInfoContenor[i].EnemyCounter == 0)
+        if (pCurrentWave->SpawnInfoContainer[i].EnemyCounter == 0)
             continue;
 
-        pCurrentWave->SpawnInfoContenor[i].TimeCount += DeltaTime;
+        pCurrentWave->SpawnInfoContainer[i].TimeCount += DeltaTime;
 
-        if (pCurrentWave->SpawnInfoContenor[i].TimeCount >= pCurrentWave->SpawnInfoContenor[i].SpawnIntervalDelay)
+        if (pCurrentWave->SpawnInfoContainer[i].TimeCount >= pCurrentWave->SpawnInfoContainer[i].SpawnIntervalDelay)
         {
-            pCurrentWave->SpawnInfoContenor[i].TimeCount -= pCurrentWave->SpawnInfoContenor[i].SpawnIntervalDelay;
+            pCurrentWave->SpawnInfoContainer[i].TimeCount -= pCurrentWave->SpawnInfoContainer[i].SpawnIntervalDelay;
 
             if (true) //Can spawn with max entity number
             {
-                const int IndexSpawner = pCurrentWave->SpawnInfoContenor[i].SpawnerID != -1 ? 
-                pCurrentWave->SpawnInfoContenor[i].SpawnerID : FMath::RandRange(0, SpawnersContenor.Num() - 1);
+                const int IndexSpawner = pCurrentWave->SpawnInfoContainer[i].SpawnerID != -1 ?
+                                             pCurrentWave->SpawnInfoContainer[i].SpawnerID :
+                                             FMath::RandRange(0, SpawnersContainer.Num() - 1);
 
                 const FVector RandLocation = FVector{
-                    FMath::RandPointInCircle(pCurrentWave->SpawnInfoContenor[i].SpawnRadius),
+                    FMath::RandPointInCircle(pCurrentWave->SpawnInfoContainer[i].SpawnRadius),
                     200.0f
                 };
 
-                if (IndexSpawner >= SpawnersContenor.Num())
+                if (IndexSpawner >= SpawnersContainer.Num())
                 {
                     if (GEngine)
                         GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red,
@@ -127,23 +142,23 @@ void AEnemiesManager::Spawn(float DeltaTime)
                                                              "SpawnerID invalide to spawn entity. Please check the dataTable spawner Id and if spawner is insert on EnemyManager spawner contenor"));
                     return;
                 }
-                
-                Manager.Add(GetWorld()->SpawnActor<ABaseEnemy>(pCurrentWave->SpawnInfoContenor[i].EnemyType.Get(),
-                                                               SpawnersContenor[IndexSpawner]->GetActorLocation() +
-                                                               RandLocation,
-                                                               SpawnersContenor[IndexSpawner]->GetActorRotation(),
-                                                               SpawnParams));
 
-                pCurrentWave->SpawnInfoContenor[i].EnemyCounter--;
+                ABaseEnemy* NewEnemy = GetWorld()->SpawnActor<ABaseEnemy>(
+                    pCurrentWave->SpawnInfoContainer[i].EnemyType.Get(),
+                    SpawnersContainer[IndexSpawner]->GetActorLocation() + RandLocation,
+                    SpawnersContainer[IndexSpawner]->GetActorRotation(), SpawnParams);
 
-                if (pCurrentWave->SpawnInfoContenor[i].EnemyCounter == 0)
+                NewEnemy->OnCharacterDeath.AddDynamic(this, &AEnemiesManager::MoveLivingEnemyOnDeathContainer);
+                LivingEnemyContainer.Add(NewEnemy);
+
+                pCurrentWave->SpawnInfoContainer[i].EnemyCounter--;
+
+                if (pCurrentWave->SpawnInfoContainer[i].EnemyCounter == 0)
                 {
                     CheckIfCurrentWaveSpawnerIsEmpty();
                 }
-                
             }
         }
-        //SpawnersContenor[pCurrentWave->SpawnInfoContenor[i].SpawnerID].ReceiveSpawnRequest();
     }
 }
 
@@ -157,12 +172,12 @@ void AEnemiesManager::NextWave()
         ++WaveTableIterator;
     }
     WaveIndex++; //Increment for the next wave
-    
+
     pCurrentWave = reinterpret_cast<FWaveInfo*>(WaveTableIterator.Value());
 
-    for (int i = 0; i < pCurrentWave->SpawnInfoContenor.Num(); ++i)
+    for (int i = 0; i < pCurrentWave->SpawnInfoContainer.Num(); ++i)
     {
-        pCurrentWave->SpawnInfoContenor[i].EnemyCounter = pCurrentWave->SpawnInfoContenor[i].EnemyNumber;
+        pCurrentWave->SpawnInfoContainer[i].EnemyCounter = pCurrentWave->SpawnInfoContainer[i].EnemyNumber;
     }
 
     if (!pCurrentWave)
@@ -178,14 +193,20 @@ void AEnemiesManager::NextWave()
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Next wave"));
 
-    bWaveSpawnerIsRunning = true;
+    bWaveSpawnerIsRunning  = true;
     bPlayerCanStartTheWave = false;
 }
 
 void AEnemiesManager::SendSpawnsRequestsToSpawners()
 {
-    for (int i = 0; i < pCurrentWave->SpawnInfoContenor.Num(); ++i)
+    for (int i = 0; i < pCurrentWave->SpawnInfoContainer.Num(); ++i)
     {
-        //SpawnersContenor[pCurrentWave->SpawnInfoContenor[i].SpawnerID].ReceiveSpawnRequest();
+        //SpawnersContainer[pCurrentWave->SpawnInfoContainer[i].SpawnerID].ReceiveSpawnRequest();
     }
+}
+
+void AEnemiesManager::MoveLivingEnemyOnDeathContainer(ABaseCharacter* pCharacter)
+{
+    LivingEnemyContainer.Remove(Cast<ABaseEnemy>(pCharacter));
+    DeathEnemyContainer.Add(Cast<ABaseEnemy>(pCharacter));
 }

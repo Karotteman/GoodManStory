@@ -6,6 +6,9 @@
 #include "GameFramework/Character.h"
 #include "BaseCharacter.generated.h"
 
+UDELEGATE(BlueprintAuthorityOnly)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FOnCharacterDeathActionSignature, class ABaseCharacter*, pBaseCharacter);
+
 UCLASS()
 class GOODMANSTORY_API ABaseCharacter : public ACharacter
 {
@@ -15,6 +18,9 @@ public:
 	// Sets default values for this character's properties
 	ABaseCharacter();
 
+	UPROPERTY(BlueprintAssignable)
+	FOnCharacterDeathActionSignature OnCharacterDeath;
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

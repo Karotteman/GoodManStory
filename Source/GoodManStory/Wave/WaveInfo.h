@@ -14,11 +14,11 @@ struct FWaveInfo : public FTableRowBase
 	GENERATED_USTRUCT_BODY()
 
 	/**
-	 * @brief Zone index in ZoneContenor. -1 for no zone
+	 * @brief Zone index in ZoneContainer. -1 for no zone
 	 */
 	UPROPERTY(EditAnywhere)
     int ZoneID = -1;
 
 	UPROPERTY(EditAnywhere)
-	TArray<FSpawnInfo> SpawnInfoContenor;
+	TArray<FSpawnInfo> SpawnInfoContainer;
 };

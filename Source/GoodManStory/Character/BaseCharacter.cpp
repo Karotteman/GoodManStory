@@ -50,8 +50,8 @@ void ABaseCharacter::TakeLife(float AdditionnalLife) noexcept
 	}
 }
 
-
 void ABaseCharacter::Kill()
 {
 	bIsDead = true;
+	OnCharacterDeath.Broadcast(this);
 }

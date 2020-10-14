@@ -29,17 +29,20 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<class ABaseEnemy> TrashMob = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TArray<class ABaseEnemy*> Manager;
+	UPROPERTY(VisibleAnywhere)
+	TArray<class ABaseEnemy*> LivingEnemyContainer;
+
+	UPROPERTY(VisibleAnywhere)
+	TArray<class ABaseEnemy*> DeathEnemyContainer;
 
 	UPROPERTY(EditAnywhere)
-	TArray<TSubclassOf<class ABaseEnemy>> EnemiesStatsContenor;
+	TArray<TSubclassOf<class ABaseEnemy>> EnemiesStatsContainer;
 		
 	UPROPERTY(EditAnywhere)
-	TArray<AActor*> SpawnersContenor;
+	TArray<AActor*> SpawnersContainer;
 
 	UPROPERTY(EditAnywhere)
-	TArray<AWaveZone*> ZonesContenor;
+	TArray<AWaveZone*> ZonesContainer;
 
 	FTimerHandle TimerActuMinionSpawn;
 
@@ -72,6 +75,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void SendSpawnsRequestsToSpawners();
+
+	UFUNCTION(BlueprintCallable)
+    void MoveLivingEnemyOnDeathContainer(class ABaseCharacter* pCharacter);
 
 	FActorSpawnParameters SpawnParams;
 	bool Spawning = true;

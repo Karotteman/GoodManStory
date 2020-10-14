@@ -7,6 +7,7 @@
 #include "Components/ShapeComponent.h"
 #include "Engine/Engine.h"
 #include "Kismet/GameplayStatics.h"
+#include "NavAreas/NavArea_Null.h"
 
 #define COLLISION_CHANNEL_PLAYER ECC_GameTraceChannel1
 
@@ -21,6 +22,7 @@ AWaveZone::AWaveZone()
     Collider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     Collider->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
     Collider->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Overlap);
+    //Collider->AreaClass = UNavArea_Null::StaticClass(); //Dont work because in private but in edit anywhere...
 }
 
 void AWaveZone::BeginPlay() { }
