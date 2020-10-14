@@ -47,14 +47,12 @@ ATrashEnemy::ATrashEnemy()
     BoxShield->SetCollisionObjectType(COLLISION_CHANNEL_TRASH);
     BoxShield->SetCollisionResponseToChannel(COLLISION_CHANNEL_TRASH, ECollisionResponse::ECR_Ignore);
     BoxShield->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
-
 }
 
 
 void ATrashEnemy::OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
     UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-
+{   
     if(OtherComp->ComponentHasTag("PlayerBody"))
     {
         ABasePlayer* player = Cast<ABasePlayer>(OtherActor);
