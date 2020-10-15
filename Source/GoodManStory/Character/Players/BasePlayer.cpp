@@ -19,6 +19,8 @@
 #include "Engine/Engine.h"
 #include "../Enemies/BaseEnemy.h"
 /*Debug*/
+#include <Utility/Utility.h>
+
 #include "Containers/UnrealString.h"
 
 #include "Components/CapsuleComponent.h"
@@ -127,6 +129,7 @@ void ABasePlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
 
 void ABasePlayer::Charge()
 {
+    /*Play animation and activate/Desactivate collider*/
     PlayAnimMontage(SlotAnimationsCharge);
     
     if (GEngine)
@@ -295,17 +298,29 @@ void ABasePlayer::OnChargeBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
 {
     if (OtherComp->ComponentHasTag("Body"))
     {
+        PRINTSTRING("Hit")
         ABaseEnemy* enemy = Cast<ABaseEnemy>(OtherActor);
-        enemy->Launch(SweepResult.ImpactNormal, 100.f);
+        enemy->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Falling);
+        enemy->Launch(SweepResult.ImpactNormal, ChargeImpulsionForce);
+        enemy->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
     }
 }
 
 void ABasePlayer::ChargeActiveHitBox(bool bIsActive)
 {
     if (bIsActive)
+    {
         SphericChargeZone->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+        
+        /*Dash*/
+        GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Falling);
+        GetCharacterMovement()->AddImpulse(GetActorForwardVector() * ChargeImpulsionForce, true);
+    }
     else
+    {
+        GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
         SphericChargeZone->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    }
 }
 
 void ABasePlayer::Kill()

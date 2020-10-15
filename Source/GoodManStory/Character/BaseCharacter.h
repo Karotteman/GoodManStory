@@ -54,7 +54,7 @@ public:
     virtual void Kill();
 
     UFUNCTION(BlueprintCallable)
-    virtual void Launch(FVector Direction, float Force, bool bXYOverride = false, bool bZOverride = false);
+    virtual void Launch(const FVector& Direction, float Force, bool bXYOverride = false, bool bZOverride = false);
 
     /**
     * @brief Function to heal the player

@@ -2,6 +2,9 @@
 
 
 #include "BaseCharacter.h"
+
+#include <Utility/Utility.h>
+
 #include "Components/BoxComponent.h"
 
 // Sets default values
@@ -57,7 +60,7 @@ void ABaseCharacter::Kill()
 	OnCharacterDeath.Broadcast(this);
 }
 
-void ABaseCharacter::Launch(FVector Direction, float Force, bool bXYOverride, bool bZOverride)
+void ABaseCharacter::Launch(const FVector& Direction, float Force, bool bXYOverride, bool bZOverride)
 {
 	LaunchCharacter(Direction * Force, bXYOverride, bZOverride);
 }
