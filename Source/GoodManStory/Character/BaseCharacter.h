@@ -6,67 +6,75 @@
 #include "GameFramework/Character.h"
 #include "BaseCharacter.generated.h"
 
+UDELEGATE(BlueprintAuthorityOnly)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FOnCharacterDeathActionSignature, class ABaseCharacter*, pBaseCharacter);
+
 UCLASS()
 class GOODMANSTORY_API ABaseCharacter : public ACharacter
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
-	ABaseCharacter();
+    // Sets default values for this character's properties
+    ABaseCharacter();
 
+	UPROPERTY(BlueprintAssignable)
+	FOnCharacterDeathActionSignature OnCharacterDeath;
+	
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-	
-	UPROPERTY(Category = Stats, EditAnywhere, BlueprintReadOnly)
-	float LifeMax = 100.f;
-	
-	UPROPERTY(Category = Stats,VisibleAnywhere, blueprintReadWrite)
-	float Life = LifeMax;
+    // Called when the game starts or when spawned
+    virtual void BeginPlay() override;
 
-	UPROPERTY(Category = Stats, EditAnywhere, blueprintReadWrite)
-	float Damage = 20.f;
+    UPROPERTY(Category = Stats, EditAnywhere, BlueprintReadOnly)
+    float LifeMax = 100.f;
 
-	UPROPERTY(Category = Settings, EditAnywhere, blueprintReadWrite)
-	bool bIsDead = false;
+    UPROPERTY(Category = Stats, blueprintReadWrite)
+    float Life = LifeMax;
+
+    UPROPERTY(Category = Stats, EditAnywhere, blueprintReadWrite)
+    float Damage = 20.f;
+
+    UPROPERTY(Category = Settings, EditAnywhere, blueprintReadWrite)
+    bool bIsDead = false;
 
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+public:
+    // Called every frame
+    virtual void Tick(float DeltaTime) override;
 
-	/**
-	* @brief Function to inflict dammage to player
-	* @param dammage 
-	* @return 
-	*/
-	UFUNCTION(BlueprintCallable, Category = "Life")
-    void TakeDammage(float Dammage) noexcept;
+    /**
+    * @brief Function to inflict damage to player
+    * @param damage 
+    * @return 
+    */
+    UFUNCTION(BlueprintCallable, Category = "Life")
+    void TakeDamageCharacter(float dmg) noexcept;
 
-	UFUNCTION(BlueprintCallable, Category = "Kill")
-	virtual void Kill();
+    UFUNCTION(BlueprintCallable, Category = "Kill")
+    virtual void Kill();
 
-	/**
-	* @brief Function to heal the player
-	* @param dammage
-	* @return
-	*/
-	UFUNCTION(BlueprintCallable, Category = "Life")
+    /**
+    * @brief Function to heal the player
+    * @param dammage
+    * @return
+    */
+    UFUNCTION(BlueprintCallable, Category = "Life")
     void TakeLife(float AdditionnalLife) noexcept;
 
-	/**
-	* @brief return the life of the player
-	* @return 
-	*/
-	UFUNCTION(BlueprintCallable, Category = "Life")
+    /**
+    * @brief return the life of the player
+    * @return 
+    */
+    UFUNCTION(BlueprintCallable, Category = "Life")
     FORCEINLINE float GetLife() const noexcept { return Life; }
 
-	
-	UFUNCTION(BlueprintCallable, Category = "Life")
+
+    UFUNCTION(BlueprintCallable, Category = "Life")
     FORCEINLINE float GetLifeRatio() const noexcept { return Life / LifeMax; }
 
-	UFUNCTION(BlueprintCallable, Category = "Life")
-	FORCEINLINE bool IsDead() const noexcept { return bIsDead; }
+    UFUNCTION(BlueprintCallable, Category = "Life")
+    FORCEINLINE bool IsDead() const noexcept { return bIsDead; }
 
+    UFUNCTION(BlueprintCallable, Category = "Attack")
+    void AttackActiveHitBox(bool isActive, class UBoxComponent* BoxWeapon);
 };

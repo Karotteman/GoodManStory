@@ -2,6 +2,7 @@
 
 
 #include "BaseCharacter.h"
+#include "Components/BoxComponent.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
@@ -25,16 +26,16 @@ void ABaseCharacter::Tick(float DeltaTime)
 
 }
 
-void ABaseCharacter::TakeDammage(float Dammage) noexcept
+void ABaseCharacter::TakeDamageCharacter(float dmg) noexcept
 {	
-	if (Life - Dammage <= 0.f)
+	if (Life - dmg <= 0.f)
 	{
 		Life = 0.f;
 		Kill();
 	}
 	else
 	{
-		Life -= Dammage;
+		Life -= dmg;
 	}
 }
 
@@ -50,8 +51,16 @@ void ABaseCharacter::TakeLife(float AdditionnalLife) noexcept
 	}
 }
 
-
 void ABaseCharacter::Kill()
 {
 	bIsDead = true;
+	OnCharacterDeath.Broadcast(this);
+}
+
+void ABaseCharacter::AttackActiveHitBox(bool isActive, UBoxComponent* BoxWeapon)
+{
+	if (!isActive)
+		BoxWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	else
+		BoxWeapon->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }

@@ -4,43 +4,82 @@
 
 #include "CoreMinimal.h"
 
+
+#include "WaveZone.h"
 #include "Engine/World.h"
-#include "GameFramework/Actor.h"
 #include "EnemiesManager.generated.h"
 
+class UDataTable;
 UCLASS()
 class GOODMANSTORY_API AEnemiesManager : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
+public:
 	// Sets default values for this actor's properties
 	AEnemiesManager();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UDataTable* WaveDataTable = nullptr;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ObjectSpawn")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<class ABaseEnemy> TrashMob = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Manager")
-	TArray<class ABaseEnemy*> Manager;
+	UPROPERTY(VisibleAnywhere)
+	TArray<class ABaseEnemy*> LivingEnemyContainer;
+
+	UPROPERTY(VisibleAnywhere)
+	TArray<class ABaseEnemy*> DeathEnemyContainer;
+
+	UPROPERTY(EditAnywhere)
+	uint16 MaxDeathEnemies = 100;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "SpawnSettings")
-	int NumberMinionToSpawn = 0;
-	
-	int NumberMinionToSpawnCurr = 0;
-	int IndexSpawn = 0;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpawnSettings")
-	TArray<AActor*> Spawners;
+	UPROPERTY(EditAnywhere)
+	TArray<TSubclassOf<class ABaseEnemy>> EnemiesStatsContainer;
+
+	UPROPERTY(EditAnywhere)
+	TArray<AActor*> SpawnersContainer;
+
+	UPROPERTY(EditAnywhere)
+	TArray<AWaveZone*> ZonesContainer;
 
 	FTimerHandle TimerActuMinionSpawn;
 
-	UFUNCTION(BlueprintCallable, Category= "Spawn")
-	void Spawn();
+	bool bWaveSpawnerIsRunning = false;
+	bool bPlayerCanStartTheWave = false;
 
+	UPROPERTY(VisibleAnywhere)
+	uint16 WaveIndex = 0;
+	
+	/**
+	 * @brief Pointor to the struct of the current wave. If nullptr, there is not wave
+	 */
+	struct FWaveInfo* pCurrentWave = nullptr;
+
+	UFUNCTION(BlueprintCallable)
+    void CheckIfCurrentWaveSpawnerIsEmpty();
+    
+ 	UFUNCTION(BlueprintCallable)
+    bool IsAllEnemiesDied();
+
+	UFUNCTION(BlueprintCallable)
+	void CheckIfPlayerCanStartTheWave();
+	
+	UFUNCTION(BlueprintCallable)
+	void Spawn(float DeltaTime);
+
+	UFUNCTION(BlueprintCallable)
+	void NextWave();
+
+	UFUNCTION(BlueprintCallable)
+	void SendSpawnsRequestsToSpawners();
+
+	UFUNCTION(BlueprintCallable)
+    void MoveLivingEnemyOnDeathContainer(class ABaseCharacter* pCharacter);
 
 	FActorSpawnParameters SpawnParams;
 	bool Spawning = true;

@@ -35,6 +35,17 @@ ABasePlayer::ABasePlayer()
     // set our turn rates for input
     BaseTurnRate = 45.f;
     BaseLookUpRate = 45.f;
+    
+	// Don't rotate when the controller rotates. Let that just affect the camera.
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+
+	// Configure character movement
+	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
+	GetCharacterMovement()->JumpZVelocity = 600.f;
+	GetCharacterMovement()->AirControl = 0.2f;
 
     // Create a camera boom (pulls in towards the player if there is a collision)
     CameraBoom = CreateDefaultSubobject<UCharacterCameraBoom>(TEXT("CameraBoom"));
@@ -54,7 +65,7 @@ ABasePlayer::ABasePlayer()
     GetCapsuleComponent()->SetCollisionObjectType(COLLISION_CHANNEL_PLAYER);
     
     Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
-    Weapon->SetupAttachment(GetMesh(), "weaponShield_l");
+    Weapon->SetupAttachment(GetMesh(), "LeftWeaponShield");
     Weapon->SetRelativeScale3D({1.5f, 1.5f, 1.f});
     Weapon->SetRelativeRotation({0.f, 0.f, 20.f});
     Weapon->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
@@ -219,13 +230,7 @@ void ABasePlayer::SetCanAttack(bool canAttack)
     bCanAttack = canAttack;
 }
 
-void ABasePlayer::AttackActiveHitBox(bool isActive)
-{
-    if (isActive)
-        BoxWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    else
-        BoxWeapon->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-}
+
 
 void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
 {
@@ -258,7 +263,7 @@ void ABasePlayer::OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
     if (OtherComp->ComponentHasTag("Body"))
     {
         ABaseEnemy* enemy = Cast<ABaseEnemy>(OtherActor);
-        enemy->TakeDammage(Dammage);
+        enemy->TakeDamageCharacter(Damage);
 
         if (enemy->IsDead())
         {

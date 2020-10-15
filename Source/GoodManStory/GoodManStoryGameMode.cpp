@@ -1,7 +1,6 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
 #include "GoodManStoryGameMode.h"
-#include "GoodManStoryCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 
 AGoodManStoryGameMode::AGoodManStoryGameMode()

@@ -149,9 +149,6 @@ protected:
     UFUNCTION(BlueprintCallable, Category = "Attack")
     void SetCanAttack(bool canAttack);
 
-    UFUNCTION(BlueprintCallable, Category = "Attack")
-    void AttackActiveHitBox(bool isActive);
-
     UFUNCTION()
     void OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
         int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
