@@ -22,6 +22,7 @@
 #include "Containers/UnrealString.h"
 
 #include "Components/CapsuleComponent.h"
+#include "Components/SphereComponent.h"
 
 #define COLLISION_CHANNEL_PLAYER ECC_GameTraceChannel1
 
@@ -81,6 +82,16 @@ ABasePlayer::ABasePlayer()
     BoxWeapon->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
     BoxWeapon->SetRelativeLocation({0.f, 70.f, 0.f});
     BoxWeapon->SetRelativeScale3D({1.f, 0.8f, 0.5f});
+
+    SphericChargeZone = CreateDefaultSubobject<USphereComponent>("SphericChargeZone");
+    SphericChargeZone->SetupAttachment(GetMesh());
+    SphericChargeZone->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    SphericChargeZone->OnComponentBeginOverlap.AddDynamic(this, &ABasePlayer::OnChargeBeginOverlap);
+    SphericChargeZone->SetCollisionObjectType(COLLISION_CHANNEL_PLAYER);
+    SphericChargeZone->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Ignore);
+    SphericChargeZone->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+    SphericChargeZone->SetRelativeScale3D({1.5f, 1.5f, 1.5f});
+    
     // Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
     // are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
@@ -116,6 +127,8 @@ void ABasePlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
 
 void ABasePlayer::Charge()
 {
+    PlayAnimMontage(SlotAnimationsCharge);
+    
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Charge"));
 }
@@ -225,11 +238,15 @@ void ABasePlayer::ResetCombo()
     bAttacking = false;
 }
 
-void ABasePlayer::SetCanAttack(bool canAttack)
+void ABasePlayer::SetCanAttack(bool bNewCanAttack)
 {
-    bCanAttack = canAttack;
+    bCanAttack = bNewCanAttack;
 }
 
+void ABasePlayer::SetCanCharge(bool bNewCanCharge)
+{
+    
+}
 
 
 void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
@@ -270,6 +287,25 @@ void ABasePlayer::OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
             TakeRage(enemy->GetRageRewardOnKill());
         }
     }
+}
+
+void ABasePlayer::OnChargeBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+                                       UPrimitiveComponent* OtherComp,
+                                       int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+    if (OtherComp->ComponentHasTag("Body"))
+    {
+        ABaseEnemy* enemy = Cast<ABaseEnemy>(OtherActor);
+        enemy->Launch(SweepResult.ImpactNormal, 100.f);
+    }
+}
+
+void ABasePlayer::ChargeActiveHitBox(bool bIsActive)
+{
+    if (bIsActive)
+        SphericChargeZone->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    else
+        SphericChargeZone->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ABasePlayer::Kill()

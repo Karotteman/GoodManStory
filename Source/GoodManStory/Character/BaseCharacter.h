@@ -25,16 +25,16 @@ protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
-    UPROPERTY(Category = Stats, EditAnywhere, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, Category = Stats)
     float LifeMax = 100.f;
 
-    UPROPERTY(Category = Stats, blueprintReadWrite)
+    UPROPERTY(EditAnywhere, Category = Stats)
     float Life = LifeMax;
 
-    UPROPERTY(Category = Stats, EditAnywhere, blueprintReadWrite)
+    UPROPERTY(EditAnywhere, Category = Stats)
     float Damage = 20.f;
 
-    UPROPERTY(Category = Settings, EditAnywhere, blueprintReadWrite)
+    UPROPERTY(EditAnywhere, Category = Settings)
     bool bIsDead = false;
 
 
@@ -52,6 +52,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Kill")
     virtual void Kill();
+
+    UFUNCTION(BlueprintCallable)
+    virtual void Launch(FVector Direction, float Force, bool bXYOverride = false, bool bZOverride = false);
 
     /**
     * @brief Function to heal the player
@@ -76,5 +79,5 @@ public:
     FORCEINLINE bool IsDead() const noexcept { return bIsDead; }
 
     UFUNCTION(BlueprintCallable, Category = "Attack")
-    void AttackActiveHitBox(bool isActive, class UBoxComponent* BoxWeapon);
+    void AttackActiveHitBox(bool bIsActive, class UBoxComponent* BoxWeapon);
 };

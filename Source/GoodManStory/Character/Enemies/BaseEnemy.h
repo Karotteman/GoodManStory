@@ -32,10 +32,17 @@ class GOODMANSTORY_API ABaseEnemy : public ABaseCharacter
     UPROPERTY(Category = Stats, EditAnywhere)
     float RangeAttack = 100.f;
 
-    UPROPERTY(Category = Stats, EditAnywhere)
+    UPROPERTY(EditAnywhere, Category = Attack)
+    bool bIsEjectOnAttack = true;
+
+    UPROPERTY(EditAnywhere, Category = Attack)
+    bool bIsEjectOnCharge = true;
+    
+    UPROPERTY(Category = Stats, EditAnywhere, meta=(EditCondition="bIsEjectOnAttack"))
     float ForceEjection = 300.f;
 
-
+    UPROPERTY(Category = Stats, EditAnywhere, meta=(EditCondition="bIsEjectOnCharge"))
+    float ForceChargeEjection = 150.f;
 
     UPROPERTY(Category = Stats, EditAnywhere,meta=(EditCondition="bRandomSize"))
     float SizeMin = 1.f;
@@ -46,11 +53,19 @@ class GOODMANSTORY_API ABaseEnemy : public ABaseCharacter
     UPROPERTY(Category = Stats, EditAnywhere,meta=(EditCondition="!bRandomSize"))
     float Size = 1.f;
 
-
 public:
 
-    UPROPERTY(Category=Stats, EditAnywhere, AdvancedDisplay)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
+    bool bAttacking = false;
+
+    UPROPERTY(EditAnywhere, Category=Stats, AdvancedDisplay)
     bool bRandomSize = false;
+
+public:
+    
+    ABaseEnemy();
+    
+    virtual void Kill() override;
     
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetMinAvoidanceRadius() const noexcept { return MinAvoidanceRadius; }
@@ -60,12 +75,6 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetAvoidanceLimitDistance() const noexcept { return AvoidanceLimitDistance; }
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack, meta = (AllowPrivateAccess = "true"))
-    bool bAttacking = false;
-    
-    ABaseEnemy();
-    virtual void Kill() override;
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetRageRewardOnKill() const noexcept { return RageRewardOnKill; }
@@ -87,6 +96,7 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetSize() const noexcept { return Size; }
+    
 public:
     UPROPERTY(EditAnywhere,BlueprintReadOnly, Category=Attack)
     class UAnimMontage* Attack;

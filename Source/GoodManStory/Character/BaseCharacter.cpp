@@ -57,10 +57,15 @@ void ABaseCharacter::Kill()
 	OnCharacterDeath.Broadcast(this);
 }
 
-void ABaseCharacter::AttackActiveHitBox(bool isActive, UBoxComponent* BoxWeapon)
+void ABaseCharacter::Launch(FVector Direction, float Force, bool bXYOverride, bool bZOverride)
 {
-	if (!isActive)
-		BoxWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	else
+	LaunchCharacter(Direction * Force, bXYOverride, bZOverride);
+}
+
+void ABaseCharacter::AttackActiveHitBox(bool bIsActive, UBoxComponent* BoxWeapon)
+{
+	if (bIsActive)
 		BoxWeapon->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	else
+		BoxWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }

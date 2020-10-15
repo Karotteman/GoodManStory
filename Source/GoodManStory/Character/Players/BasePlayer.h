@@ -15,39 +15,50 @@ class GOODMANSTORY_API ABasePlayer : public ABaseCharacter
     GENERATED_BODY()
 
     /** Camera boom positioning the camera behind the character */
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(VisibleAnywhere, Category = Camera)
     class UCharacterCameraBoom* CameraBoom;
 
     /** Follow camera */
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(VisibleAnywhere, Category = Camera)
     class UCameraComponent* FollowCamera;
 
     class UMaterialInstanceDynamic* DynMaterial;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, Category = Weapon)
     class UStaticMeshComponent* Weapon;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
+public :
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
     class UBoxComponent* BoxWeapon;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack, meta = (AllowPrivateAccess = "true"))
+    
+private:
+    UPROPERTY(EditAnywhere, Category = Attack)
     TArray<UAnimMontage*> SlotAnimationsAttackCombo;
+
+    UPROPERTY(EditAnywhere, Category = Attack)
+    UAnimMontage* SlotAnimationsCharge;
 
     uint8 BasicAttackComboCount = 0;
 
-    UPROPERTY(Category = Weapon, EditAnywhere)
+    /**
+    * @brief This collider is use when player use its feature "Charge"
+    */
+    UPROPERTY(EditAnywhere, Category = Weapon)
+    class USphereComponent* SphericChargeZone;
+
+    UPROPERTY(EditAnywhere, Category = Weapon)
     float Dammage = 20.f;
-    
-    UPROPERTY(Category = Stats, EditAnywhere)
+
+    UPROPERTY(EditAnywhere, Category = Stats)
     float MaxRage = 1000.f;
-    
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stats, meta = (AllowPrivateAccess = "true"))
+
+    UPROPERTY(VisibleAnywhere, Category = Stats)
     float Rage = 0.f;
 
     UPROPERTY(Category = Stats, EditAnywhere)
     uint8 MaxLevel = 3;
-    
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stats, meta = (AllowPrivateAccess = "true"))
+
+    UPROPERTY(VisibleAnywhere, Category = Stats)
     uint8 Level = 0;
 
     bool bAttacking = false;
@@ -57,11 +68,11 @@ public:
     ABasePlayer();
 
     /** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+    UPROPERTY(VisibleAnywhere, Category = Camera)
     float BaseTurnRate;
 
     /** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+    UPROPERTY(VisibleAnywhere, Category = Camera)
     float BaseLookUpRate;
 
 public:
@@ -134,7 +145,7 @@ protected:
     */
     UFUNCTION(BlueprintCallable, Category=Character)
     void MoveCameraArmLength(float FScale) noexcept;
-    
+
     UFUNCTION(BlueprintCallable, Category=Character)
     void ResetCameraArmLength() noexcept;
 
@@ -143,26 +154,36 @@ protected:
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
     // End of APawn interface
 
-    UFUNCTION(BlueprintCallable, Category = "Attack")
+    UFUNCTION(BlueprintCallable, Category = Attack)
     void ResetCombo();
 
-    UFUNCTION(BlueprintCallable, Category = "Attack")
-    void SetCanAttack(bool canAttack);
+    UFUNCTION(BlueprintCallable, Category = Attack)
+    void SetCanAttack(bool bNewCanAttack);
+
+    UFUNCTION(BlueprintCallable, Category = Attack)
+    void SetCanCharge(bool bNewCanCharge);
 
     UFUNCTION()
     void OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-        int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-    
+                              int32                OtherBodyIndex, bool    bFromSweep, const FHitResult& SweepResult);
+
+    UFUNCTION()
+    void OnChargeBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+                              int32                OtherBodyIndex, bool    bFromSweep, const FHitResult& SweepResult);
+
+    UFUNCTION(BlueprintCallable, Category = "Attack")
+    void ChargeActiveHitBox(bool bIsActive);
+
 public:
     /** Returns CameraBoom subobject **/
     FORCEINLINE class UCharacterCameraBoom* GetCameraBoom() const { return CameraBoom; }
-    
+
     /** Returns FollowCamera subobject **/
     FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     void TakeRage(float AdditionnalRage) noexcept;
-    
+
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetRage() const noexcept { return Rage; }
 
@@ -171,7 +192,7 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     void LevelUp() noexcept;
-        
+
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE uint8 GetPlayerLevel() const noexcept { return Level; }
 
