@@ -107,56 +107,73 @@ void AEnemiesManager::Spawn(float DeltaTime)
     {
         if (pCurrentWave->SpawnInfoContainer[i].EnemyCounter == 0)
             continue;
-
+    
         pCurrentWave->SpawnInfoContainer[i].TimeCount += DeltaTime;
 
-        if (pCurrentWave->SpawnInfoContainer[i].TimeCount >= pCurrentWave->SpawnInfoContainer[i].SpawnIntervalDelay)
+        if (pCurrentWave->SpawnInfoContainer[i].bWaitOffset)
         {
-            pCurrentWave->SpawnInfoContainer[i].TimeCount -= pCurrentWave->SpawnInfoContainer[i].SpawnIntervalDelay;
-
-            if (true) //Can spawn with max entity number
+            /*Increment offset*/
+            if (pCurrentWave->SpawnInfoContainer[i].TimeCount >= pCurrentWave->SpawnInfoContainer[i].FirstSpawnDelayOffset)
             {
-                const int IndexSpawner = pCurrentWave->SpawnInfoContainer[i].SpawnerID != -1 ?
-                                             pCurrentWave->SpawnInfoContainer[i].SpawnerID :
-                                             FMath::RandRange(0, SpawnersContainer.Num() - 1);
+                /*Is ready to spawn entity*/
+                pCurrentWave->SpawnInfoContainer[i].bWaitOffset = false;
+                pCurrentWave->SpawnInfoContainer[i].TimeCount -= pCurrentWave->SpawnInfoContainer[i].FirstSpawnDelayOffset;
+            }
+            else
+            {
+                /*Is not ready to spawn entity*/
+                continue;
+            }
+        }
 
-                const FVector RandLocation = FVector{
-                    FMath::RandPointInCircle(pCurrentWave->SpawnInfoContainer[i].SpawnRadius),
-                    0.0f
-                };
+        /*Increment spawn interval*/
+        if (pCurrentWave->SpawnInfoContainer[i].TimeCount < pCurrentWave->SpawnInfoContainer[i].SpawnIntervalDelay)
+            continue;
+        else
+            pCurrentWave->SpawnInfoContainer[i].TimeCount -= pCurrentWave->SpawnInfoContainer[i].SpawnIntervalDelay;
+       
+        if (true) //Can spawn with max entity number
+        {
+            const int IndexSpawner = pCurrentWave->SpawnInfoContainer[i].SpawnerID != -1 ?
+                                         pCurrentWave->SpawnInfoContainer[i].SpawnerID :
+                                         FMath::RandRange(0, SpawnersContainer.Num() - 1);
 
-                if (IndexSpawner >= SpawnersContainer.Num())
-                {
-                    if (GEngine)
-                        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red,
-                                                         TEXT(
-                                                             "SpawnerID invalide to spawn entity. Please check the dataTable spawner Id and if spawner is insert on EnemyManager spawner contenor"));
-                    return;
-                }
+            const FVector RandLocation = FVector{
+                FMath::RandPointInCircle(pCurrentWave->SpawnInfoContainer[i].SpawnRadius),
+                0.0f
+            };
 
-                ABaseEnemy* NewEnemy = GetWorld()->SpawnActor<ABaseEnemy>(
-                    pCurrentWave->SpawnInfoContainer[i].EnemyType.Get(),
-                    SpawnersContainer[IndexSpawner]->GetActorLocation() + RandLocation,
-                    SpawnersContainer[IndexSpawner]->GetActorRotation(), SpawnParams);
+            if (IndexSpawner >= SpawnersContainer.Num())
+            {
+                if (GEngine)
+                    GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red,
+                                                     TEXT(
+                                                         "SpawnerID invalide to spawn entity. Please check the dataTable spawner Id and if spawner is insert on EnemyManager spawner contenor"));
+                return;
+            }
 
-                float Scale;
-                if (NewEnemy->bRandomSize)
-                    Scale = FMath::RandRange(NewEnemy->GetSizeMin(),NewEnemy->GetSizeMax());
-                else
-                    Scale = NewEnemy->GetSize();
+            ABaseEnemy* NewEnemy = GetWorld()->SpawnActor<ABaseEnemy>(
+                pCurrentWave->SpawnInfoContainer[i].EnemyType.Get(),
+                SpawnersContainer[IndexSpawner]->GetActorLocation() + RandLocation,
+                SpawnersContainer[IndexSpawner]->GetActorRotation(), SpawnParams);
 
-                FVector RandScale = FVector{Scale,Scale,Scale};            
-                NewEnemy->SetActorScale3D(RandScale);
-                
-                NewEnemy->OnCharacterDeath.AddDynamic(this, &AEnemiesManager::MoveLivingEnemyOnDeathContainer);
-                LivingEnemyContainer.Add(NewEnemy);
+            float Scale;
+            if (NewEnemy->bRandomSize)
+                Scale = FMath::RandRange(NewEnemy->GetSizeMin(),NewEnemy->GetSizeMax());
+            else
+                Scale = NewEnemy->GetSize();
 
-                pCurrentWave->SpawnInfoContainer[i].EnemyCounter--;
+            FVector RandScale = FVector{Scale,Scale,Scale};            
+            NewEnemy->SetActorScale3D(RandScale);
+            
+            NewEnemy->OnCharacterDeath.AddDynamic(this, &AEnemiesManager::MoveLivingEnemyOnDeathContainer);
+            LivingEnemyContainer.Add(NewEnemy);
 
-                if (pCurrentWave->SpawnInfoContainer[i].EnemyCounter == 0)
-                {
-                    CheckIfCurrentWaveSpawnerIsEmpty();
-                }
+            pCurrentWave->SpawnInfoContainer[i].EnemyCounter--;
+
+            if (pCurrentWave->SpawnInfoContainer[i].EnemyCounter == 0)
+            {
+                CheckIfCurrentWaveSpawnerIsEmpty();
             }
         }
     }
@@ -175,9 +192,11 @@ void AEnemiesManager::NextWave()
 
     pCurrentWave = reinterpret_cast<FWaveInfo*>(WaveTableIterator.Value());
 
+    /*Init the wave*/
     for (int i = 0; i < pCurrentWave->SpawnInfoContainer.Num(); ++i)
     {
         pCurrentWave->SpawnInfoContainer[i].EnemyCounter = pCurrentWave->SpawnInfoContainer[i].EnemyNumber;
+        pCurrentWave->SpawnInfoContainer[i].bWaitOffset = pCurrentWave->SpawnInfoContainer[i].FirstSpawnDelayOffset > 0.f;
     }
 
     if (!pCurrentWave)
