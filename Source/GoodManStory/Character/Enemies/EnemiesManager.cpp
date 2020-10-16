@@ -122,7 +122,7 @@ void AEnemiesManager::Spawn(float DeltaTime)
 
                 const FVector RandLocation = FVector{
                     FMath::RandPointInCircle(pCurrentWave->SpawnInfoContainer[i].SpawnRadius),
-                    200.0f
+                    0.0f
                 };
 
                 if (IndexSpawner >= SpawnersContainer.Num())
