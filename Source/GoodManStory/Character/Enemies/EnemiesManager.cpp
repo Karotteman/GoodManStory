@@ -73,7 +73,7 @@ void AEnemiesManager::Tick(float DeltaTime)
         }
         else
         {
-            CheckIfPlayerCanStartTheWave();
+            CheckIfPlayerCanStartTheNextWave();
         }
     }
 }
@@ -89,30 +89,31 @@ void AEnemiesManager::CheckIfCurrentWaveSpawnerIsEmpty()
     bWaveSpawnerIsRunning = rst;
 }
 
-bool AEnemiesManager::IsAllEnemiesDied()
+bool AEnemiesManager::IsAllEnemiesDied() const
 {
     bool bRst = true;
 
     for (int i = 0; i < EnemiesStatsContainer.Num() && bRst; ++i)
     {
-        bRst |= EnemiesStatsContainer[i].LivingEnemyContainer.Num() == 0;
+        bRst &= EnemiesStatsContainer[i].LivingEnemyContainer.Num() == 0;
     }
+
     return bRst;
 }
 
-void AEnemiesManager::CheckIfPlayerCanStartTheWave()
+void AEnemiesManager::CheckIfPlayerCanStartTheNextWave()
 {
-    if (pCurrentWave == nullptr)
+    TMap<FName, unsigned char*>::TRangedForConstIterator WaveTableIterator = WaveDataTable->GetRowMap().begin();
+
+    for (int i = 0; i < WaveIndex; ++i)
     {
-        FWaveInfo* pFirstWave = reinterpret_cast<FWaveInfo*>(WaveDataTable->GetRowMap().begin().Value());
-        if (pFirstWave->ZoneID == -1 || ZonesContainer[pFirstWave->ZoneID]->IsPlayerOnThisZone())
-            bPlayerCanStartTheWave = true;
+        ++WaveTableIterator;
     }
-    else
-    {
-        if (pCurrentWave->ZoneID == -1 || ZonesContainer[pCurrentWave->ZoneID]->IsPlayerOnThisZone())
-            bPlayerCanStartTheWave = true;
-    }
+
+    FWaveInfo* pNextWave = reinterpret_cast<FWaveInfo*>(WaveTableIterator.Value());
+    
+    if (pNextWave->ZoneID == -1 || ZonesContainer[pNextWave->ZoneID]->IsPlayerOnThisZone())
+        bPlayerCanStartTheWave = true;
 }
 
 void AEnemiesManager::Spawn(float DeltaTime)

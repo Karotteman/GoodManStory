@@ -63,10 +63,10 @@ protected:
     void CheckIfCurrentWaveSpawnerIsEmpty();
 
     UFUNCTION(BlueprintCallable)
-    bool IsAllEnemiesDied();
+    bool IsAllEnemiesDied() const;
 
     UFUNCTION(BlueprintCallable)
-    void CheckIfPlayerCanStartTheWave();
+    void CheckIfPlayerCanStartTheNextWave();
 
     UFUNCTION(BlueprintCallable)
     void Spawn(float DeltaTime);
