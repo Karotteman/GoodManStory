@@ -111,7 +111,7 @@ void AEnemiesManager::CheckIfPlayerCanStartTheNextWave()
     }
 
     FWaveInfo* pNextWave = reinterpret_cast<FWaveInfo*>(WaveTableIterator.Value());
-    
+
     if (pNextWave->ZoneID == -1 || ZonesContainer[pNextWave->ZoneID]->IsPlayerOnThisZone())
         bPlayerCanStartTheWave = true;
 }
@@ -151,15 +151,19 @@ void AEnemiesManager::Spawn(float DeltaTime)
         else
             pCurrentWave->SpawnInfoContainer[i].TimeCount -= pCurrentWave->SpawnInfoContainer[i].SpawnIntervalDelay;
 
-        const int IndexSpawner = pCurrentWave->SpawnInfoContainer[i].SpawnerID != -1 ?
-                                     pCurrentWave->SpawnInfoContainer[i].SpawnerID :
-                                     FMath::RandRange(0, SpawnersContainer.Num() - 1);
+        /*Select the spawner. If multiple spawner is enter, choose random spawner on list*/
+        const int IndexSpawner = (pCurrentWave->SpawnInfoContainer[i].SpawnersID.Num() > 1) ?
+                                     pCurrentWave->SpawnInfoContainer[i].SpawnersID[FMath::RandRange(
+                                         0, pCurrentWave->SpawnInfoContainer[i].SpawnersID.Num() - 1)] :
+                                     pCurrentWave->SpawnInfoContainer[i].SpawnersID[0];
 
+        /*Choose random location (will be associate with spawner position)*/
         const FVector RandLocation = FVector{
             FMath::RandPointInCircle(pCurrentWave->SpawnInfoContainer[i].SpawnRadius),
             0.0f
         };
 
+        /*Check if index correspond to the spawner and avoid crash*/
         if (IndexSpawner >= SpawnersContainer.Num())
         {
             if (GEngine)
@@ -169,12 +173,14 @@ void AEnemiesManager::Spawn(float DeltaTime)
             return;
         }
 
+        /*Create the entity with the setting*/
         ABaseEnemy* NewEnemy = GetWorld()->SpawnActor<ABaseEnemy>(pCurrentWave->SpawnInfoContainer[i].EnemyType.Get(),
                                                                   SpawnersContainer[IndexSpawner]->GetActorLocation() +
                                                                   RandLocation,
                                                                   SpawnersContainer[IndexSpawner]->GetActorRotation(),
                                                                   SpawnParams);
 
+        /*Generate rqandom scale if entity use RandomScale with limits*/
         float Scale;
         if (NewEnemy->bRandomSize)
             Scale = FMath::RandRange(NewEnemy->GetSizeMin(), NewEnemy->GetSizeMax());
@@ -184,16 +190,20 @@ void AEnemiesManager::Spawn(float DeltaTime)
         FVector RandScale = FVector{Scale, Scale, Scale};
         NewEnemy->SetActorScale3D(RandScale);
 
+        /*Add function to move eneity on death contenor when it death*/
         NewEnemy->OnCharacterDeath.AddDynamic(this, &AEnemiesManager::MoveLivingEnemyOnDeathContainer);
 
+        /*Add the entity on the corresponding contenor*/
         for (FEnemyState& EnemyStats : EnemiesStatsContainer)
         {
             if (pCurrentWave->SpawnInfoContainer[i].EnemyType == EnemyStats.Type)
             {
                 EnemyStats.LivingEnemyContainer.Add(NewEnemy);
+                break;
             }
         }
 
+        /*Decremente the counter and check if all enemies if death*/
         pCurrentWave->SpawnInfoContainer[i].EnemyCounter--;
 
         if (pCurrentWave->SpawnInfoContainer[i].EnemyCounter == 0)

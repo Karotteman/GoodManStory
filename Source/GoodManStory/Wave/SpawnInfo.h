@@ -44,10 +44,10 @@ struct FSpawnInfo
 	float SpawnRadius = 0.f;
 
 	/**
-	* @brief Spawn index in SpawnContainer. -1 for random spawner
+	* @brief Spawns index in SpawnContainer. If multiple spawner is enter, random spawner is choose on the list
 	*/
 	UPROPERTY(EditAnywhere)
-	int SpawnerID = -1;
+	TArray<uint16> SpawnersID;
 
 	float TimeCount = 0.f;
 };
