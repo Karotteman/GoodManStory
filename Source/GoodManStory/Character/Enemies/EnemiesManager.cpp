@@ -26,6 +26,8 @@ AEnemiesManager::AEnemiesManager()
     if (WaveDataTableObject.Succeeded())
     {
         WaveDataTable = WaveDataTableObject.Object;
+
+        /*Reserve emplacement for death enemies*/
         DeathEnemyContainer.Reserve(MaxDeathEnemies);
     }
     else
@@ -33,6 +35,12 @@ AEnemiesManager::AEnemiesManager()
         if (GEngine)
             GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("CANT FIND WAVE DATA TABLE")));
         return;
+    }
+
+    /*Reserve emplacement for living enemies*/
+    for (FEnemyState& EnemyStats : EnemiesStatsContainer)
+    {
+        EnemyStats.LivingEnemyContainer.Reserve(EnemyStats.MaxNumberOnScene);
     }
 }
 
@@ -57,7 +65,7 @@ void AEnemiesManager::Tick(float DeltaTime)
     {
         Spawn(DeltaTime);
     }
-    else if ( WaveIndex < WaveDataTable->GetRowMap().Num() && IsAllEnemiesDied())
+    else if (WaveIndex < WaveDataTable->GetRowMap().Num() && IsAllEnemiesDied())
     {
         if (bPlayerCanStartTheWave)
         {
@@ -65,7 +73,7 @@ void AEnemiesManager::Tick(float DeltaTime)
         }
         else
         {
-            CheckIfPlayerCanStartTheWave();
+            CheckIfPlayerCanStartTheNextWave();
         }
     }
 }
@@ -75,89 +83,132 @@ void AEnemiesManager::CheckIfCurrentWaveSpawnerIsEmpty()
     bool rst = false;
     for (int i = 0; i < pCurrentWave->SpawnInfoContainer.Num() && !rst; ++i)
     {
-         rst |= (pCurrentWave->SpawnInfoContainer[i].EnemyCounter != 0);
+        rst |= (pCurrentWave->SpawnInfoContainer[i].EnemyCounter != 0);
     }
-    
+
     bWaveSpawnerIsRunning = rst;
 }
 
-bool AEnemiesManager::IsAllEnemiesDied()
+bool AEnemiesManager::IsAllEnemiesDied() const
 {
-    return LivingEnemyContainer.Num() == 0;
+    bool bRst = true;
+
+    for (int i = 0; i < EnemiesStatsContainer.Num() && bRst; ++i)
+    {
+        bRst &= EnemiesStatsContainer[i].LivingEnemyContainer.Num() == 0;
+    }
+
+    return bRst;
 }
 
-void AEnemiesManager::CheckIfPlayerCanStartTheWave()
+void AEnemiesManager::CheckIfPlayerCanStartTheNextWave()
 {
-    if (pCurrentWave == nullptr)
+    TMap<FName, unsigned char*>::TRangedForConstIterator WaveTableIterator = WaveDataTable->GetRowMap().begin();
+
+    for (int i = 0; i < WaveIndex; ++i)
     {
-        FWaveInfo* pFirstWave = reinterpret_cast<FWaveInfo*>(WaveDataTable->GetRowMap().begin().Value());
-        if (pFirstWave->ZoneID == -1 || ZonesContainer[pFirstWave->ZoneID]->IsPlayerOnThisZone())
-            bPlayerCanStartTheWave = true;
+        ++WaveTableIterator;
     }
-    else
-    {
-        if (pCurrentWave->ZoneID == -1 || ZonesContainer[pCurrentWave->ZoneID]->IsPlayerOnThisZone())
-            bPlayerCanStartTheWave = true;
-    }
+
+    FWaveInfo* pNextWave = reinterpret_cast<FWaveInfo*>(WaveTableIterator.Value());
+
+    if (pNextWave->ZoneID == -1 || ZonesContainer[pNextWave->ZoneID]->IsPlayerOnThisZone())
+        bPlayerCanStartTheWave = true;
 }
 
 void AEnemiesManager::Spawn(float DeltaTime)
 {
     for (int i = 0; i < pCurrentWave->SpawnInfoContainer.Num(); ++i)
     {
-        if (pCurrentWave->SpawnInfoContainer[i].EnemyCounter == 0)
+        /*Info : Block the counter if spaner can't spawn the entity*/
+        if (pCurrentWave->SpawnInfoContainer[i].EnemyCounter == 0 || !CanSpawnTheEntityWithoutExcesMaxNumber(
+            pCurrentWave->SpawnInfoContainer[i].EnemyType.Get()))
             continue;
 
         pCurrentWave->SpawnInfoContainer[i].TimeCount += DeltaTime;
 
-        if (pCurrentWave->SpawnInfoContainer[i].TimeCount >= pCurrentWave->SpawnInfoContainer[i].SpawnIntervalDelay)
+        if (pCurrentWave->SpawnInfoContainer[i].bWaitOffset)
         {
+            /*Increment offset*/
+            if (pCurrentWave->SpawnInfoContainer[i].TimeCount >= pCurrentWave->SpawnInfoContainer[i].
+                FirstSpawnDelayOffset)
+            {
+                /*Is ready to spawn entity*/
+                pCurrentWave->SpawnInfoContainer[i].bWaitOffset = false;
+                pCurrentWave->SpawnInfoContainer[i].TimeCount -= pCurrentWave->SpawnInfoContainer[i].
+                    FirstSpawnDelayOffset;
+            }
+            else
+            {
+                /*Is not ready to spawn entity*/
+                continue;
+            }
+        }
+
+        /*Increment spawn interval*/
+        if (pCurrentWave->SpawnInfoContainer[i].TimeCount < pCurrentWave->SpawnInfoContainer[i].SpawnIntervalDelay)
+            continue;
+        else
             pCurrentWave->SpawnInfoContainer[i].TimeCount -= pCurrentWave->SpawnInfoContainer[i].SpawnIntervalDelay;
 
-            if (true) //Can spawn with max entity number
+        /*Select the spawner. If multiple spawner is enter, choose random spawner on list*/
+        const int IndexSpawner = (pCurrentWave->SpawnInfoContainer[i].SpawnersID.Num() > 1) ?
+                                     pCurrentWave->SpawnInfoContainer[i].SpawnersID[FMath::RandRange(
+                                         0, pCurrentWave->SpawnInfoContainer[i].SpawnersID.Num() - 1)] :
+                                     pCurrentWave->SpawnInfoContainer[i].SpawnersID[0];
+
+        /*Choose random location (will be associate with spawner position)*/
+        const FVector RandLocation = FVector{
+            FMath::RandPointInCircle(pCurrentWave->SpawnInfoContainer[i].SpawnRadius),
+            0.0f
+        };
+
+        /*Check if index correspond to the spawner and avoid crash*/
+        if (IndexSpawner >= SpawnersContainer.Num())
+        {
+            if (GEngine)
+                GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red,
+                                                 TEXT(
+                                                     "SpawnerID invalide to spawn entity. Please check the dataTable spawner Id and if spawner is insert on EnemyManager spawner contenor"));
+            return;
+        }
+
+        /*Create the entity with the setting*/
+        ABaseEnemy* NewEnemy = GetWorld()->SpawnActor<ABaseEnemy>(pCurrentWave->SpawnInfoContainer[i].EnemyType.Get(),
+                                                                  SpawnersContainer[IndexSpawner]->GetActorLocation() +
+                                                                  RandLocation,
+                                                                  SpawnersContainer[IndexSpawner]->GetActorRotation(),
+                                                                  SpawnParams);
+
+        /*Generate rqandom scale if entity use RandomScale with limits*/
+        float Scale;
+        if (NewEnemy->bRandomSize)
+            Scale = FMath::RandRange(NewEnemy->GetSizeMin(), NewEnemy->GetSizeMax());
+        else
+            Scale = NewEnemy->GetSize();
+
+        FVector RandScale = FVector{Scale, Scale, Scale};
+        NewEnemy->SetActorScale3D(RandScale);
+
+        /*Add function to move eneity on death contenor when it death*/
+        NewEnemy->OnCharacterDeath.AddDynamic(this, &AEnemiesManager::MoveLivingEnemyOnDeathContainer);
+
+        /*Add the entity on the corresponding contenor*/
+        for (FEnemyState& EnemyStats : EnemiesStatsContainer)
+        {
+            if (pCurrentWave->SpawnInfoContainer[i].EnemyType == EnemyStats.Type)
             {
-                const int IndexSpawner = pCurrentWave->SpawnInfoContainer[i].SpawnerID != -1 ?
-                                             pCurrentWave->SpawnInfoContainer[i].SpawnerID :
-                                             FMath::RandRange(0, SpawnersContainer.Num() - 1);
-
-                const FVector RandLocation = FVector{
-                    FMath::RandPointInCircle(pCurrentWave->SpawnInfoContainer[i].SpawnRadius),
-                    200.0f
-                };
-
-                if (IndexSpawner >= SpawnersContainer.Num())
-                {
-                    if (GEngine)
-                        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red,
-                                                         TEXT(
-                                                             "SpawnerID invalide to spawn entity. Please check the dataTable spawner Id and if spawner is insert on EnemyManager spawner contenor"));
-                    return;
-                }
-
-                ABaseEnemy* NewEnemy = GetWorld()->SpawnActor<ABaseEnemy>(
-                    pCurrentWave->SpawnInfoContainer[i].EnemyType.Get(),
-                    SpawnersContainer[IndexSpawner]->GetActorLocation() + RandLocation,
-                    SpawnersContainer[IndexSpawner]->GetActorRotation(), SpawnParams);
-
-                float Scale;
-                if (NewEnemy->bRandomSize)
-                    Scale = FMath::RandRange(NewEnemy->GetSizeMin(),NewEnemy->GetSizeMax());
-                else
-                    Scale = NewEnemy->GetSize();
-
-                FVector RandScale = FVector{Scale,Scale,Scale};            
-                NewEnemy->SetActorScale3D(RandScale);
-                
-                NewEnemy->OnCharacterDeath.AddDynamic(this, &AEnemiesManager::MoveLivingEnemyOnDeathContainer);
-                LivingEnemyContainer.Add(NewEnemy);
-
-                pCurrentWave->SpawnInfoContainer[i].EnemyCounter--;
-
-                if (pCurrentWave->SpawnInfoContainer[i].EnemyCounter == 0)
-                {
-                    CheckIfCurrentWaveSpawnerIsEmpty();
-                }
+                EnemyStats.LivingEnemyContainer.Add(NewEnemy);
+                break;
             }
+        }
+
+        /*Decremente the counter and check if all enemies if death*/
+        pCurrentWave->SpawnInfoContainer[i].EnemyCounter--;
+
+        if (pCurrentWave->SpawnInfoContainer[i].EnemyCounter == 0)
+        {
+            CheckIfCurrentWaveSpawnerIsEmpty();
         }
     }
 }
@@ -175,9 +226,12 @@ void AEnemiesManager::NextWave()
 
     pCurrentWave = reinterpret_cast<FWaveInfo*>(WaveTableIterator.Value());
 
+    /*Init the wave*/
     for (int i = 0; i < pCurrentWave->SpawnInfoContainer.Num(); ++i)
     {
         pCurrentWave->SpawnInfoContainer[i].EnemyCounter = pCurrentWave->SpawnInfoContainer[i].EnemyNumber;
+        pCurrentWave->SpawnInfoContainer[i].bWaitOffset  = pCurrentWave->SpawnInfoContainer[i].FirstSpawnDelayOffset >
+            0.f;
     }
 
     if (!pCurrentWave)
@@ -197,23 +251,42 @@ void AEnemiesManager::NextWave()
     bPlayerCanStartTheWave = false;
 }
 
-void AEnemiesManager::SendSpawnsRequestsToSpawners()
+bool AEnemiesManager::CanSpawnTheEntityWithoutExcesMaxNumber(const TSubclassOf<class ABaseEnemy>& Type) const
 {
-    for (int i = 0; i < pCurrentWave->SpawnInfoContainer.Num(); ++i)
+    for (const FEnemyState& EnemyStats : EnemiesStatsContainer)
     {
-        //SpawnersContainer[pCurrentWave->SpawnInfoContainer[i].SpawnerID].ReceiveSpawnRequest();
+        if (Type == EnemyStats.Type)
+        {
+            return EnemyStats.LivingEnemyContainer.Num() != EnemyStats.MaxNumberOnScene;
+        }
     }
+
+    if (GEngine)
+        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red,
+                                         TEXT("TRY TO SPAWN ENEMY NOT REGISTER IN ENEMIES MANAGER"));
+
+    return false;
 }
 
 void AEnemiesManager::MoveLivingEnemyOnDeathContainer(ABaseCharacter* pCharacter)
 {
-    LivingEnemyContainer.Remove(Cast<ABaseEnemy>(pCharacter));
-
-    if (DeathEnemyContainer.Num() == MaxDeathEnemies)
+    for (FEnemyState& EnemyStats : EnemiesStatsContainer)
     {
-        DeathEnemyContainer[0]->Destroy();
-        DeathEnemyContainer.RemoveAt(0);
+        if (pCharacter->GetClass() == EnemyStats.Type.Get())
+        {
+            EnemyStats.LivingEnemyContainer.Remove(Cast<ABaseEnemy>(pCharacter));
+            if (DeathEnemyContainer.Num() == MaxDeathEnemies)
+            {
+                DeathEnemyContainer[0]->Destroy();
+                DeathEnemyContainer.RemoveAt(0);
+            }
+
+            DeathEnemyContainer.Add(Cast<ABaseEnemy>(pCharacter));
+            return;
+        }
     }
 
-    DeathEnemyContainer.Add(Cast<ABaseEnemy>(pCharacter));   
+    if (GEngine)
+        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red,
+                                         TEXT("TRY TO REMOVE ENEMY NOT REGISTER IN ENEMIES MANAGER"));
 }

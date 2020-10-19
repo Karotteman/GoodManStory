@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "GoodManStory/Wave/SpawnRequest.h"
 
 #include "Spawner.generated.h"
 
@@ -24,6 +23,4 @@ protected:
 public:
     // Called every frame
     virtual void Tick(float DeltaTime) override;
-
-    void ReceiveSpawnRequest(const FSpawnRequest& InSpawnRequest);
 };
