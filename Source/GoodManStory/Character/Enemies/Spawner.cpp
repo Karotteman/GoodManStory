@@ -21,8 +21,3 @@ void ASpawner::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 }
-
-void ASpawner::ReceiveSpawnRequest(const FSpawnRequest& InSpawnRequest)
-{
-
-}

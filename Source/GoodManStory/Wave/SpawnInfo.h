@@ -34,6 +34,9 @@ struct FSpawnInfo
 	UPROPERTY(EditAnywhere)
 	float FirstSpawnDelayOffset = 0.f;
 
+	UPROPERTY(VisibleAnywhere, meta=(EditCondition="FirstSpawnDelayOffset > 0.f"))
+	bool bWaitOffset = true; //Use for the offset
+	
 	/**
 	* @brief Spawning radius arround spawner. If many mob must be spawn in same time, please define radius to avoid entity fusion
 	*/
@@ -41,10 +44,10 @@ struct FSpawnInfo
 	float SpawnRadius = 0.f;
 
 	/**
-	* @brief Spawn index in SpawnContainer. -1 for random spawner
+	* @brief Spawns index in SpawnContainer. If multiple spawner is enter, random spawner is choose on the list
 	*/
 	UPROPERTY(EditAnywhere)
-	int SpawnerID = -1;
+	TArray<uint16> SpawnersID;
 
 	float TimeCount = 0.f;
 };
