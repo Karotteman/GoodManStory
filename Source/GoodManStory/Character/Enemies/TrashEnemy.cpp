@@ -4,6 +4,7 @@
 #include "TrashEnemy.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/Engine.h"
 #include "GoodManStory/Character/Players/BasePlayer.h"
@@ -30,7 +31,8 @@ ATrashEnemy::ATrashEnemy()
     BoxWeapon->SetCollisionResponseToChannel(COLLISION_CHANNEL_TRASH, ECollisionResponse::ECR_Ignore);
     BoxWeapon->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 
-
+    GetCapsuleComponent()->SetCollisionObjectType(COLLISION_CHANNEL_TRASH);
+    
     Shield = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Shield"));
     Shield->SetupAttachment(GetMesh(), "hand_l");
     Shield->SetRelativeScale3D({1.f, 1.f, 1.f});

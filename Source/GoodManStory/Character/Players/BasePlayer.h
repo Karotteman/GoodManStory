@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "../BaseCharacter.h"
+#include "PhysicsEngine/RadialForceComponent.h"
+
 #include "BasePlayer.generated.h"
 
 /**
@@ -26,7 +28,7 @@ class GOODMANSTORY_API ABasePlayer : public ABaseCharacter
 
     UPROPERTY(EditAnywhere, Category = Weapon)
     class UStaticMeshComponent* Weapon;
-
+    
 public :
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
     class UBoxComponent* BoxWeapon;
@@ -47,12 +49,26 @@ private:
     class USphereComponent* SphericChargeZone;
 
     UPROPERTY(EditAnywhere, Category = Weapon)
-    float ChargeImpulsionForce = 100.f;
+    float ChargeImpulsionForce = 1000.f;
+
+    UPROPERTY(EditAnywhere, Category = Weapon)
+    float ChargeExpulseForce = 1000.f;
     
     UPROPERTY(EditAnywhere, Category = Weapon)
+    float ChargeExpulseHeigthRatio = 0.5f;
+
+    UPROPERTY(EditAnywhere, Category = Weapon)
+    float WeaponShootForce = 7500.f;
+
+    UPROPERTY(EditAnywhere, Category = Weapon)
+    float WeaponShootHeigthRatio = 1.f;
+
+    UPROPERTY(EditAnywhere, Category = Weapon)
+    float PushForce = 100.f;
+    
+    UPROPERTY(EditAnywhere, Category = Skill)
     float Dammage = 20.f;
 
-    UPROPERTY(EditAnywhere, Category = Stats)
     float MaxRage = 1000.f;
 
     UPROPERTY(VisibleAnywhere, Category = Stats)
@@ -66,6 +82,7 @@ private:
 
     bool bAttacking = false;
     bool bCanAttack = true;
+    bool bCanCharge = true;
 
 public:
     ABasePlayer();
@@ -173,6 +190,9 @@ protected:
     UFUNCTION()
     void OnChargeBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                               int32                OtherBodyIndex, bool    bFromSweep, const FHitResult& SweepResult);
+                              
+    UFUNCTION()
+    void Push(AActor* other);
 
     UFUNCTION(BlueprintCallable, Category = "Attack")
     void ChargeActiveHitBox(bool bIsActive);

@@ -6,13 +6,18 @@
 #include <Utility/Utility.h>
 
 #include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 }
+
 
 // Called when the game starts or when spawned
 void ABaseCharacter::BeginPlay()
@@ -63,6 +68,12 @@ void ABaseCharacter::Kill()
 void ABaseCharacter::Launch(const FVector& Direction, float Force, bool bXYOverride, bool bZOverride)
 {
 	LaunchCharacter(Direction * Force, bXYOverride, bZOverride);
+}
+
+void ABaseCharacter::Expelled(const FVector& Direction, float Force, bool bXYOverride, bool bZOverride)
+{
+	LaunchCharacter(Direction * Force, bXYOverride, bZOverride);
+	bIsExpelled = true;
 }
 
 void ABaseCharacter::AttackActiveHitBox(bool bIsActive, UBoxComponent* BoxWeapon)

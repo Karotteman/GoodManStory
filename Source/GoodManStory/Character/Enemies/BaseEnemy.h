@@ -38,12 +38,6 @@ class GOODMANSTORY_API ABaseEnemy : public ABaseCharacter
     UPROPERTY(EditAnywhere, Category = Attack)
     bool bIsEjectOnCharge = true;
     
-    UPROPERTY(Category = Stats, EditAnywhere, meta=(EditCondition="bIsEjectOnAttack"))
-    float ForceEjection = 300.f;
-
-    UPROPERTY(Category = Stats, EditAnywhere, meta=(EditCondition="bIsEjectOnCharge"))
-    float ForceChargeEjection = 150.f;
-
     UPROPERTY(Category = Stats, EditAnywhere,meta=(EditCondition="bRandomSize"))
     float SizeMin = 1.f;
 
@@ -54,7 +48,13 @@ class GOODMANSTORY_API ABaseEnemy : public ABaseCharacter
     float Size = 1.f;
 
 public:
-
+    
+    UPROPERTY(Category = Stats, EditAnywhere, meta=(EditCondition="bIsEjectOnCharge"))
+    float ForceChargeEjection = 150.f;
+    
+    UPROPERTY(Category = Stats, EditAnywhere, meta=(EditCondition="bIsEjectOnAttack"))
+    float ForceEjection = 300.f;
+    
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
     bool bAttacking = false;
 
@@ -96,7 +96,7 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetSize() const noexcept { return Size; }
-    
+
 public:
     UPROPERTY(EditAnywhere,BlueprintReadOnly, Category=Attack)
     class UAnimMontage* Attack;

@@ -17,6 +17,7 @@
 #include "Components/BoxComponent.h"
 #include "CharacterCameraBoom.h"
 #include "Engine/Engine.h"
+#include "AIController.h"
 #include "../Enemies/BaseEnemy.h"
 /*Debug*/
 #include <Utility/Utility.h>
@@ -25,8 +26,11 @@
 
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 #define COLLISION_CHANNEL_PLAYER ECC_GameTraceChannel1
+#define COLLISION_CHANNEL_TRASH_MOB ECC_GameTraceChannel2
+#define COLLISION_CHANNEL_ENEMY ECC_GameTraceChannel3
 
 //////////////////////////////////////////////////////////////////////////
 // AGladiatorUE4Character
@@ -34,27 +38,27 @@
 ABasePlayer::ABasePlayer()
 {
     bAllowTickBeforeBeginPlay = false;
-    
-    // set our turn rates for input
-    BaseTurnRate = 45.f;
-    BaseLookUpRate = 45.f;
-    
-	// Don't rotate when the controller rotates. Let that just affect the camera.
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
-	bUseControllerRotationRoll = false;
 
-	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
-	GetCharacterMovement()->JumpZVelocity = 600.f;
-	GetCharacterMovement()->AirControl = 0.2f;
+    // set our turn rates for input
+    BaseTurnRate   = 45.f;
+    BaseLookUpRate = 45.f;
+
+    // Don't rotate when the controller rotates. Let that just affect the camera.
+    bUseControllerRotationPitch = false;
+    bUseControllerRotationYaw   = false;
+    bUseControllerRotationRoll  = false;
+
+    // Configure character movement
+    GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
+    GetCharacterMovement()->RotationRate              = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
+    GetCharacterMovement()->JumpZVelocity             = 600.f;
+    GetCharacterMovement()->AirControl                = 0.2f;
 
     // Create a camera boom (pulls in towards the player if there is a collision)
     CameraBoom = CreateDefaultSubobject<UCharacterCameraBoom>(TEXT("CameraBoom"));
     CameraBoom->SetupAttachment(RootComponent);
-    CameraBoom->TargetArmLength = 300.0f; // The camera follows at this distance behind the character	
-    CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+    CameraBoom->TargetArmLength         = 300.0f; // The camera follows at this distance behind the character	
+    CameraBoom->bUsePawnControlRotation = true;   // Rotate the arm based on the controller
 
     // Create a follow camera
     FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
@@ -64,9 +68,10 @@ ABasePlayer::ABasePlayer()
 
     GetMesh()->SetRelativeLocation({0.f, 0.f, -80.f});
     GetMesh()->SetRelativeRotation({0.f, 0.f, -90.f});
-    
+
     GetCapsuleComponent()->SetCollisionObjectType(COLLISION_CHANNEL_PLAYER);
-    
+    GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_CHANNEL_TRASH_MOB, ECollisionResponse::ECR_Overlap);
+        
     Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
     Weapon->SetupAttachment(GetMesh(), "LeftWeaponShield");
     Weapon->SetRelativeScale3D({1.5f, 1.5f, 1.f});
@@ -74,7 +79,7 @@ ABasePlayer::ABasePlayer()
     Weapon->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     Weapon->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Ignore);
     Weapon->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
-    
+
     BoxWeapon = CreateDefaultSubobject<UBoxComponent>("BoxWeapon");
     BoxWeapon->SetupAttachment(Weapon);
     BoxWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -93,7 +98,7 @@ ABasePlayer::ABasePlayer()
     SphericChargeZone->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Ignore);
     SphericChargeZone->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
     SphericChargeZone->SetRelativeScale3D({1.5f, 1.5f, 1.5f});
-    
+
     // Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
     // are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
@@ -129,9 +134,12 @@ void ABasePlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
 
 void ABasePlayer::Charge()
 {
+    if (GetCharacterMovement()->IsFalling() || !bCanCharge)
+        return;
+
     /*Play animation and activate/Desactivate collider*/
     PlayAnimMontage(SlotAnimationsCharge);
-    
+
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Charge"));
 }
@@ -185,7 +193,7 @@ void ABasePlayer::MoveCameraArmLength(float FScale) noexcept
 
 void ABasePlayer::ResetCameraArmLength() noexcept
 {
-    CameraBoom->InterpolateArmLength(1.f);  
+    CameraBoom->InterpolateArmLength(1.f);
 }
 
 void ABasePlayer::TurnAtRate(float Rate)
@@ -203,6 +211,15 @@ void ABasePlayer::LookUpAtRate(float Rate)
 void ABasePlayer::Tick(float DeltaTime)
 {
     CameraBoom->Update(DeltaTime);
+
+    TArray<AActor*> othersOverllaping;
+    GetCapsuleComponent()->GetOverlappingActors(othersOverllaping, ABaseEnemy::StaticClass());
+    
+    for (AActor* other : othersOverllaping)
+    {
+        Push(other);
+    }
+    
 }
 
 void ABasePlayer::MoveForward(float Value)
@@ -237,8 +254,8 @@ void ABasePlayer::MoveRight(float Value)
 void ABasePlayer::ResetCombo()
 {
     BasicAttackComboCount = 0;
-    bCanAttack = false;
-    bAttacking = false;
+    bCanAttack            = false;
+    bAttacking            = false;
 }
 
 void ABasePlayer::SetCanAttack(bool bNewCanAttack)
@@ -248,20 +265,20 @@ void ABasePlayer::SetCanAttack(bool bNewCanAttack)
 
 void ABasePlayer::SetCanCharge(bool bNewCanCharge)
 {
-    
+    bCanCharge = bNewCanCharge;
 }
 
 
 void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
 {
-	if (Rage + AdditionnalRage > MaxRage)
-	{
-		Rage = MaxRage;
-	}
-	else
-	{
-		Rage += AdditionnalRage;
-	}
+    if (Rage + AdditionnalRage > MaxRage)
+    {
+        Rage = MaxRage;
+    }
+    else
+    {
+        Rage += AdditionnalRage;
+    }
 }
 
 void ABasePlayer::LevelUp() noexcept
@@ -277,32 +294,65 @@ void ABasePlayer::LevelUp() noexcept
 }
 
 void ABasePlayer::OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-                                       UPrimitiveComponent* OtherComp,
-                                       int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                       UPrimitiveComponent* OtherComp, int32        OtherBodyIndex, bool bFromSweep,
+                                       const FHitResult&    SweepResult)
 {
     if (OtherComp->ComponentHasTag("Body"))
     {
-        ABaseEnemy* enemy = Cast<ABaseEnemy>(OtherActor);
-        enemy->TakeDamageCharacter(Damage);
+        ABaseEnemy* Enemy = Cast<ABaseEnemy>(OtherActor);
 
-        if (enemy->IsDead())
+        FVector LaunchForce = OtherActor->GetActorLocation() - OverlappedComp->GetComponentLocation();
+        LaunchForce.Normalize();
+        LaunchForce *= WeaponShootForce;
+        LaunchForce.Z = WeaponShootHeigthRatio * WeaponShootForce;
+
+        Enemy->TakeDamageCharacter(Damage);
+        Enemy->GetMesh()->AddImpulse(LaunchForce, NAME_None, true);
+
+        if (Enemy->IsDead())
         {
-            TakeRage(enemy->GetRageRewardOnKill());
+            TakeRage(Enemy->GetRageRewardOnKill());
         }
     }
 }
 
 void ABasePlayer::OnChargeBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-                                       UPrimitiveComponent* OtherComp,
-                                       int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                       UPrimitiveComponent* OtherComp, int32        OtherBodyIndex, bool bFromSweep,
+                                       const FHitResult&    SweepResult)
 {
     if (OtherComp->ComponentHasTag("Body"))
     {
-        PRINTSTRING("Hit")
         ABaseEnemy* enemy = Cast<ABaseEnemy>(OtherActor);
-        enemy->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Falling);
-        enemy->Launch(SweepResult.ImpactNormal, ChargeImpulsionForce);
-        enemy->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+        if (enemy)
+        {
+            PRINTSTR("Hit")
+            //enemy->GetCharacterMovement()->rad
+            
+            FVector LaunchForce = OtherActor->GetActorLocation() - GetActorLocation();
+            LaunchForce.Normalize();
+            LaunchForce *= enemy->ForceEjection;
+            LaunchForce.Z = ChargeExpulseHeigthRatio * ChargeExpulseForce;
+
+            enemy->LaunchCharacter(LaunchForce, true, true);
+        }
+    }
+}
+
+void ABasePlayer::Push(AActor* other)
+{
+    ABaseEnemy* enemy = Cast<ABaseEnemy>(other);
+    if (enemy)
+    {
+        PRINTSTR("Push");
+        FVector Direction = other->GetActorLocation() - GetActorLocation();
+        Direction.Normalize();
+        Direction.Z = 0.f;
+
+        //enemy->SetActorLocation(GetActorLocation() + Direction * (enemy->GetCapsuleComponent()->GetScaledCapsuleRadius() + 
+        //GetCapsuleComponent()->GetScaledCapsuleRadius()));
+        //enemy->GetCharacterMovement()->AddForce(Direction * PushForce);
+        //enemy->GetCharacterMovement()->AddImpulse(Direction * PushForce, true);
+        enemy->LaunchCharacter(Direction * PushForce, true, true);
     }
 }
 
@@ -311,13 +361,16 @@ void ABasePlayer::ChargeActiveHitBox(bool bIsActive)
     if (bIsActive)
     {
         SphericChargeZone->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-        
+
         /*Dash*/
         GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Falling);
-        GetCharacterMovement()->AddImpulse(GetActorForwardVector() * ChargeImpulsionForce, true);
+        GetCharacterMovement()->Velocity       = (GetActorForwardVector() * ChargeImpulsionForce);
+        GetCharacterMovement()->GroundFriction = 0.f;
     }
     else
     {
+        GetCharacterMovement()->GroundFriction = 8.f;
+        GetCharacterMovement()->Velocity       = FVector::ZeroVector;
         GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
         SphericChargeZone->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     }

@@ -36,7 +36,9 @@ protected:
 
     UPROPERTY(EditAnywhere, Category = Settings)
     bool bIsDead = false;
-
+    
+    UPROPERTY(EditAnywhere, Category = Settings)
+    bool bIsExpelled = false;
 
 public:
     // Called every frame
@@ -54,7 +56,10 @@ public:
     virtual void Kill();
 
     UFUNCTION(BlueprintCallable)
-    virtual void Launch(const FVector& Direction, float Force, bool bXYOverride = false, bool bZOverride = false);
+    void Launch(const FVector& Direction, float Force, bool bXYOverride = false, bool bZOverride = false);
+
+    UFUNCTION(BlueprintCallable)
+    void Expelled(const FVector& Direction, float Force, bool bXYOverride, bool bZOverride);
 
     /**
     * @brief Function to heal the player
