@@ -1,9 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "BaseCharacter.h"
-
-#include <Utility/Utility.h>
 
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -16,6 +13,7 @@ ABaseCharacter::ABaseCharacter()
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+	GetCapsuleComponent()->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
 }
 
 
