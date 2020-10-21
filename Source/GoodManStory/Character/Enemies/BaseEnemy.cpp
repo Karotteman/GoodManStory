@@ -35,3 +35,8 @@ void ABaseEnemy::Kill()
     Cast<AAIController>(GetController())->BrainComponent->StopLogic(TEXT("dead"));
     GetCharacterMovement()->SetAvoidanceEnabled(false);
 }
+
+AActor* ABaseEnemy::DropWeapon()
+{
+    return nullptr;
+}

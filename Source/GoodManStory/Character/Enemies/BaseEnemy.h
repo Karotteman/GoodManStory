@@ -67,6 +67,8 @@ public:
     
     virtual void Kill() override;
     
+    virtual AActor* DropWeapon();
+    
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetMinAvoidanceRadius() const noexcept { return MinAvoidanceRadius; }
 

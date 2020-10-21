@@ -62,6 +62,29 @@ void ATrashEnemy::OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
     }
 }
 
+AActor* ATrashEnemy::DropWeapon()
+{
+    FTransform WeaponTransform = Weapon->GetSocketTransform(NAME_None);
+
+    AActor* NewActor = GetWorld()->SpawnActor<AActor>(AActor::StaticClass(), WeaponTransform);
+
+    auto NewWeaponStaticMesh = NewObject<UStaticMeshComponent>(this,  TEXT("WeaponStaticMesh"));
+    NewWeaponStaticMesh->CreationMethod = EComponentCreationMethod::Native;
+    NewWeaponStaticMesh->AttachToComponent(NewActor->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+    NewWeaponStaticMesh->RegisterComponent();
+
+    NewWeaponStaticMesh->SetWorldTransform(WeaponTransform);
+    NewWeaponStaticMesh->SetStaticMesh(Weapon->GetStaticMesh());
+    NewWeaponStaticMesh->SetSimulatePhysics((true));
+    NewWeaponStaticMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+    NewWeaponStaticMesh->ComponentVelocity = Weapon->GetComponentVelocity();
+    NewWeaponStaticMesh->SetupAttachment(NewActor->GetRootComponent());
+
+    Weapon->DestroyComponent();
+    
+    return NewActor;
+}
+
 void ATrashEnemy::Kill()
 {
     Super::Kill();

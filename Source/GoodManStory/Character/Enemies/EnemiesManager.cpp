@@ -276,14 +276,29 @@ void AEnemiesManager::MoveLivingEnemyOnDeathContainer(ABaseCharacter* pCharacter
     {
         if (pCharacter->GetClass() == EnemyStats.Type.Get())
         {
+            /*Drop character weapon*/
+            if (DeathWeaponContainer.Num() == MaxDeathWeapon)
+            {
+                if (DeathWeaponContainer[0]->IsValidLowLevel())
+                    DeathWeaponContainer[0]->Destroy();
+                
+                DeathWeaponContainer.RemoveAt(0);
+            }
+
+            AActor* NewWeaponPtr = Cast<ABaseEnemy>(pCharacter)->DropWeapon();
+            
+            if (NewWeaponPtr)
+                DeathWeaponContainer.Add(NewWeaponPtr);
+        
+            /*Kill character*/
             EnemyStats.LivingEnemyContainer.Remove(Cast<ABaseEnemy>(pCharacter));
             if (DeathEnemyContainer.Num() == MaxDeathEnemies)
             {
                 if (DeathEnemyContainer[0]->IsValidLowLevel())
                     DeathEnemyContainer[0]->Destroy();
+                
                 DeathEnemyContainer.RemoveAt(0);
-            }
-
+            }            
             DeathEnemyContainer.Add(Cast<ABaseEnemy>(pCharacter));
             return;
         }

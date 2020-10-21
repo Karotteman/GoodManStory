@@ -25,7 +25,7 @@ public:
     class UStaticMeshComponent* Shield;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
-    class UBoxComponent* BoxShield;  
+    class UBoxComponent* BoxShield;
 
 
 protected:
@@ -35,5 +35,7 @@ protected:
 
 
 public:
+    virtual AActor* DropWeapon() override;
+    
     virtual void Kill() override;
 };

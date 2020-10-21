@@ -33,10 +33,16 @@ protected:
 
     UPROPERTY(VisibleAnywhere)
     TArray<class ABaseEnemy*> DeathEnemyContainer;
+    
+    UPROPERTY(VisibleAnywhere)
+    TArray<class AActor*> DeathWeaponContainer;
 
     UPROPERTY(EditAnywhere)
     uint16 MaxDeathEnemies = 100;
 
+    UPROPERTY(EditAnywhere)
+    uint16 MaxDeathWeapon = 100;
+    
     UPROPERTY(EditAnywhere)
     TArray<FEnemyState> EnemiesStatsContainer;
 
