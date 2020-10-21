@@ -75,11 +75,3 @@ void ABaseCharacter::Expelled(const FVector& Direction, float Force, bool bXYOve
 	LaunchCharacter(Direction * Force, bXYOverride, bZOverride);
 	bIsExpelled = true;
 }
-
-void ABaseCharacter::AttackActiveHitBox(bool bIsActive, UBoxComponent* BoxWeapon)
-{
-	if (bIsActive)
-		BoxWeapon->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	else
-		BoxWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-}

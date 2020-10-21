@@ -31,9 +31,6 @@ protected:
     UPROPERTY(EditAnywhere, Category = Stats)
     float Life = LifeMax;
 
-    UPROPERTY(EditAnywhere, Category = Stats)
-    float Damage = 20.f;
-
     UPROPERTY(EditAnywhere, Category = Settings)
     bool bIsDead = false;
     
@@ -83,6 +80,4 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Life")
     FORCEINLINE bool IsDead() const noexcept { return bIsDead; }
 
-    UFUNCTION(BlueprintCallable, Category = "Attack")
-    void AttackActiveHitBox(bool bIsActive, class UBoxComponent* BoxWeapon);
 };

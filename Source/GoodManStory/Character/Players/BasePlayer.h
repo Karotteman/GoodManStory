@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../BaseCharacter.h"
+#include "GoodManStory/Character/BaseWarrior.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 
 #include "BasePlayer.generated.h"
@@ -12,7 +12,7 @@
  * 
  */
 UCLASS()
-class GOODMANSTORY_API ABasePlayer : public ABaseCharacter
+class GOODMANSTORY_API ABasePlayer : public ABaseWarrior
 {
     GENERATED_BODY()
 

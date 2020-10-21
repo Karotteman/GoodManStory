@@ -262,11 +262,14 @@ void ABasePlayer::ResetCombo()
 void ABasePlayer::SetCanAttack(bool bNewCanAttack)
 {
     bCanAttack = bNewCanAttack;
+    bCanCharge = bNewCanAttack; //lock charge
+  
 }
 
 void ABasePlayer::SetCanCharge(bool bNewCanCharge)
 {
     bCanCharge = bNewCanCharge;
+    bCanAttack = bNewCanCharge; //lock basic attack
 }
 
 

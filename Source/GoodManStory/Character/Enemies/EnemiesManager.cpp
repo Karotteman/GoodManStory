@@ -151,11 +151,13 @@ void AEnemiesManager::Spawn(float DeltaTime)
         else
             pCurrentWave->SpawnInfoContainer[i].TimeCount -= pCurrentWave->SpawnInfoContainer[i].SpawnIntervalDelay;
 
-        /*Select the spawner. If multiple spawner is enter, choose random spawner on list*/
+        /*Select the spawner. If multiple spawner is enter, choose random spawner on list. Else if Spawner if void, choose random else spawn on the alone spawner*/
         const int IndexSpawner = (pCurrentWave->SpawnInfoContainer[i].SpawnersID.Num() > 1) ?
                                      pCurrentWave->SpawnInfoContainer[i].SpawnersID[FMath::RandRange(
                                          0, pCurrentWave->SpawnInfoContainer[i].SpawnersID.Num() - 1)] :
-                                     pCurrentWave->SpawnInfoContainer[i].SpawnersID[0];
+                                     (pCurrentWave->SpawnInfoContainer[i].SpawnersID.Num() == 0) ? 
+                                         FMath::RandRange(0, SpawnersContainer.Num() - 1) :
+                                         pCurrentWave->SpawnInfoContainer[i].SpawnersID[0];
 
         /*Choose random location (will be associate with spawner position)*/
         const FVector RandLocation = FVector{
@@ -277,7 +279,8 @@ void AEnemiesManager::MoveLivingEnemyOnDeathContainer(ABaseCharacter* pCharacter
             EnemyStats.LivingEnemyContainer.Remove(Cast<ABaseEnemy>(pCharacter));
             if (DeathEnemyContainer.Num() == MaxDeathEnemies)
             {
-                DeathEnemyContainer[0]->Destroy();
+                if (DeathEnemyContainer[0]->IsValidLowLevel())
+                    DeathEnemyContainer[0]->Destroy();
                 DeathEnemyContainer.RemoveAt(0);
             }
 
