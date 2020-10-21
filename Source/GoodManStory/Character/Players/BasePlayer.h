@@ -49,10 +49,10 @@ private:
     class USphereComponent* SphericChargeZone;
 
     UPROPERTY(EditAnywhere, Category = Weapon)
-    float ChargeImpulsionForce = 1000.f;
+    float ChargeImpulsionForce = 2000.f;
 
     UPROPERTY(EditAnywhere, Category = Weapon)
-    float ChargeExpulseForce = 1000.f;
+    float ChargeExpulseForce = 1500.f;
     
     UPROPERTY(EditAnywhere, Category = Weapon)
     float ChargeExpulseHeigthRatio = 0.5f;

@@ -71,12 +71,12 @@ ABasePlayer::ABasePlayer()
 
     GetCapsuleComponent()->SetCollisionObjectType(COLLISION_CHANNEL_PLAYER);
     GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_CHANNEL_TRASH_MOB, ECollisionResponse::ECR_Overlap);
-        
+
     Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
     Weapon->SetupAttachment(GetMesh(), "LeftWeaponShield");
     Weapon->SetRelativeScale3D({1.5f, 1.5f, 1.f});
     Weapon->SetRelativeRotation({0.f, 0.f, 20.f});
-    Weapon->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    Weapon->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     Weapon->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Ignore);
     Weapon->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 
@@ -85,6 +85,7 @@ ABasePlayer::ABasePlayer()
     BoxWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     BoxWeapon->OnComponentBeginOverlap.AddDynamic(this, &ABasePlayer::OnWeaponBeginOverlap);
     BoxWeapon->SetCollisionObjectType(COLLISION_CHANNEL_PLAYER);
+    BoxWeapon->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
     BoxWeapon->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Ignore);
     BoxWeapon->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
     BoxWeapon->SetRelativeLocation({0.f, 70.f, 0.f});
@@ -95,6 +96,7 @@ ABasePlayer::ABasePlayer()
     SphericChargeZone->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     SphericChargeZone->OnComponentBeginOverlap.AddDynamic(this, &ABasePlayer::OnChargeBeginOverlap);
     SphericChargeZone->SetCollisionObjectType(COLLISION_CHANNEL_PLAYER);
+    SphericChargeZone->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
     SphericChargeZone->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Ignore);
     SphericChargeZone->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
     SphericChargeZone->SetRelativeScale3D({1.5f, 1.5f, 1.5f});
@@ -214,12 +216,11 @@ void ABasePlayer::Tick(float DeltaTime)
 
     TArray<AActor*> othersOverllaping;
     GetCapsuleComponent()->GetOverlappingActors(othersOverllaping, ABaseEnemy::StaticClass());
-    
+
     for (AActor* other : othersOverllaping)
     {
         Push(other);
     }
-    
 }
 
 void ABasePlayer::MoveForward(float Value)
@@ -325,9 +326,6 @@ void ABasePlayer::OnChargeBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
         ABaseEnemy* enemy = Cast<ABaseEnemy>(OtherActor);
         if (enemy)
         {
-            PRINTSTR("Hit")
-            //enemy->GetCharacterMovement()->rad
-            
             FVector LaunchForce = OtherActor->GetActorLocation() - GetActorLocation();
             LaunchForce.Normalize();
             LaunchForce *= enemy->ForceEjection;
@@ -343,7 +341,6 @@ void ABasePlayer::Push(AActor* other)
     ABaseEnemy* enemy = Cast<ABaseEnemy>(other);
     if (enemy)
     {
-        PRINTSTR("Push");
         FVector Direction = other->GetActorLocation() - GetActorLocation();
         Direction.Normalize();
         Direction.Z = 0.f;
