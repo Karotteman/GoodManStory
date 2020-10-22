@@ -40,7 +40,7 @@ protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
-    UPROPERTY(EditAnywhere, Category = Stats)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float LifeMax = 100.f;
 
     UPROPERTY(EditAnywhere, Category = Stats)

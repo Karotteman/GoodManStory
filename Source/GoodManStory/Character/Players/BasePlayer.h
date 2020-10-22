@@ -8,6 +8,9 @@
 
 #include "BasePlayer.generated.h"
 
+UDELEGATE(BlueprintAuthorityOnly)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelUpActionSignature, int, CurrentLevel);
+
 /**
  * 
  */
@@ -28,12 +31,12 @@ class GOODMANSTORY_API ABasePlayer : public ABaseWarrior
 
     UPROPERTY(EditAnywhere, Category = Weapon)
     class UStaticMeshComponent* Weapon;
-    
+
 public :
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
     class UBoxComponent* BoxWeapon;
-    
-private:
+
+protected:
     UPROPERTY(EditAnywhere, Category = Attack)
     TArray<UAnimMontage*> SlotAnimationsAttackCombo;
 
@@ -48,45 +51,81 @@ private:
     UPROPERTY(EditAnywhere, Category = Weapon)
     class USphereComponent* SphericChargeZone;
 
-    UPROPERTY(EditAnywhere, Category = Weapon)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float ChargeImpulsionForce = 2000.f;
 
-    UPROPERTY(EditAnywhere, Category = Weapon)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float ChargeExpulseForce = 1500.f;
-    
-    UPROPERTY(EditAnywhere, Category = Weapon)
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float ChargeExpulseHeigthRatio = 0.5f;
 
-    UPROPERTY(EditAnywhere, Category = Weapon)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float WeaponShootForce = 7500.f;
 
-    UPROPERTY(EditAnywhere, Category = Weapon)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float WeaponShootHeigthRatio = 1.f;
 
-    UPROPERTY(EditAnywhere, Category = Weapon)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float PushForce = 100.f;
-    
-    UPROPERTY(EditAnywhere, Category = Skill)
-    float Dammage = 20.f;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float MaxRage = 1000.f;
 
-    UPROPERTY(VisibleAnywhere, Category = Stats)
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
     float Rage = 0.f;
 
     UPROPERTY(Category = Stats, EditAnywhere)
-    uint8 MaxLevel = 3;
+    uint8 MaxLevel = 5;
 
-    UPROPERTY(VisibleAnywhere, Category = Stats)
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stats)
     uint8 Level = 0;
 
-    UPROPERTY(VisibleAnywhere, Category = Stats)
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
     int32 Score = 0;
+
+    bool bTourbillolIsUnlock      = false;
+    bool bEvilSpellAttackIsUnlock = false;
+
+public:
+
+    UPROPERTY(EditAnywhere, meta=(UIMin = "0.0", UIMax = "100.0"))
+    float RageToUnlockLevel1;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnLevelUpActionSignature OnPlayerUpgradLevel1;
+
+    UPROPERTY(EditAnywhere)
+    float RageToUnlockLevel2;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnLevelUpActionSignature OnPlayerUpgradLevel2;
+
+    UPROPERTY(EditAnywhere)
+    float RageToUnlockLevel3;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnLevelUpActionSignature OnPlayerUpgradLevel3;
+
+    UPROPERTY(EditAnywhere)
+    float RageToUnlockLevel4;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnLevelUpActionSignature OnPlayerUpgradLevel4;
+
+    UPROPERTY(EditAnywhere)
+    float RageToUnlockLevel5;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnLevelUpActionSignature OnPlayerUpgradLevel5;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnLevelUpActionSignature OnPlayerLevelUp;
 
 private:
     bool bAttacking = false;
-    bool     bCanAttack = true;
-    bool     bCanCharge = true;
+    bool bCanAttack = true;
+    bool bCanCharge = true;
 
 public:
     ABasePlayer();
@@ -194,7 +233,7 @@ protected:
     UFUNCTION()
     void OnChargeBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                               int32                OtherBodyIndex, bool    bFromSweep, const FHitResult& SweepResult);
-                              
+
     UFUNCTION()
     void Push(AActor* other);
 
@@ -213,6 +252,21 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetRage() const noexcept { return Rage; }
+    
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    bool IsTourbillolIsUnlock() const { return bTourbillolIsUnlock; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetTourbillolIsUnlock(bool bNewTourbillolIsUnlock) { bTourbillolIsUnlock = bNewTourbillolIsUnlock; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    bool IsEvilSpellAttackIsUnlock() const { return bEvilSpellAttackIsUnlock; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetEvilSpellAttackIsUnlock(bool bNewEvilSpellAttackIsUnlock)
+    {
+        bEvilSpellAttackIsUnlock = bNewEvilSpellAttackIsUnlock;
+    }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetRageRatio() const noexcept { return Rage / MaxRage; }

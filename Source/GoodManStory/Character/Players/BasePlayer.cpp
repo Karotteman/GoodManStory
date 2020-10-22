@@ -167,12 +167,18 @@ void ABasePlayer::BasicAttack()
 
 void ABasePlayer::TourbilolAttack()
 {
+    if (!bTourbillolIsUnlock)
+        return;
+    
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("TourbilolAttack"));
 }
 
 void ABasePlayer::EvilSpellAttack()
 {
+    if (!bEvilSpellAttackIsUnlock)
+        return;
+    
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellAttack"));
 }
@@ -283,17 +289,72 @@ void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
     {
         Rage += AdditionnalRage;
     }
+
+    float RageRate = Rage / MaxRage * 100.f;
+    
+    switch (Level)
+    {
+        case 0 :
+            if (RageRate > RageToUnlockLevel1)
+                LevelUp();
+        break;
+        
+        case 1 :
+            if (RageRate > RageToUnlockLevel2)
+                LevelUp();
+        break;
+        
+        case 2 :
+            if (RageRate > RageToUnlockLevel3)
+                LevelUp();
+        break;
+        
+        case 3 :
+            if (RageRate > RageToUnlockLevel4)
+                LevelUp();
+        break;
+        
+        case 4 :
+            if (RageRate > RageToUnlockLevel5)
+                LevelUp();
+        break;
+    }    
 }
 
 void ABasePlayer::LevelUp() noexcept
-{
+{    
     if (Level + 1 > MaxLevel)
     {
-        Rage = MaxLevel;
+        OnPlayerLevelUp.Broadcast(MaxLevel);
+        return;
     }
     else
     {
         Level ++;
+        OnPlayerLevelUp.Broadcast(Level);
+    }
+    
+    switch (Level)
+    {
+        case 1 :
+            OnPlayerUpgradLevel1.Broadcast(Level);
+        break;
+        
+        case 2 :
+            OnPlayerUpgradLevel2.Broadcast(Level);
+        break;
+        
+        case 3 :
+            OnPlayerUpgradLevel3.Broadcast(Level);
+        break;
+        
+        case 4 :
+            OnPlayerUpgradLevel4.Broadcast(Level);
+        break;
+        
+        case 5 :
+            OnPlayerUpgradLevel5.Broadcast(Level);
+        break;
     }
 }
 

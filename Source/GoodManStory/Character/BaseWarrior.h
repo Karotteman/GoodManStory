@@ -19,11 +19,17 @@ public:
 	
 protected:
 
-    UPROPERTY(EditAnywhere, Category = Stats)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float Damage = 20.f;
 
 public:
-    
+
+    UFUNCTION(BlueprintCallable, Category = "Attack")
+    float GetDamage() const { return Damage; }
+
+    UFUNCTION(BlueprintCallable, Category = "Attack")
+    void  SetDamage(float NewDamage) { Damage = NewDamage; }
+
     UFUNCTION(BlueprintCallable, Category = "Attack")
     void AttackActiveHitBox(bool bIsActive, class UBoxComponent* BoxWeapon);
 };
