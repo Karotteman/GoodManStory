@@ -82,6 +82,9 @@ public:
     FORCEINLINE float GetRageRewardOnKill() const noexcept { return RageRewardOnKill; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
+    FORCEINLINE float GetScoreRewardOnKill() const noexcept { return RageRewardOnKill + LifeMax;}
+    
+    UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetTimeToNextAttack() const noexcept { return TimeToNextAttack; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)

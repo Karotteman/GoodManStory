@@ -37,11 +37,13 @@ void ABaseCharacter::TakeDamageCharacter(float dmg) noexcept
 	if (Life - dmg <= 0.f)
 	{
 		Life = 0.f;
+		OnCharacterTakeDamage.Broadcast(this, dmg, dmg - Life);
 		Kill();
 	}
 	else
 	{
 		Life -= dmg;
+		OnCharacterTakeDamage.Broadcast(this, dmg, dmg);
 	}
 }
 
@@ -50,10 +52,12 @@ void ABaseCharacter::TakeLife(float AdditionnalLife) noexcept
 	if (Life + AdditionnalLife > LifeMax)
 	{
 		Life = LifeMax;
+		OnCharacterTakeLife.Broadcast(this, AdditionnalLife, AdditionnalLife - Life);
 	}
 	else
 	{
 		Life += AdditionnalLife;
+		OnCharacterTakeLife.Broadcast(this, AdditionnalLife, AdditionnalLife);
 	}
 }
 

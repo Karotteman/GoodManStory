@@ -310,11 +310,12 @@ void ABasePlayer::OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
         LaunchForce *= WeaponShootForce;
         LaunchForce.Z = WeaponShootHeigthRatio * WeaponShootForce;
 
-        Enemy->TakeDamageCharacter(Damage);
+        Enemy->TakeDamageCharacter(Damage);        
         Enemy->GetMesh()->AddImpulse(LaunchForce, NAME_None, true);
 
         if (Enemy->IsDead())
         {
+            AddScore(Enemy->GetScoreRewardOnKill());
             TakeRage(Enemy->GetRageRewardOnKill());
         }
     }

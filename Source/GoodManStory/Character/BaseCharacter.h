@@ -7,7 +7,16 @@
 #include "BaseCharacter.generated.h"
 
 UDELEGATE(BlueprintAuthorityOnly)
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FOnCharacterDeathActionSignature, class ABaseCharacter*, pBaseCharacter);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+    FOnCharacterDeathActionSignature, class ABaseCharacter*, pBaseCharacter);
+
+UDELEGATE(BlueprintAuthorityOnly)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
+    FOnTakeDamageActionSignature, class ABaseCharacter*, pBaseCharacter, float, RealDamageGive, float, RealDamageTake);
+
+UDELEGATE(BlueprintAuthorityOnly)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
+    FOnTakeLifeActionSignature, class ABaseCharacter*, pBaseCharacter, float, RealLifeGive, float, RealLifeTake);
 
 UCLASS()
 class GOODMANSTORY_API ABaseCharacter : public ACharacter
@@ -18,9 +27,15 @@ public:
     // Sets default values for this character's properties
     ABaseCharacter();
 
-	UPROPERTY(BlueprintAssignable)
-	FOnCharacterDeathActionSignature OnCharacterDeath;
-	
+    UPROPERTY(BlueprintAssignable)
+    FOnCharacterDeathActionSignature OnCharacterDeath;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnTakeDamageActionSignature OnCharacterTakeDamage;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnTakeLifeActionSignature OnCharacterTakeLife;
+
 protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
@@ -33,7 +48,7 @@ protected:
 
     UPROPERTY(EditAnywhere, Category = Settings)
     bool bIsDead = false;
-    
+
     UPROPERTY(EditAnywhere, Category = Settings)
     bool bIsExpelled = false;
 
@@ -79,5 +94,4 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Life")
     FORCEINLINE bool IsDead() const noexcept { return bIsDead; }
-
 };

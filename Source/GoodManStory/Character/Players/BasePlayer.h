@@ -80,9 +80,13 @@ private:
     UPROPERTY(VisibleAnywhere, Category = Stats)
     uint8 Level = 0;
 
+    UPROPERTY(VisibleAnywhere, Category = Stats)
+    int32 Score = 0;
+
+private:
     bool bAttacking = false;
-    bool bCanAttack = true;
-    bool bCanCharge = true;
+    bool     bCanAttack = true;
+    bool     bCanCharge = true;
 
 public:
     ABasePlayer();
@@ -218,6 +222,12 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE uint8 GetPlayerLevel() const noexcept { return Level; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    FORCEINLINE int32 GetScore() const noexcept { return Score; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void AddScore(int32 AdditionalScore) noexcept { Score += AdditionalScore; }
 
     virtual void Kill() override;
 };
