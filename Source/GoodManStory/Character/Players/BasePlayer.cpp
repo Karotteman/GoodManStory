@@ -26,6 +26,7 @@
 
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 #define COLLISION_CHANNEL_PLAYER ECC_GameTraceChannel1
@@ -167,9 +168,15 @@ void ABasePlayer::BasicAttack()
 
 void ABasePlayer::TourbilolAttack()
 {
-    if (!bTourbillolIsUnlock)
-        return;
-    
+    //if (!bTourbillolIsUnlock)
+    //    return;
+
+    if(bCanTourbillol)
+    {
+        bCanTourbillol = false;
+        PlayAnimMontage(SlotAnimationsTourbillol);
+        
+    }
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("TourbilolAttack"));
 }
@@ -185,8 +192,24 @@ void ABasePlayer::EvilSpellAttack()
 
 void ABasePlayer::EvilSpellCapcity()
 {
+    if(bCanEvilSpellCapacity)
+    {
+        bCanEvilSpellCapacity = false;
+        UGameplayStatics::SetGlobalTimeDilation(GetWorld(),WorldSlowingSpeedEvil);
+        CustomTimeDilation = 1-WorldSlowingSpeedEvil + PlayerSlowingSpeedEvil + 2;
+        GetWorldTimerManager().SetTimer(MemberTimerEvilCapacity, this, &ABasePlayer::SetCanEvilCapacity, 
+        DurationOfTheSlowdownEvil, false,1);
+    }
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellCapcity"));
+}
+
+void ABasePlayer::SetCanEvilCapacity()
+{
+    bCanEvilSpellCapacity = true;
+    UGameplayStatics::SetGlobalTimeDilation(GetWorld(),1);
+    CustomTimeDilation = 1;
+    GetWorldTimerManager().ClearTimer(MemberTimerEvilCapacity);
 }
 
 void ABasePlayer::SwitchCameraMode()
@@ -279,6 +302,14 @@ void ABasePlayer::SetCanCharge(bool bNewCanCharge)
 }
 
 
+void ABasePlayer::SetCanTourbillol(bool bNewCanTourbillol)
+{
+    bCanTourbillol = bNewCanTourbillol;
+    bCanAttack = bNewCanTourbillol; 
+}
+
+
+
 void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
 {
     if (Rage + AdditionnalRage > MaxRage)
@@ -318,6 +349,7 @@ void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
             if (RageRate > RageToUnlockLevel5)
                 LevelUp();
         break;
+        default: ;
     }    
 }
 
@@ -355,6 +387,7 @@ void ABasePlayer::LevelUp() noexcept
         case 5 :
             OnPlayerUpgradLevel5.Broadcast(Level);
         break;
+        default: ;
     }
 }
 

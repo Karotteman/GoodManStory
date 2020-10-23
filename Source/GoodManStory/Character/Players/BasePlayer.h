@@ -43,6 +43,9 @@ protected:
     UPROPERTY(EditAnywhere, Category = Attack)
     UAnimMontage* SlotAnimationsCharge;
 
+    UPROPERTY(EditAnywhere, Category = Attack)
+    UAnimMontage* SlotAnimationsTourbillol;
+
     uint8 BasicAttackComboCount = 0;
 
     /**
@@ -84,8 +87,20 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
     int32 Score = 0;
 
+     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
+     float DurationOfTheSlowdownEvil = 5.f;
+    
+     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
+     float WorldSlowingSpeedEvil = 0.25f;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
+    float PlayerSlowingSpeedEvil = 1.25f;
+    
     bool bTourbillolIsUnlock      = false;
     bool bEvilSpellAttackIsUnlock = false;
+    bool bEvilSpellCapacityIsUnlock = false;
+    FTimerHandle MemberTimerEvilCapacity;
+
 
 public:
 
@@ -126,6 +141,8 @@ private:
     bool bAttacking = false;
     bool bCanAttack = true;
     bool bCanCharge = true;
+    bool bCanTourbillol = true;
+    bool bCanEvilSpellCapacity = true;
 
 public:
     ABasePlayer();
@@ -226,6 +243,13 @@ protected:
     UFUNCTION(BlueprintCallable, Category = Attack)
     void SetCanCharge(bool bNewCanCharge);
 
+    UFUNCTION(BlueprintCallable, Category = Attack)
+    void SetCanTourbillol(bool bNewCanTourbillol);
+
+    UFUNCTION(BlueprintCallable, Category = Attack)
+    void SetCanEvilCapacity();
+
+
     UFUNCTION()
     void OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                               int32                OtherBodyIndex, bool    bFromSweep, const FHitResult& SweepResult);
@@ -285,3 +309,5 @@ public:
 
     virtual void Kill() override;
 };
+
+
