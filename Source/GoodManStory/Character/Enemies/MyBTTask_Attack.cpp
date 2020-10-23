@@ -11,7 +11,7 @@
 EBTNodeResult::Type UMyBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
     ABaseEnemy* enemy = Cast<ABaseEnemy>(OwnerComp.GetAIOwner()->GetPawn());
-    if(enemy != nullptr)
+    if(enemy != nullptr && !enemy->bAttacking)
     {
         enemy->bAttacking = true;
         enemy->PlayAnimMontage(enemy->Attack);

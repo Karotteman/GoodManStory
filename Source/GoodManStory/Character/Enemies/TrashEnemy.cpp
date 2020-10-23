@@ -11,21 +11,20 @@
 
 #define COLLISION_CHANNEL_TRASH ECC_GameTraceChannel2
 
-
 ATrashEnemy::ATrashEnemy()
 {
-    Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
-    Weapon->SetupAttachment(GetMesh(), "hand_r");
-    Weapon->SetRelativeScale3D({1.f, 1.f, 1.f});
-    Weapon->SetRelativeRotation({0.f, 0.f, -90.f});
-    Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    Weapon->SetRelativeLocation({-15.f, 5.f, 0.f});
-    Weapon->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+    RightHandObject = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
+    RightHandObject->SetupAttachment(GetMesh(), "hand_r");
+    RightHandObject->SetRelativeScale3D({1.f, 1.f, 1.f});
+    RightHandObject->SetRelativeRotation({0.f, 0.f, -90.f});
+    RightHandObject->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    RightHandObject->SetRelativeLocation({-15.f, 5.f, 0.f});
+    RightHandObject->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
     
     BoxWeapon = CreateDefaultSubobject<UBoxComponent>("BoxWeapon");
-    BoxWeapon->SetupAttachment(Weapon);
+    BoxWeapon->SetupAttachment(RightHandObject);
     BoxWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    BoxWeapon->OnComponentBeginOverlap.AddDynamic(this, &ATrashEnemy::OnWeaponBeginOverlap);
+    BoxWeapon->OnComponentBeginOverlap.AddDynamic(this, &ATrashEnemy::OnRightHandObjectBeginOverlap);
     BoxWeapon->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
     BoxWeapon->SetCollisionObjectType(COLLISION_CHANNEL_TRASH);
     BoxWeapon->SetCollisionResponseToChannel(COLLISION_CHANNEL_TRASH, ECollisionResponse::ECR_Ignore);
@@ -33,17 +32,17 @@ ATrashEnemy::ATrashEnemy()
 
     GetCapsuleComponent()->SetCollisionObjectType(COLLISION_CHANNEL_TRASH);
     
-    Shield = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Shield"));
-    Shield->SetupAttachment(GetMesh(), "hand_l");
-    Shield->SetRelativeScale3D({1.f, 1.f, 1.f});
-    Shield->SetRelativeRotation({0.f, 0.f, 0.f});
-    Shield->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    Shield->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+    LeftHandObject = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Shield"));
+    LeftHandObject->SetupAttachment(GetMesh(), "hand_l");
+    LeftHandObject->SetRelativeScale3D({1.f, 1.f, 1.f});
+    LeftHandObject->SetRelativeRotation({0.f, 0.f, 0.f});
+    LeftHandObject->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    LeftHandObject->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
     
     BoxShield = CreateDefaultSubobject<UBoxComponent>("BoxShield");
-    BoxShield->SetupAttachment(Shield);
+    BoxShield->SetupAttachment(LeftHandObject);
     BoxShield->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    BoxShield->OnComponentBeginOverlap.AddDynamic(this, &ATrashEnemy::OnWeaponBeginOverlap);
+    BoxShield->OnComponentBeginOverlap.AddDynamic(this, &ATrashEnemy::OnLeftHandObjectBeginOverlap);
     BoxShield->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 
     BoxShield->SetCollisionObjectType(COLLISION_CHANNEL_TRASH);
@@ -51,38 +50,14 @@ ATrashEnemy::ATrashEnemy()
     BoxShield->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 }
 
-
-void ATrashEnemy::OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+void ATrashEnemy::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
     UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {   
     if(OtherComp->ComponentHasTag("PlayerBody"))
     {
-        ABasePlayer* player = Cast<ABasePlayer>(OtherActor);
-        player->TakeDamageCharacter(Damage);
+         ABasePlayer* player = Cast<ABasePlayer>(OtherActor);
+         player->TakeDamageCharacter(Damage);
     }
-}
-
-AActor* ATrashEnemy::DropWeapon()
-{
-    FTransform WeaponTransform = Weapon->GetSocketTransform(NAME_None);
-
-    AActor* NewActor = GetWorld()->SpawnActor<AActor>(AActor::StaticClass(), WeaponTransform);
-
-    auto NewWeaponStaticMesh = NewObject<UStaticMeshComponent>(this,  TEXT("WeaponStaticMesh"));
-    NewWeaponStaticMesh->CreationMethod = EComponentCreationMethod::Native;
-    NewWeaponStaticMesh->AttachToComponent(NewActor->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-    NewWeaponStaticMesh->RegisterComponent();
-
-    NewWeaponStaticMesh->SetWorldTransform(WeaponTransform);
-    NewWeaponStaticMesh->SetStaticMesh(Weapon->GetStaticMesh());
-    NewWeaponStaticMesh->SetSimulatePhysics((true));
-    NewWeaponStaticMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-    NewWeaponStaticMesh->ComponentVelocity = Weapon->GetComponentVelocity();
-    NewWeaponStaticMesh->SetupAttachment(NewActor->GetRootComponent());
-
-    Weapon->DestroyComponent();
-    
-    return NewActor;
 }
 
 void ATrashEnemy::Kill()

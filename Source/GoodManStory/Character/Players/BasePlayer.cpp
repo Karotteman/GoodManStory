@@ -73,18 +73,18 @@ ABasePlayer::ABasePlayer()
     GetCapsuleComponent()->SetCollisionObjectType(COLLISION_CHANNEL_PLAYER);
     GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_CHANNEL_TRASH_MOB, ECollisionResponse::ECR_Overlap);
 
-    Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
-    Weapon->SetupAttachment(GetMesh(), "LeftWeaponShield");
-    Weapon->SetRelativeScale3D({1.5f, 1.5f, 1.f});
-    Weapon->SetRelativeRotation({0.f, 0.f, 20.f});
-    Weapon->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-    Weapon->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Ignore);
-    Weapon->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+    LeftHandObject = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
+    LeftHandObject->SetupAttachment(GetMesh(), "LeftWeaponShield");
+    LeftHandObject->SetRelativeScale3D({1.5f, 1.5f, 1.f});
+    LeftHandObject->SetRelativeRotation({0.f, 0.f, 20.f});
+    LeftHandObject->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    LeftHandObject->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Ignore);
+    LeftHandObject->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 
     BoxWeapon = CreateDefaultSubobject<UBoxComponent>("BoxWeapon");
-    BoxWeapon->SetupAttachment(Weapon);
+    BoxWeapon->SetupAttachment(LeftHandObject);
     BoxWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    BoxWeapon->OnComponentBeginOverlap.AddDynamic(this, &ABasePlayer::OnWeaponBeginOverlap);
+    BoxWeapon->OnComponentBeginOverlap.AddDynamic(this, &ABasePlayer::OnRightHandObjectBeginOverlap);
     BoxWeapon->SetCollisionObjectType(COLLISION_CHANNEL_PLAYER);
     BoxWeapon->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
     BoxWeapon->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Ignore);
@@ -301,6 +301,29 @@ void ABasePlayer::SetCanCharge(bool bNewCanCharge)
     bCanAttack = bNewCanCharge; //lock basic attack
 }
 
+void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+    if (OtherComp->ComponentHasTag("Body"))
+    {
+        ABaseEnemy* Enemy = Cast<ABaseEnemy>(OtherActor);
+
+        FVector LaunchForce = OtherActor->GetActorLocation() - OverlappedComp->GetComponentLocation();
+        LaunchForce.Normalize();
+        LaunchForce *= WeaponShootForce;
+        LaunchForce.Z = WeaponShootHeigthRatio * WeaponShootForce;
+
+        Enemy->TakeDamageCharacter(Damage);        
+        Enemy->GetMesh()->AddImpulse(LaunchForce, NAME_None, true);
+
+        if (Enemy->IsDead())
+        {
+            AddScore(Enemy->GetScoreRewardOnKill());
+            TakeRage(Enemy->GetRageRewardOnKill());
+        }
+    }
+}
+
 
 void ABasePlayer::SetCanTourbillol(bool bNewCanTourbillol)
 {
@@ -391,30 +414,6 @@ void ABasePlayer::LevelUp() noexcept
     }
 }
 
-void ABasePlayer::OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-                                       UPrimitiveComponent* OtherComp, int32        OtherBodyIndex, bool bFromSweep,
-                                       const FHitResult&    SweepResult)
-{
-    if (OtherComp->ComponentHasTag("Body"))
-    {
-        ABaseEnemy* Enemy = Cast<ABaseEnemy>(OtherActor);
-
-        FVector LaunchForce = OtherActor->GetActorLocation() - OverlappedComp->GetComponentLocation();
-        LaunchForce.Normalize();
-        LaunchForce *= WeaponShootForce;
-        LaunchForce.Z = WeaponShootHeigthRatio * WeaponShootForce;
-
-        Enemy->TakeDamageCharacter(Damage);        
-        Enemy->GetMesh()->AddImpulse(LaunchForce, NAME_None, true);
-
-        if (Enemy->IsDead())
-        {
-            AddScore(Enemy->GetScoreRewardOnKill());
-            TakeRage(Enemy->GetRageRewardOnKill());
-        }
-    }
-}
-
 void ABasePlayer::OnChargeBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                                        UPrimitiveComponent* OtherComp, int32        OtherBodyIndex, bool bFromSweep,
                                        const FHitResult&    SweepResult)
@@ -437,7 +436,7 @@ void ABasePlayer::OnChargeBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
 void ABasePlayer::Push(AActor* other)
 {
     ABaseEnemy* enemy = Cast<ABaseEnemy>(other);
-    if (enemy)
+    if (enemy && enemy->IsPushable())
     {
         FVector Direction = other->GetActorLocation() - GetActorLocation();
         Direction.Normalize();

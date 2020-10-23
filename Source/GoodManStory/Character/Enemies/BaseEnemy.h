@@ -61,13 +61,17 @@ public:
     UPROPERTY(EditAnywhere, Category=Stats, AdvancedDisplay)
     bool bRandomSize = false;
 
+    UPROPERTY(EditAnywhere, Category=Stats, AdvancedDisplay)
+    bool bIsPushable = false;
+
 public:
     
     ABaseEnemy();
     
     virtual void Kill() override;
-    
-    virtual AActor* DropWeapon();
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    FORCEINLINE bool IsPushable() const noexcept { return bIsPushable; }
     
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetMinAvoidanceRadius() const noexcept { return MinAvoidanceRadius; }
