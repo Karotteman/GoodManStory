@@ -14,6 +14,8 @@ class GOODMANSTORY_API ABaseEnemy : public ABaseWarrior
 {
     GENERATED_BODY()
 
+protected :
+
     UPROPERTY(Category = Stats, EditAnywhere)
     float RageRewardOnKill = 10.f;
 
@@ -37,7 +39,7 @@ class GOODMANSTORY_API ABaseEnemy : public ABaseWarrior
 
     UPROPERTY(EditAnywhere, Category = Attack)
     bool bIsEjectOnCharge = true;
-    
+
     UPROPERTY(Category = Stats, EditAnywhere,meta=(EditCondition="bRandomSize"))
     float SizeMin = 1.f;
 
@@ -48,13 +50,13 @@ class GOODMANSTORY_API ABaseEnemy : public ABaseWarrior
     float Size = 1.f;
 
 public:
-    
+
     UPROPERTY(Category = Stats, EditAnywhere, meta=(EditCondition="bIsEjectOnCharge"))
     float ForceChargeEjection = 150.f;
-    
+
     UPROPERTY(Category = Stats, EditAnywhere, meta=(EditCondition="bIsEjectOnAttack"))
     float ForceEjection = 300.f;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
     bool bAttacking = false;
 
@@ -65,14 +67,14 @@ public:
     bool bIsPushable = false;
 
 public:
-    
+
     ABaseEnemy();
-    
+
     virtual void Kill() override;
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE bool IsPushable() const noexcept { return bIsPushable; }
-    
+
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetMinAvoidanceRadius() const noexcept { return MinAvoidanceRadius; }
 
@@ -86,8 +88,8 @@ public:
     FORCEINLINE float GetRageRewardOnKill() const noexcept { return RageRewardOnKill; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
-    FORCEINLINE float GetScoreRewardOnKill() const noexcept { return RageRewardOnKill + LifeMax;}
-    
+    FORCEINLINE float GetScoreRewardOnKill() const noexcept { return RageRewardOnKill + LifeMax; }
+
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetTimeToNextAttack() const noexcept { return TimeToNextAttack; }
 
