@@ -8,8 +8,8 @@
 
 #include "BasePlayer.generated.h"
 
-UDELEGATE(BlueprintAuthorityOnly)
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelUpActionSignature, int, CurrentLevel);
+UDELEGATE(BlueprintAuthorityOnly)DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+    FOnLevelUpActionSignature, int, CurrentLevel);
 
 /**
  * 
@@ -28,13 +28,6 @@ class GOODMANSTORY_API ABasePlayer : public ABaseWarrior
     class UCameraComponent* FollowCamera;
 
     class UMaterialInstanceDynamic* DynMaterial;
-
-    UPROPERTY(EditAnywhere, Category = Weapon)
-    class UStaticMeshComponent* Weapon;
-
-public :
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
-    class UBoxComponent* BoxWeapon;
 
 protected:
     UPROPERTY(EditAnywhere, Category = Attack)
@@ -226,9 +219,9 @@ protected:
     UFUNCTION(BlueprintCallable, Category = Attack)
     void SetCanCharge(bool bNewCanCharge);
 
-    UFUNCTION()
-    void OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-                              int32                OtherBodyIndex, bool    bFromSweep, const FHitResult& SweepResult);
+    virtual void OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+                                      UPrimitiveComponent* OtherComp, int32        OtherBodyIndex, bool bFromSweep,
+                                      const FHitResult&    SweepResult) override;
 
     UFUNCTION()
     void OnChargeBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -252,7 +245,7 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetRage() const noexcept { return Rage; }
-    
+
     UFUNCTION(BlueprintCallable, Category = Stats)
     bool IsTourbillolIsUnlock() const { return bTourbillolIsUnlock; }
 

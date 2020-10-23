@@ -69,8 +69,6 @@ public:
     ABaseEnemy();
     
     virtual void Kill() override;
-    
-    virtual AActor* DropWeapon();
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE bool IsPushable() const noexcept { return bIsPushable; }
