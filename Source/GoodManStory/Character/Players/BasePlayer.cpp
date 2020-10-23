@@ -404,7 +404,7 @@ void ABasePlayer::OnChargeBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
 void ABasePlayer::Push(AActor* other)
 {
     ABaseEnemy* enemy = Cast<ABaseEnemy>(other);
-    if (enemy)
+    if (enemy && enemy->IsPushable())
     {
         FVector Direction = other->GetActorLocation() - GetActorLocation();
         Direction.Normalize();

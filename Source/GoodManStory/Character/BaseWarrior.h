@@ -28,7 +28,7 @@ public:
     float GetDamage() const { return Damage; }
 
     UFUNCTION(BlueprintCallable, Category = "Attack")
-    void  SetDamage(float NewDamage) { Damage = NewDamage; }
+    void SetDamage(float NewDamage) { Damage = NewDamage; }
 
     UFUNCTION(BlueprintCallable, Category = "Attack")
     void AttackActiveHitBox(bool bIsActive, class UBoxComponent* BoxWeapon);
