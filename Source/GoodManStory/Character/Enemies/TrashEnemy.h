@@ -14,17 +14,20 @@ class GOODMANSTORY_API ATrashEnemy : public ABaseEnemy
 {
     GENERATED_BODY()
 
+public : 
+
+    UPROPERTY(EditAnywhere,BlueprintReadOnly, Category=Attack)
+    class UAnimMontage* Attack;
+    
 public:
 
     ATrashEnemy();
 
+    virtual void Kill() override;
+    
 protected:
 
     virtual void OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                                       UPrimitiveComponent* OtherComp, int32        OtherBodyIndex, bool bFromSweep,
                                       const FHitResult&    SweepResult) override;
-
-public:
-
-    virtual void Kill() override;
 };

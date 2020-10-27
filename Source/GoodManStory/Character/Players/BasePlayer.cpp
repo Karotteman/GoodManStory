@@ -39,7 +39,6 @@
 ABasePlayer::ABasePlayer()
 {
     bAllowTickBeforeBeginPlay = false;
-
     // set our turn rates for input
     BaseTurnRate   = 45.f;
     BaseLookUpRate = 45.f;
@@ -241,6 +240,8 @@ void ABasePlayer::LookUpAtRate(float Rate)
 
 void ABasePlayer::Tick(float DeltaTime)
 {
+    Super::Tick(DeltaTime);
+    
     CameraBoom->Update(DeltaTime);
 
     TArray<AActor*> othersOverllaping;

@@ -108,9 +108,5 @@ public:
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetSize() const noexcept { return Size; }
 
-public:
-    UPROPERTY(EditAnywhere,BlueprintReadOnly, Category=Attack)
-    class UAnimMontage* Attack;
-
 protected:
 };

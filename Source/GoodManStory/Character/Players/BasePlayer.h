@@ -131,6 +131,7 @@ public:
     FOnLevelUpActionSignature OnPlayerLevelUp;
 
 private:
+    
     bool bAttacking = false;
     bool bCanAttack = true;
     bool bCanCharge = true;
@@ -138,8 +139,10 @@ private:
     bool bCanEvilSpellCapacity = true;
 
 public:
-    ABasePlayer();
-
+    
+    UPROPERTY(EditAnywhere,BlueprintReadOnly, Category=Attack)
+    class UAnimMontage* Attack;
+    
     /** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
     UPROPERTY(VisibleAnywhere, Category = Camera)
     float BaseTurnRate;
@@ -147,6 +150,11 @@ public:
     /** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
     UPROPERTY(VisibleAnywhere, Category = Camera)
     float BaseLookUpRate;
+    
+public:
+    ABasePlayer();
+
+
 
 public:
 
