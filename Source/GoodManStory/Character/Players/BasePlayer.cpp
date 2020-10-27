@@ -218,6 +218,8 @@ void ABasePlayer::LookUpAtRate(float Rate)
 
 void ABasePlayer::Tick(float DeltaTime)
 {
+    Super::Tick(DeltaTime);
+    
     CameraBoom->Update(DeltaTime);
 
     TArray<AActor*> othersOverllaping;
