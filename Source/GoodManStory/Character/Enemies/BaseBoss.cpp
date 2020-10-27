@@ -139,7 +139,7 @@ ABaseBoss::ABaseBoss()
     GroundAttackZone->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
     GroundAttackZone->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
     GroundAttackZone->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Overlap);
-    GroundAttackZone->SetSphereRadius(PunchZoneRadius);
+    GroundAttackZone->SetSphereRadius(GroundAttackZoneRadius);
     
     GroundZone = CreateDefaultSubobject<UBoxComponent>("GroundZone");
     GroundZone->SetupAttachment(GetCapsuleComponent());
@@ -156,7 +156,14 @@ ABaseBoss::ABaseBoss()
     ->GetUnscaledCapsuleHalfHeight()});  
     GroundZone->SetRelativeLocation(FVector{0.f, 0.f, -GetCapsuleComponent()
     ->GetUnscaledCapsuleHalfHeight()});
-    
+
+    ExternChocWaveZone = CreateDefaultSubobject<USphereComponent>("ExternChocWaveZone");
+    ExternChocWaveZone->SetupAttachment(GetCapsuleComponent());
+    ExternChocWaveZone->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+    ExternChocWaveZone->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+    ExternChocWaveZone->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+    ExternChocWaveZone->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Overlap);
     
     RightHandObject = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
     RightHandObject->SetupAttachment(GetMesh(), "hand_r");
@@ -213,20 +220,29 @@ void ABaseBoss::GroundAttack() noexcept
 
 void ABaseBoss::DoChocWave() noexcept
 {
+    bAttacking = true;
+    
     TArray<AActor*> pActorsOverllapingWithChocWave;
-    ExternChocWaveZone->GetOverlappingActors(pActorsOverllapingWithChocWave, ACharacter::StaticClass());
+    
+    ExternChocWaveZone->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    ExternChocWaveZone->GetOverlappingActors(pActorsOverllapingWithChocWave, ABaseCharacter::StaticClass());
+    ExternChocWaveZone->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     
     for (AActor* pActor : pActorsOverllapingWithChocWave)
     {
-        ACharacter* pCharacter = Cast<ACharacter>(pActor);
+        ABaseCharacter* pCharacter = Cast<ABaseCharacter>(pActor);
 
         FVector LaunchForce = pActor->GetActorLocation() - GetActorLocation();
         LaunchForce.Normalize();
         LaunchForce *= GroundAttackChocForce;
         LaunchForce.Z = GroundAttackChocForceHeightRatio * GroundAttackChocForce;
+
+        pCharacter->TakeDamageCharacter(GroundAttackDamage);
         
         pCharacter->LaunchCharacter(LaunchForce, true, true);
     }
+
+
 }
 
 void ABaseBoss::BeginPlay()
@@ -234,6 +250,11 @@ void ABaseBoss::BeginPlay()
     Super::BeginPlay();
 
     PunchZone->SetSphereRadius(PunchZoneRadius);
-   
-    BellyZone->SetBoxExtent(FVector{PunchZoneRadius, PunchZoneRadius, BellyZoneHeightRatio * GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()});  
+    BellyZone->SetBoxExtent(FVector{PunchZoneRadius, PunchZoneRadius, BellyZoneHeightRatio * GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()});
+
+    GroundAttackZone->SetSphereRadius(GroundAttackZoneRadius);
+    GroundZone->SetBoxExtent(FVector{GroundAttackZoneRadius, GroundAttackZoneRadius, GroundZoneHeightRatio * GetCapsuleComponent()
+->GetUnscaledCapsuleHalfHeight()});  
+    GroundZone->SetRelativeLocation(FVector{0.f, 0.f, -GetCapsuleComponent()
+    ->GetUnscaledCapsuleHalfHeight()});  
 }

@@ -17,10 +17,10 @@ class GOODMANSTORY_API ABaseBoss : public ABaseEnemy
 
 protected :
 
-    UPROPERTY(EditAnywhere, Category= "Punch")
+    UPROPERTY(EditAnywhere, Category= "Punch | Attack")
     class USphereComponent* PunchZone;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "Punch")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "Punch | Attack")
     float PunchZoneRadius = 1000.f;
 
     UPROPERTY(EditAnywhere)
@@ -77,10 +77,10 @@ protected :
     float GroundZoneHeightRatio = 0.3f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    bool bPlayerIsOnGroundZone;
+    bool bPlayerIsOnGroundZone = false;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    bool bPlayerIsOnGroundAttackZone;
+    bool bPlayerIsOnGroundAttackZone = false;
 
     public : 
 

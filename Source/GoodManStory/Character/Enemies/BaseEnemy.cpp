@@ -20,6 +20,7 @@ ABaseEnemy::ABaseEnemy()
     GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
     GetMesh()->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Overlap); 
     GetCapsuleComponent()->SetCollisionObjectType(COLLISION_CHANNEL_ENEMY);
+    GetCapsuleComponent()->ComponentTags.Add(FName("Body"));
 }
 
 void ABaseEnemy::Kill()
