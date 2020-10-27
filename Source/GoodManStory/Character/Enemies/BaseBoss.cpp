@@ -13,6 +13,7 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/Controller.h"
 #include "GoodManStory/Character/Players/BasePlayer.h"
+#include "Kismet/GameplayStatics.h"
 
 #define COLLISION_CHANNEL_PLAYER ECC_GameTraceChannel1
 #define COLLISION_CHANNEL_TRASH ECC_GameTraceChannel2
@@ -241,8 +242,27 @@ void ABaseBoss::DoChocWave() noexcept
         
         pCharacter->LaunchCharacter(LaunchForce, true, true);
     }
+}
 
+void ABaseBoss::SetLevel(uint8 NewLevel) noexcept
+{
+    Level = NewLevel;
 
+    switch (Level)
+    {
+        case 4 :
+            OnUpgradLevel5.Broadcast(Level);
+        case 3 :
+            OnUpgradLevel4.Broadcast(Level);
+        case 2 :
+            OnUpgradLevel3.Broadcast(Level);
+        case 1 :
+            OnUpgradLevel2.Broadcast(Level);
+        case 0 :
+            OnUpgradLevel1.Broadcast(Level);
+        break;
+        default: ;
+    }    
 }
 
 void ABaseBoss::BeginPlay()
@@ -256,5 +276,7 @@ void ABaseBoss::BeginPlay()
     GroundZone->SetBoxExtent(FVector{GroundAttackZoneRadius, GroundAttackZoneRadius, GroundZoneHeightRatio * GetCapsuleComponent()
 ->GetUnscaledCapsuleHalfHeight()});  
     GroundZone->SetRelativeLocation(FVector{0.f, 0.f, -GetCapsuleComponent()
-    ->GetUnscaledCapsuleHalfHeight()});  
+    ->GetUnscaledCapsuleHalfHeight()});
+
+    SetLevel(Cast<ABasePlayer>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0))->GetPlayerLevel());
 }

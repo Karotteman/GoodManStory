@@ -7,6 +7,9 @@
 #include "BaseEnemy.h"
 #include "BaseBoss.generated.h"
 
+UDELEGATE(BlueprintAuthorityOnly)DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+    FOnLevelUpActionSignatureBoss, int, CurrentLevel);
+
 /**
  * 
  */
@@ -29,6 +32,21 @@ protected :
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0", UIMax = "1.0"))
     float BellyZoneHeightRatio = 0.3f;
 
+    UPROPERTY(BlueprintAssignable)
+    FOnLevelUpActionSignatureBoss OnUpgradLevel1;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnLevelUpActionSignatureBoss OnUpgradLevel2;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnLevelUpActionSignatureBoss OnUpgradLevel3;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnLevelUpActionSignatureBoss OnUpgradLevel4;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnLevelUpActionSignatureBoss OnUpgradLevel5;
+    
     /**
      * @brief In second
      */
@@ -54,7 +72,13 @@ protected :
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "Punch | Attack")
     float PunchCooldown = 2.f;
+    
+    UPROPERTY(Category = Stats, EditAnywhere)
+    uint8 MaxLevel = 5;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stats)
+    uint8 Level = 0;
+    
 protected :
 
     UPROPERTY(EditAnywhere, Category= "GroundAttack")
@@ -162,4 +186,22 @@ public :
 
     UFUNCTION(BlueprintCallable)
     void DoChocWave() noexcept;
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetLevel(uint8 NewLevel) noexcept;
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    FORCEINLINE uint8 GetBossLevel() const noexcept { return Level; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    float GetPunchCooldown() const { return PunchCooldown; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void  SetPunchCooldown(float NewPunchCooldown) { PunchCooldown = NewPunchCooldown; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    float GetGroundAttackCooldown() const { return GroundAttackCooldown; }
+    
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void  SetGroundAttackCooldown(float NewGroundAttackCooldown) { GroundAttackCooldown = NewGroundAttackCooldown; }
 };

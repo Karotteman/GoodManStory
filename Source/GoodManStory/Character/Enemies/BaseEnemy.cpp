@@ -21,6 +21,8 @@ ABaseEnemy::ABaseEnemy()
     GetMesh()->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Overlap); 
     GetCapsuleComponent()->SetCollisionObjectType(COLLISION_CHANNEL_ENEMY);
     GetCapsuleComponent()->ComponentTags.Add(FName("Body"));
+
+    AutoPossessAI = EAutoPossessAI::Spawned;
 }
 
 void ABaseEnemy::Kill()
