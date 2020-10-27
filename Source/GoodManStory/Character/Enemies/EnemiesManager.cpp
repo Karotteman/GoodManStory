@@ -49,11 +49,8 @@ void AEnemiesManager::BeginPlay()
 {
     Super::BeginPlay();
 
-    if (TrashMob)
-    {
-        SpawnParams.Owner                          = this;
-        SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-    }
+    SpawnParams.Owner                          = this;
+    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 }
 
 // Called every frame

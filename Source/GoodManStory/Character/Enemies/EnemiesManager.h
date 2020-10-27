@@ -28,9 +28,6 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     class UDataTable* WaveDataTable = nullptr;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<class ABaseEnemy> TrashMob = nullptr;
-
     UPROPERTY(VisibleAnywhere)
     TArray<class ABaseEnemy*> DeathEnemyContainer;
     
