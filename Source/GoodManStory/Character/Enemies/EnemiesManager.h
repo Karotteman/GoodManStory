@@ -25,7 +25,10 @@ protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    //UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+    //class UDataTable* WaveDataTable = nullptr;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     class UDataTable* WaveDataTable = nullptr;
 
     UPROPERTY(VisibleAnywhere)
