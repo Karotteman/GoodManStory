@@ -27,7 +27,6 @@ AActor* ABaseWarrior::DropOwnedObject(UStaticMeshComponent* pObjectToDrop)
     NewWeaponStaticMesh->SetSimulatePhysics((true));
     NewWeaponStaticMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
     NewWeaponStaticMesh->ComponentVelocity = pObjectToDrop->GetComponentVelocity();
-    NewWeaponStaticMesh->SetupAttachment(pNewObject->GetRootComponent());
 
     pObjectToDrop->DestroyComponent();
 

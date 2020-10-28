@@ -211,12 +211,14 @@ void ABaseBoss::Punch() noexcept
 {
     bAttacking = true;
     PlayAnimMontage(PunchAttack, PunchSpeed);
+    OnPunch.Broadcast();
 }
 
 void ABaseBoss::GroundAttack() noexcept
 {
     bAttacking = true;
     PlayAnimMontage(GroundAttackAnimMontage, PunchSpeed);
+    OnGroundAttack.Broadcast();
 }
 
 void ABaseBoss::DoChocWave() noexcept
@@ -242,6 +244,8 @@ void ABaseBoss::DoChocWave() noexcept
         
         pCharacter->LaunchCharacter(LaunchForce, true, true);
     }
+
+    OnChocWave.Broadcast();
 }
 
 void ABaseBoss::SetLevel(uint8 NewLevel) noexcept

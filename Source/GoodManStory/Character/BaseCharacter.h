@@ -46,10 +46,10 @@ protected:
     UPROPERTY(EditAnywhere, Category = Stats)
     float Life = LifeMax;
 
-    UPROPERTY(EditAnywhere, Category = Settings)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stats)
     bool bIsDead = false;
 
-    UPROPERTY(EditAnywhere, Category = Settings)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stats)
     bool bIsExpelled = false;
 
 public:

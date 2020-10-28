@@ -8,7 +8,7 @@
 
 class UWaveEvent;
 
-DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(FOnWaveStartSignature, UWaveEvent, OnWaveBegin);
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(FOnWaveBeginSignature, UWaveEvent, OnWaveBegin);
 DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE(FOnWaveEndSignature, UWaveEvent, OnWaveEnd);
 
 /**
@@ -22,7 +22,7 @@ class GOODMANSTORY_API UWaveEvent : public UObject
 	public :
 	
 	UPROPERTY(BlueprintAssignable)
-	FOnWaveStartSignature OnWaveBegin;
+	FOnWaveBeginSignature OnWaveBegin;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnWaveEndSignature OnWaveEnd;

@@ -22,8 +22,7 @@ AEnemiesManager::AEnemiesManager()
 
     /*Reserve emplacement for death enemies*/
     DeathEnemyContainer.Reserve(MaxDeathEnemies);
-
-
+    
     /*Reserve emplacement for living enemies*/
     for (FEnemyState& EnemyStats : EnemiesStatsContainer)
     {
@@ -34,6 +33,13 @@ AEnemiesManager::AEnemiesManager()
 // Called when the game starts or when spawned
 void AEnemiesManager::BeginPlay()
 {
+    /*Create Event class befor BP beginPlay*/
+    for (auto WaveTableIterator = WaveDataTable->GetRowMap().begin(); WaveTableIterator != WaveDataTable->GetRowMap()
+    .end(); ++WaveTableIterator)
+    {
+        reinterpret_cast<FWaveInfo*>(WaveTableIterator.Value())->WaveEvent = NewObject<UWaveEvent>();
+    }
+    
     Super::BeginPlay();
 
     if (!WaveDataTable)

@@ -34,6 +34,7 @@ void ABossAIController::OnPossess(APawn* InPawn)
     
     if(pBoss && Blackboard)
     {
+        Blackboard->SetValueAsFloat("AttackRadius", pBoss->GetRangeAttack());
         Blackboard->SetValueAsFloat("PunchCooldown", pBoss->GetPunchCooldown());
         Blackboard->SetValueAsFloat("GroundAttackCooldown", pBoss->GetGroundAttackCooldown());
     }

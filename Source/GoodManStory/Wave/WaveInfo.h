@@ -18,13 +18,8 @@
 USTRUCT(BlueprintType)
 struct FWaveInfo : public FTableRowBase
 {
-	GENERATED_BODY()
+	GENERATED_USTRUCT_BODY()
 
-	FWaveInfo()
-	{
-		WaveEvent = NewObject<UWaveEvent>();
-	}
-	
 	/**
 	 * @brief Zone index in ZoneContainer. -1 for no zone
 	 */
@@ -35,5 +30,5 @@ struct FWaveInfo : public FTableRowBase
 	TArray<FSpawnInfo> SpawnInfoContainer;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UWaveEvent* WaveEvent = nullptr;
+	UWaveEvent* WaveEvent = nullptr;
 };
