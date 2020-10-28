@@ -57,6 +57,12 @@ void AEnemiesManager::Tick(float DeltaTime)
     }
     else if (WaveIndex < WaveDataTable->GetRowMap().Num() && IsAllEnemiesDied())
     {
+        if (!bCurrentWaveIsDone)
+        {
+            bCurrentWaveIsDone = true;
+            pCurrentWave->WaveEvent->OnWaveEnd.Broadcast();
+        }
+        
         if (bPlayerCanStartTheWave)
         {
             NextWave();
@@ -217,6 +223,8 @@ void AEnemiesManager::NextWave()
     WaveIndex++; //Increment for the next wave
 
     pCurrentWave = reinterpret_cast<FWaveInfo*>(WaveTableIterator.Value());
+    pCurrentWave->WaveEvent->OnWaveBegin.Broadcast();
+    bCurrentWaveIsDone = false;
 
     /*Init the wave*/
     for (int i = 0; i < pCurrentWave->SpawnInfoContainer.Num(); ++i)
