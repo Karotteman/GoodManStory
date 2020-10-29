@@ -21,8 +21,16 @@ ABaseCharacter::ABaseCharacter()
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	OnCharacterSpawn.Broadcast();
 
 	Life = LifeMax;
+}
+
+void ABaseCharacter::BeginDestroy()
+{
+	Super::BeginDestroy();
+
+	OnCharacterIsDestroy.Broadcast();
 }
 
 // Called every frame
