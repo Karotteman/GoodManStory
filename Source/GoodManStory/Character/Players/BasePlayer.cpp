@@ -169,8 +169,8 @@ void ABasePlayer::BasicAttack()
 
 void ABasePlayer::TourbilolAttack()
 {
-    //if (!bTourbillolIsUnlock)
-    //    return;
+    if (!bTourbillolIsUnlock)
+        return;
 
     if (bCanTourbillol)
     {
