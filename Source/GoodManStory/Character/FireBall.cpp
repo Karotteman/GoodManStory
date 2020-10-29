@@ -11,6 +11,7 @@
 #include "Players/BasePlayer.h"
 
 #define COLLISION_CHANNEL_PLAYER ECC_GameTraceChannel1
+#define COLLISION_CHANNEL_FIREBALL ECC_GameTraceChannel4
 
 void AFireBall::OnFireBallBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -46,8 +47,9 @@ AFireBall::AFireBall()
 	Collider->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
 	Collider->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
 	Collider->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Overlap);
+
 	Collider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	Collider->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	Collider->SetCollisionObjectType(COLLISION_CHANNEL_FIREBALL);
 	
 	Collider->OnComponentBeginOverlap.AddDynamic(this, &AFireBall::OnFireBallBeginOverlap);
 	Collider->SetGenerateOverlapEvents(true);
@@ -79,6 +81,7 @@ AFireBall::AFireBall()
 		//Mesh->SetCollisionProfileName(MeshCollisionProfileName);
 		Mesh->SetGenerateOverlapEvents(false);
 		Mesh->SetCanEverAffectNavigation(false);
+		Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 	
 }

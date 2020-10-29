@@ -36,7 +36,7 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float Damage = 10.f;
-
+    
 #if WITH_EDITORONLY_DATA
     /** Component shown in the editor only to indicate character facing */
     UPROPERTY()
@@ -65,4 +65,17 @@ public:
 
     UFUNCTION(BlueprintCallable)
     void Throw(float Force);
+
+    UFUNCTION(BlueprintCallable)
+    FORCEINLINE float GetDamage() const { return Damage; }
+    
+    UFUNCTION(BlueprintCallable)
+    void  SetDamage(float NewDamage) { Damage = NewDamage; }
+
+    UFUNCTION(BlueprintCallable)
+    FORCEINLINE float GetRadius() const { return Collider->GetScaledSphereRadius(); }
+    
+    UFUNCTION(BlueprintCallable)
+    void  SetRadius(float NewRadius) { Collider->SetSphereRadius(NewRadius); }
+    
 };

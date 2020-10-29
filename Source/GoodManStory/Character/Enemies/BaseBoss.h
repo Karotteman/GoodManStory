@@ -11,8 +11,14 @@ UDELEGATE(BlueprintAuthorityOnly)DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
     FOnLevelUpActionSignatureBoss, int, CurrentLevel);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPunchActionSignature);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGroundAttackActionSignature);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnChocWaveActionSignature);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFireBallThrowActionSignature);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFireBallAttackBeginActionSignature);
 
 /**
  * 
@@ -36,6 +42,30 @@ protected :
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0", UIMax = "1.0"))
     float BellyZoneHeightRatio = 0.3f;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "FireBall | Attack")
+    float FireBallDamage = 10.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "FireBall | Attack")
+    float FireBallVelocity = 100.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "FireBall | Attack")
+    float FireBallScale = 1.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "FireBall | Attack")
+    float FireBallAttackCoolDown = 3.f;
+
+    UPROPERTY(EditAnywhere,BlueprintReadOnly, Category= "FireBall | Attack")
+    class UAnimMontage* FireBallAttackSpeedAnimMontage;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "FireBall | Attack")
+    float FireBallAttackSpeed = 1.f;
+
+    UPROPERTY(EditAnywhere, Category= "FireBall | Attack")
+    TSubclassOf<class AFireBall> FireBallType = nullptr;
+
+    UPROPERTY(EditAnywhere, Category= "FireBall | Attack")
+    FName FireBallSpawningBoneName = TEXT("hand_l");
+
     UPROPERTY(BlueprintAssignable)
     FOnLevelUpActionSignatureBoss OnUpgradLevel1;
 
@@ -50,7 +80,9 @@ protected :
 
     UPROPERTY(BlueprintAssignable)
     FOnLevelUpActionSignatureBoss OnUpgradLevel5;
+
 public :
+
     UPROPERTY(BlueprintAssignable)
     FOnPunchActionSignature OnPunch;
 
@@ -59,6 +91,12 @@ public :
 
     UPROPERTY(BlueprintAssignable)
     FOnChocWaveActionSignature OnChocWave;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnFireBallThrowActionSignature OnFireBallThrow;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnFireBallAttackBeginActionSignature OnFireBallAttackBegin;
 
     /**
      * @brief In second
@@ -197,6 +235,12 @@ public :
     void GroundAttack() noexcept;
 
     UFUNCTION(BlueprintCallable)
+    void FireBallAttack() noexcept;
+
+    UFUNCTION(BlueprintCallable)
+    void ThrowFireBall() noexcept;
+
+    UFUNCTION(BlueprintCallable)
     void DoChocWave() noexcept;
 
     UFUNCTION(BlueprintCallable, Category = Stats)
@@ -216,4 +260,43 @@ public :
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     void SetGroundAttackCooldown(float NewGroundAttackCooldown) { GroundAttackCooldown = NewGroundAttackCooldown; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    float GetFireBallDamage() const { return FireBallDamage; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetFireBallDamage(float NewFireBallDamage) { FireBallDamage = NewFireBallDamage; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    float GetFireBallVelocity() const { return FireBallVelocity; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetFireBallVelocity(float NewFireBallVelocity) { FireBallVelocity = NewFireBallVelocity; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    float GetFireBallScale() const { return FireBallScale; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetFireBallScale(float NewFireBallScale) { FireBallScale = NewFireBallScale; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    float GetFireBallAttackCoolDown() const { return FireBallAttackCoolDown; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetFireBallAttackCoolDown(float NewFireBallAttackCoolDown)
+    {
+        FireBallAttackCoolDown = NewFireBallAttackCoolDown;
+    }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    float GetFireBallAttackSpeed() const { return FireBallAttackSpeed; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetFireBallAttackSpeed(float NewFireBallAttackSpeed) { FireBallAttackSpeed = NewFireBallAttackSpeed; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    TSubclassOf<AFireBall> GetFireBallType() const { return FireBallType; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetFireBallType(const TSubclassOf<AFireBall>& NewFireBallType) { FireBallType = NewFireBallType; }
 };

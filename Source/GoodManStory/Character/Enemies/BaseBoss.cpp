@@ -5,32 +5,35 @@
 
 #include <Utility/Utility.h>
 
-
-
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SphereComponent.h"
+#include "Engine/Engine.h"
 #include "GameFramework/Controller.h"
+#include "GoodManStory/Character/FireBall.h"
 #include "GoodManStory/Character/Players/BasePlayer.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 #define COLLISION_CHANNEL_PLAYER ECC_GameTraceChannel1
 #define COLLISION_CHANNEL_TRASH ECC_GameTraceChannel2
 #define COLLISION_CHANNEL_ENEMY ECC_GameTraceChannel3
 
 void ABaseBoss::OnHandsObjectsBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-                                              UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                           UPrimitiveComponent* OtherComp, int32        OtherBodyIndex, bool bFromSweep,
+                                           const FHitResult&    SweepResult)
 {
-    if(OtherComp->ComponentHasTag("PlayerBody"))
+    if (OtherComp->ComponentHasTag("PlayerBody"))
     {
         ABasePlayer* player = Cast<ABasePlayer>(OtherActor);
         player->TakeDamageCharacter(PunchDamage);
-    }    
+    }
 }
 
 void ABaseBoss::OnBellyZoneBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-                                        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                        UPrimitiveComponent* OtherComp, int32        OtherBodyIndex, bool bFromSweep,
+                                        const FHitResult&    SweepResult)
 {
     if (OtherComp->ComponentHasTag("PlayerBody"))
     {
@@ -39,7 +42,7 @@ void ABaseBoss::OnBellyZoneBeginOverlap(UPrimitiveComponent* OverlappedComp, AAc
 }
 
 void ABaseBoss::OnBellyZoneEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+                                      UPrimitiveComponent* OtherComp, int32        OtherBodyIndex)
 {
     if (OtherComp->ComponentHasTag("PlayerBody"))
     {
@@ -48,16 +51,17 @@ void ABaseBoss::OnBellyZoneEndOverlap(UPrimitiveComponent* OverlappedComp, AActo
 }
 
 void ABaseBoss::OnPunchZoneBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                        UPrimitiveComponent* OtherComp, int32        OtherBodyIndex, bool bFromSweep,
+                                        const FHitResult&    SweepResult)
 {
     if (OtherComp->ComponentHasTag("PlayerBody"))
     {
         bPlayerIsOnPunchZone = true;
-    }  
+    }
 }
 
 void ABaseBoss::OnPunchZoneEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+                                      UPrimitiveComponent* OtherComp, int32        OtherBodyIndex)
 {
     if (OtherComp->ComponentHasTag("PlayerBody"))
     {
@@ -66,7 +70,8 @@ void ABaseBoss::OnPunchZoneEndOverlap(UPrimitiveComponent* OverlappedComp, AActo
 }
 
 void ABaseBoss::OnGroundZoneBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                         UPrimitiveComponent* OtherComp, int32        OtherBodyIndex, bool bFromSweep,
+                                         const FHitResult&    SweepResult)
 {
     if (OtherComp->ComponentHasTag("PlayerBody"))
     {
@@ -75,7 +80,7 @@ void ABaseBoss::OnGroundZoneBeginOverlap(UPrimitiveComponent* OverlappedComp, AA
 }
 
 void ABaseBoss::OnGroundZoneEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+                                       UPrimitiveComponent* OtherComp, int32        OtherBodyIndex)
 {
     if (OtherComp->ComponentHasTag("PlayerBody"))
     {
@@ -84,7 +89,8 @@ void ABaseBoss::OnGroundZoneEndOverlap(UPrimitiveComponent* OverlappedComp, AAct
 }
 
 void ABaseBoss::OnGroundAttackZoneBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                               UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+                                               const FHitResult&    SweepResult)
 {
     if (OtherComp->ComponentHasTag("PlayerBody"))
     {
@@ -93,12 +99,12 @@ void ABaseBoss::OnGroundAttackZoneBeginOverlap(UPrimitiveComponent* OverlappedCo
 }
 
 void ABaseBoss::OnGroundAttackZoneEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+                                             UPrimitiveComponent* OtherComp, int32        OtherBodyIndex)
 {
     if (OtherComp->ComponentHasTag("PlayerBody"))
     {
         bPlayerIsOnGroundAttackZone = false;
-    } 
+    }
 }
 
 ABaseBoss::ABaseBoss()
@@ -107,56 +113,62 @@ ABaseBoss::ABaseBoss()
     PunchZone = CreateDefaultSubobject<USphereComponent>("PunchZone");
     PunchZone->SetupAttachment(GetCapsuleComponent());
     PunchZone->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-    
+
     PunchZone->OnComponentBeginOverlap.AddDynamic(this, &ABaseBoss::OnPunchZoneBeginOverlap);
     PunchZone->OnComponentEndOverlap.AddDynamic(this, &ABaseBoss::OnPunchZoneEndOverlap);
-    
+
     PunchZone->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
     PunchZone->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
     PunchZone->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Overlap);
     PunchZone->SetSphereRadius(PunchZoneRadius);
-    
+
     BellyZone = CreateDefaultSubobject<UBoxComponent>("BellyZone");
     BellyZone->SetupAttachment(GetCapsuleComponent());
     BellyZone->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-    
+
     BellyZone->OnComponentBeginOverlap.AddDynamic(this, &ABaseBoss::OnBellyZoneBeginOverlap);
     BellyZone->OnComponentEndOverlap.AddDynamic(this, &ABaseBoss::OnBellyZoneEndOverlap);
-    
+
     BellyZone->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
     BellyZone->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
     BellyZone->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Overlap);
-    
-    BellyZone->SetBoxExtent(FVector{PunchZoneRadius, PunchZoneRadius, BellyZoneHeightRatio * GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()});  
+
+    BellyZone->SetBoxExtent(FVector{
+        PunchZoneRadius,
+        PunchZoneRadius,
+        BellyZoneHeightRatio * GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()
+    });
 
     /*Ground attack setting*/
     GroundAttackZone = CreateDefaultSubobject<USphereComponent>("GroundAttackZone");
     GroundAttackZone->SetupAttachment(GetCapsuleComponent());
     GroundAttackZone->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-    
+
     GroundAttackZone->OnComponentBeginOverlap.AddDynamic(this, &ABaseBoss::OnGroundAttackZoneBeginOverlap);
     GroundAttackZone->OnComponentEndOverlap.AddDynamic(this, &ABaseBoss::OnGroundAttackZoneEndOverlap);
-    
+
     GroundAttackZone->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
     GroundAttackZone->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
     GroundAttackZone->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Overlap);
     GroundAttackZone->SetSphereRadius(GroundAttackZoneRadius);
-    
+
     GroundZone = CreateDefaultSubobject<UBoxComponent>("GroundZone");
     GroundZone->SetupAttachment(GetCapsuleComponent());
     GroundZone->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-    
+
     GroundZone->OnComponentBeginOverlap.AddDynamic(this, &ABaseBoss::OnGroundZoneBeginOverlap);
     GroundZone->OnComponentEndOverlap.AddDynamic(this, &ABaseBoss::OnGroundZoneEndOverlap);
-    
+
     GroundZone->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
     GroundZone->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
     GroundZone->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Overlap);
-    
-    GroundZone->SetBoxExtent(FVector{GroundAttackZoneRadius, GroundAttackZoneRadius, GroundZoneHeightRatio * GetCapsuleComponent()
-    ->GetUnscaledCapsuleHalfHeight()});  
-    GroundZone->SetRelativeLocation(FVector{0.f, 0.f, -GetCapsuleComponent()
-    ->GetUnscaledCapsuleHalfHeight()});
+
+    GroundZone->SetBoxExtent(FVector{
+        GroundAttackZoneRadius,
+        GroundAttackZoneRadius,
+        GroundZoneHeightRatio * GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()
+    });
+    GroundZone->SetRelativeLocation(FVector{0.f, 0.f, -GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()});
 
     ExternChocWaveZone = CreateDefaultSubobject<USphereComponent>("ExternChocWaveZone");
     ExternChocWaveZone->SetupAttachment(GetCapsuleComponent());
@@ -165,7 +177,7 @@ ABaseBoss::ABaseBoss()
     ExternChocWaveZone->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
     ExternChocWaveZone->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
     ExternChocWaveZone->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Overlap);
-    
+
     RightHandObject = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
     RightHandObject->SetupAttachment(GetMesh(), "hand_r");
     RightHandObject->SetRelativeScale3D({1.f, 1.f, 1.f});
@@ -173,7 +185,7 @@ ABaseBoss::ABaseBoss()
     RightHandObject->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     RightHandObject->SetRelativeLocation({-15.f, 5.f, 0.f});
     RightHandObject->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-    
+
     BoxWeapon = CreateDefaultSubobject<UBoxComponent>("BoxWeapon");
     BoxWeapon->SetupAttachment(RightHandObject);
     BoxWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -184,14 +196,14 @@ ABaseBoss::ABaseBoss()
     BoxWeapon->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 
     GetCapsuleComponent()->SetCollisionObjectType(COLLISION_CHANNEL_TRASH);
-    
+
     LeftHandObject = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Shield"));
     LeftHandObject->SetupAttachment(GetMesh(), "hand_l");
     LeftHandObject->SetRelativeScale3D({1.f, 1.f, 1.f});
     LeftHandObject->SetRelativeRotation({0.f, 0.f, 0.f});
     LeftHandObject->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     LeftHandObject->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-    
+
     BoxShield = CreateDefaultSubobject<UBoxComponent>("BoxShield");
     BoxShield->SetupAttachment(LeftHandObject);
     BoxShield->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -202,7 +214,7 @@ ABaseBoss::ABaseBoss()
     BoxShield->SetCollisionResponseToChannel(COLLISION_CHANNEL_TRASH, ECollisionResponse::ECR_Ignore);
     BoxShield->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 
-    bIsPushable = false;
+    bIsPushable      = false;
     bIsEjectOnCharge = false;
     bIsEjectOnAttack = false;
 }
@@ -221,16 +233,52 @@ void ABaseBoss::GroundAttack() noexcept
     OnGroundAttack.Broadcast();
 }
 
+void ABaseBoss::FireBallAttack() noexcept
+{
+    bAttacking = true;
+    PlayAnimMontage(FireBallAttackSpeedAnimMontage, FireBallAttackSpeed);
+    OnFireBallAttackBegin.Broadcast();
+}
+
+void ABaseBoss::ThrowFireBall() noexcept
+{
+    FActorSpawnParameters SpawnParams;
+    SpawnParams.Owner                          = nullptr;
+    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+    FVector SpawnLocation = GetMesh()->GetBoneLocation(FireBallSpawningBoneName, EBoneSpaces::WorldSpace) + GetActorForwardVector() * 100.f;
+
+    FVector  PlayerLoc            = GetWorld()->GetFirstPlayerController()->GetCharacter()->GetActorLocation();
+    FRotator RotationTowardPlayer = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, PlayerLoc);
+
+    AFireBall* NewFireBall = GetWorld()->SpawnActor<AFireBall>(FireBallType.Get(), SpawnLocation, RotationTowardPlayer,
+                                                              SpawnParams);
+
+    if (NewFireBall)
+    {
+        NewFireBall->SetDamage(FireBallDamage);
+        NewFireBall->SetRadius(FireBallScale * 32.f);
+        NewFireBall->SetActorScale3D(FVector{FireBallScale});
+        NewFireBall->Throw(FireBallVelocity);
+        OnFireBallThrow.Broadcast();
+    }
+    else
+    {
+        if (GEngine)
+            GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("NewFireBall null"));
+    }
+}
+
 void ABaseBoss::DoChocWave() noexcept
 {
     bAttacking = true;
-    
+
     TArray<AActor*> pActorsOverllapingWithChocWave;
-    
+
     ExternChocWaveZone->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     ExternChocWaveZone->GetOverlappingActors(pActorsOverllapingWithChocWave, ABaseCharacter::StaticClass());
     ExternChocWaveZone->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    
+
     for (AActor* pActor : pActorsOverllapingWithChocWave)
     {
         ABaseCharacter* pCharacter = Cast<ABaseCharacter>(pActor);
@@ -241,7 +289,7 @@ void ABaseBoss::DoChocWave() noexcept
         LaunchForce.Z = GroundAttackChocForceHeightRatio * GroundAttackChocForce;
 
         pCharacter->TakeDamageCharacter(GroundAttackDamage);
-        
+
         pCharacter->LaunchCharacter(LaunchForce, true, true);
     }
 
@@ -254,19 +302,19 @@ void ABaseBoss::SetLevel(uint8 NewLevel) noexcept
 
     switch (Level)
     {
-        case 4 :
+        case 4:
             OnUpgradLevel5.Broadcast(Level);
-        case 3 :
+        case 3:
             OnUpgradLevel4.Broadcast(Level);
-        case 2 :
+        case 2:
             OnUpgradLevel3.Broadcast(Level);
-        case 1 :
+        case 1:
             OnUpgradLevel2.Broadcast(Level);
-        case 0 :
+        case 0:
             OnUpgradLevel1.Broadcast(Level);
-        break;
+            break;
         default: ;
-    }    
+    }
 }
 
 void ABaseBoss::BeginPlay()
@@ -274,13 +322,19 @@ void ABaseBoss::BeginPlay()
     Super::BeginPlay();
 
     PunchZone->SetSphereRadius(PunchZoneRadius);
-    BellyZone->SetBoxExtent(FVector{PunchZoneRadius, PunchZoneRadius, BellyZoneHeightRatio * GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()});
+    BellyZone->SetBoxExtent(FVector{
+        PunchZoneRadius,
+        PunchZoneRadius,
+        BellyZoneHeightRatio * GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()
+    });
 
     GroundAttackZone->SetSphereRadius(GroundAttackZoneRadius);
-    GroundZone->SetBoxExtent(FVector{GroundAttackZoneRadius, GroundAttackZoneRadius, GroundZoneHeightRatio * GetCapsuleComponent()
-->GetUnscaledCapsuleHalfHeight()});  
-    GroundZone->SetRelativeLocation(FVector{0.f, 0.f, -GetCapsuleComponent()
-    ->GetUnscaledCapsuleHalfHeight()});
+    GroundZone->SetBoxExtent(FVector{
+        GroundAttackZoneRadius,
+        GroundAttackZoneRadius,
+        GroundZoneHeightRatio * GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()
+    });
+    GroundZone->SetRelativeLocation(FVector{0.f, 0.f, -GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()});
 
     SetLevel(Cast<ABasePlayer>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0))->GetPlayerLevel());
 }
