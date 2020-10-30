@@ -20,10 +20,10 @@ ABaseCharacter::ABaseCharacter()
 // Called when the game starts or when spawned
 void ABaseCharacter::BeginPlay()
 {
+	Life = LifeMax;
+	
 	Super::BeginPlay();
 	OnCharacterSpawn.Broadcast();
-
-	Life = LifeMax;
 }
 
 void ABaseCharacter::BeginDestroy()

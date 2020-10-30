@@ -357,27 +357,32 @@ void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
     {
         case 0:
             if (RageRate > RageToUnlockLevel1)
-                LevelUp();
+                while (GetPlayerLevel() < 1)
+                    LevelUp();
             break;
 
         case 1:
             if (RageRate > RageToUnlockLevel2)
-                LevelUp();
+                while (GetPlayerLevel() < 2)
+                    LevelUp();
             break;
 
         case 2:
             if (RageRate > RageToUnlockLevel3)
-                LevelUp();
+                while (GetPlayerLevel() < 3)
+                    LevelUp();
             break;
 
         case 3:
             if (RageRate > RageToUnlockLevel4)
-                LevelUp();
+                while (GetPlayerLevel() < 4)
+                    LevelUp();
             break;
 
         case 4:
             if (RageRate > RageToUnlockLevel5)
-                LevelUp();
+                while (GetPlayerLevel() < 5)
+                    LevelUp();
             break;
         default: ;
     }
