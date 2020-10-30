@@ -54,7 +54,7 @@ protected:
     virtual void BeginPlay() override;
 
     UFUNCTION()
-    void OnFireBallBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+    virtual void OnFireBallBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                                 UPrimitiveComponent* OtherComp, int32        OtherBodyIndex, bool bFromSweep,
                                 const FHitResult&    SweepResult);
 public:

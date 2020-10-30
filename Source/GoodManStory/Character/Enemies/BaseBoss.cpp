@@ -177,6 +177,7 @@ ABaseBoss::ABaseBoss()
     ExternChocWaveZone->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
     ExternChocWaveZone->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
     ExternChocWaveZone->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Overlap);
+    ExternChocWaveZone->SetCollisionResponseToChannel(COLLISION_CHANNEL_TRASH, ECollisionResponse::ECR_Overlap);
 
     RightHandObject = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
     RightHandObject->SetupAttachment(GetMesh(), "hand_r");
@@ -288,7 +289,12 @@ void ABaseBoss::DoChocWave() noexcept
         LaunchForce *= GroundAttackChocForce;
         LaunchForce.Z = GroundAttackChocForceHeightRatio * GroundAttackChocForce;
 
-        pCharacter->TakeDamageCharacter(GroundAttackDamage);
+        ABasePlayer* pPlayer = Cast<ABasePlayer>(pActor);
+
+        if (pPlayer)
+        {
+            pPlayer->TakeDamageCharacter(Damage);
+        }
 
         pCharacter->LaunchCharacter(LaunchForce, true, true);
     }
@@ -300,19 +306,38 @@ void ABaseBoss::SetLevel(uint8 NewLevel) noexcept
 {
     Level = NewLevel;
 
-    switch (Level)
+    switch (Level) /*Cannot be reverse for optimize line numbers. Lower level must be execute before upper level*/
     {
-        case 4:
-            OnUpgradLevel5.Broadcast(Level);
-        case 3:
-            OnUpgradLevel4.Broadcast(Level);
-        case 2:
-            OnUpgradLevel3.Broadcast(Level);
-        case 1:
-            OnUpgradLevel2.Broadcast(Level);
         case 0:
             OnUpgradLevel1.Broadcast(Level);
             break;
+            
+        case 1:
+            OnUpgradLevel1.Broadcast(Level);
+            OnUpgradLevel2.Broadcast(Level);
+        break;
+
+        case 2:
+            OnUpgradLevel1.Broadcast(Level);
+            OnUpgradLevel2.Broadcast(Level);
+            OnUpgradLevel3.Broadcast(Level);
+        break;
+
+        case 3:
+            OnUpgradLevel1.Broadcast(Level);
+            OnUpgradLevel2.Broadcast(Level);
+            OnUpgradLevel3.Broadcast(Level);
+            OnUpgradLevel4.Broadcast(Level);
+        break;
+
+        case 4:
+            OnUpgradLevel1.Broadcast(Level);
+            OnUpgradLevel2.Broadcast(Level);
+            OnUpgradLevel3.Broadcast(Level);
+            OnUpgradLevel4.Broadcast(Level);
+            OnUpgradLevel5.Broadcast(Level);
+        break;
+
         default: ;
     }
 }
