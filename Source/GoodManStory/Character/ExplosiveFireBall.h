@@ -24,12 +24,14 @@ protected :
     UPROPERTY(BlueprintAssignable)
     FOnFireBallChocWaveActionSignature OnChocWave;
 
-    
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "ChocWave")
     float ChocForce = 1000.f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "ChocWave")
     float ChocForceHeightRatio = 1.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "ChocWave")
+    bool ChocForceDependingOfDistance = true;
     
 protected :
 

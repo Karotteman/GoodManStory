@@ -15,7 +15,7 @@
 
 void AFireBall::OnFireBallBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
+{	
 	ABasePlayer* pPlayer = Cast<ABasePlayer>(OtherActor);
 
 	if (pPlayer)
@@ -23,7 +23,10 @@ void AFireBall::OnFireBallBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
 		pPlayer->TakeDamageCharacter(Damage);
 	}
 
-    Destroy();
+	if (!DestroyOnlyIfGroundTagFound || OtherComp->ComponentHasTag(TEXT("FireBallDestroyabale")))
+	{
+		Destroy();
+	}
 }
 
 // Sets default values

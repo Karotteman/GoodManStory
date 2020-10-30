@@ -182,6 +182,10 @@ protected :
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "GroundAttack | Attack")
     float GroundAttackCooldown = 2.f;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "ChocWave")
+    bool ChocForceDependingOfDistance = true;
+    
+
 protected :
 
     virtual void OnHandsObjectsBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,

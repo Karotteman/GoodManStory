@@ -37,6 +37,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float Damage = 10.f;
     
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool DestroyOnlyIfGroundTagFound = true;
+    
 #if WITH_EDITORONLY_DATA
     /** Component shown in the editor only to indicate character facing */
     UPROPERTY()

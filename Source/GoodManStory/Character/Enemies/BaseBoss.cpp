@@ -281,13 +281,15 @@ void ABaseBoss::DoChocWave() noexcept
     ExternChocWaveZone->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
     for (AActor* pActor : pActorsOverllapingWithChocWave)
-    {
+    {        
         ABaseCharacter* pCharacter = Cast<ABaseCharacter>(pActor);
 
         FVector LaunchForce = pActor->GetActorLocation() - GetActorLocation();
+        const float ChocForceWithDistance = GroundAttackChocForce * (ChocForceDependingOfDistance ? 1.f : 1.f - (LaunchForce
+        .SizeSquared() / (ExternChocWaveZone->GetScaledSphereRadius() * ExternChocWaveZone->GetScaledSphereRadius())));
         LaunchForce.Normalize();
-        LaunchForce *= GroundAttackChocForce;
-        LaunchForce.Z = GroundAttackChocForceHeightRatio * GroundAttackChocForce;
+        LaunchForce *= ChocForceWithDistance;
+        LaunchForce.Z = GroundAttackChocForceHeightRatio * ChocForceWithDistance;
 
         ABasePlayer* pPlayer = Cast<ABasePlayer>(pActor);
 
