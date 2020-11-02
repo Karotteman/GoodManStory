@@ -4,20 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "BaseEnemy_AIController.h"
+
 #include "Trash_AIController.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GOODMANSTORY_API ATrash_AIController : public AAIController
+class GOODMANSTORY_API ATrash_AIController : public ABaseEnemy_AIController
 {
     GENERATED_BODY()
-protected:
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BehaviorTree")
-    UBehaviorTree* BehaviorTree;
-    
-protected:
-    virtual void BeginPlay() override;
-    virtual  void OnPossess(APawn* InPawn) override;
+
 };

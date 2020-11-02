@@ -42,7 +42,7 @@ void ARepulsiveFireBall::OnChocWaveZoneBeginOverlap(UPrimitiveComponent* Overlap
         pPlayer->TakeDamageCharacter(Damage);
     }
 
-    pCharacter->LaunchCharacter(LaunchForce, true, true);
+    pCharacter->LaunchAndStun(LaunchForce, true, true);
     
     OnChocWave.Broadcast(); 
 }

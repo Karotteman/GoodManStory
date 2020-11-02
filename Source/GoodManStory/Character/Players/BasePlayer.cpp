@@ -440,7 +440,7 @@ void ABasePlayer::OnChargeBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
             LaunchForce *= pEnemy->ForceEjection;
             LaunchForce.Z = ChargeExpulseHeigthRatio * ChargeExpulseForce;
 
-            pEnemy->LaunchCharacter(LaunchForce, true, true);
+            pEnemy->LaunchAndStun(LaunchForce, true, true);
         }
     }
 }

@@ -37,7 +37,7 @@ void AExplosiveFireBall::OnFireBallBeginOverlap(UPrimitiveComponent* OverlappedC
             pPlayer->TakeDamageCharacter(Damage);
         }
 
-        pCharacter->LaunchCharacter(LaunchForce, true, true);
+        pCharacter->LaunchAndStun(LaunchForce, true, true);
     }
 
     OnChocWave.Broadcast();

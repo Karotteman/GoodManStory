@@ -298,7 +298,7 @@ void ABaseBoss::DoChocWave() noexcept
             pPlayer->TakeDamageCharacter(Damage);
         }
 
-        pCharacter->LaunchCharacter(LaunchForce, true, true);
+        pCharacter->LaunchAndStun(LaunchForce, true, true);
     }
 
     OnChocWave.Broadcast();
