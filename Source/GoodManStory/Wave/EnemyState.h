@@ -7,6 +7,7 @@
 
 #include "EnemyState.generated.h"
 
+
 USTRUCT(BlueprintType)
 struct FEnemyState
 {

@@ -3,16 +3,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../BaseCharacter.h"
+#include "GoodManStory/Character/BaseWarrior.h"
 #include "BaseEnemy.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GOODMANSTORY_API ABaseEnemy : public ABaseCharacter
+class GOODMANSTORY_API ABaseEnemy : public ABaseWarrior
 {
     GENERATED_BODY()
+
+protected :
 
     UPROPERTY(Category = Stats, EditAnywhere)
     float RageRewardOnKill = 10.f;
@@ -32,10 +34,11 @@ class GOODMANSTORY_API ABaseEnemy : public ABaseCharacter
     UPROPERTY(Category = Stats, EditAnywhere)
     float RangeAttack = 100.f;
 
-    UPROPERTY(Category = Stats, EditAnywhere)
-    float ForceEjection = 300.f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
+    bool bIsEjectOnAttack = true;
 
-
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
+    bool bIsEjectOnCharge = true;
 
     UPROPERTY(Category = Stats, EditAnywhere,meta=(EditCondition="bRandomSize"))
     float SizeMin = 1.f;
@@ -46,12 +49,32 @@ class GOODMANSTORY_API ABaseEnemy : public ABaseCharacter
     UPROPERTY(Category = Stats, EditAnywhere,meta=(EditCondition="!bRandomSize"))
     float Size = 1.f;
 
+public:
+
+    UPROPERTY(Category = Stats, EditAnywhere, meta=(EditCondition="bIsEjectOnCharge"))
+    float ForceChargeEjection = 150.f;
+
+    UPROPERTY(Category = Stats, EditAnywhere, meta=(EditCondition="bIsEjectOnAttack"))
+    float ForceEjection = 300.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
+    bool bAttacking = false;
+
+    UPROPERTY(EditAnywhere, Category=Stats, AdvancedDisplay)
+    bool bRandomSize = false;
+
+    UPROPERTY(EditAnywhere, Category=Stats, AdvancedDisplay)
+    bool bIsPushable = false;
 
 public:
 
-    UPROPERTY(Category=Stats, EditAnywhere, AdvancedDisplay)
-    bool bRandomSize = false;
-    
+    ABaseEnemy();
+
+    virtual void Kill() override;
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    FORCEINLINE bool IsPushable() const noexcept { return bIsPushable; }
+
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetMinAvoidanceRadius() const noexcept { return MinAvoidanceRadius; }
 
@@ -61,14 +84,11 @@ public:
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetAvoidanceLimitDistance() const noexcept { return AvoidanceLimitDistance; }
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack, meta = (AllowPrivateAccess = "true"))
-    bool bAttacking = false;
-    
-    ABaseEnemy();
-    virtual void Kill() override;
-
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetRageRewardOnKill() const noexcept { return RageRewardOnKill; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    FORCEINLINE float GetScoreRewardOnKill() const noexcept { return RageRewardOnKill + LifeMax; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetTimeToNextAttack() const noexcept { return TimeToNextAttack; }
@@ -87,9 +107,18 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetSize() const noexcept { return Size; }
-public:
-    UPROPERTY(EditAnywhere,BlueprintReadOnly, Category=Attack)
-    class UAnimMontage* Attack;
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    FORCEINLINE bool IsEjectOnAttack() const { return bIsEjectOnAttack; }
+
+    UFUNCTION(Category = Stats)
+    void SetIsEjectOnAttack(bool NewIsEjectOnAttack) { bIsEjectOnAttack = NewIsEjectOnAttack; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    FORCEINLINE bool IsEjectOnCharge() const { return bIsEjectOnCharge; }
+
+    UFUNCTION(Category = Stats)
+    void SetIsEjectOnCharge(bool NewIsEjectOnCharge) { bIsEjectOnCharge = NewIsEjectOnCharge; }
 
 protected:
 };

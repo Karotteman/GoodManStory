@@ -3,6 +3,9 @@
 
 #include "Trash_AIController.h"
 
+#include <Utility/Utility.h>
+
+
 #include "BaseEnemy.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
@@ -13,10 +16,15 @@
 void ATrash_AIController::BeginPlay()
 {
     Super::BeginPlay();
-    RunBehaviorTree(BehaviorTree);
+    
+    if(BehaviorTree)
+    {
+        RunBehaviorTree(BehaviorTree);
+    }
+    else
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("BehaviorTree null"));
+    
     Blackboard->SetValueAsObject("Player", GetWorld()->GetFirstPlayerController()->GetPawn());
-
-
 }
 
 
@@ -29,7 +37,6 @@ void ATrash_AIController::OnPossess(APawn* InPawn)
     {
         Blackboard->SetValueAsFloat("Radius", enemy->GetRangeAttack());
         Blackboard->SetValueAsFloat("TimeNextAttack", enemy->GetTimeToNextAttack());
-        
     }
     else
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Enemy Null"));

@@ -3,66 +3,158 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../BaseCharacter.h"
+#include "GoodManStory/Character/BaseWarrior.h"
+#include "PhysicsEngine/RadialForceComponent.h"
+
 #include "BasePlayer.generated.h"
+
+UDELEGATE(BlueprintAuthorityOnly)DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+    FOnLevelUpActionSignature, int, CurrentLevel);
 
 /**
  * 
  */
 UCLASS()
-class GOODMANSTORY_API ABasePlayer : public ABaseCharacter
+class GOODMANSTORY_API ABasePlayer : public ABaseWarrior
 {
     GENERATED_BODY()
 
     /** Camera boom positioning the camera behind the character */
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(VisibleAnywhere, Category = Camera)
     class UCharacterCameraBoom* CameraBoom;
 
     /** Follow camera */
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(VisibleAnywhere, Category = Camera)
     class UCameraComponent* FollowCamera;
 
     class UMaterialInstanceDynamic* DynMaterial;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
-    class UStaticMeshComponent* Weapon;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
-    class UBoxComponent* BoxWeapon;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack, meta = (AllowPrivateAccess = "true"))
+protected:
+    UPROPERTY(EditAnywhere, Category = Attack)
     TArray<UAnimMontage*> SlotAnimationsAttackCombo;
+
+    UPROPERTY(EditAnywhere, Category = Attack)
+    UAnimMontage* SlotAnimationsCharge;
+
+    UPROPERTY(EditAnywhere, Category = Attack)
+    UAnimMontage* SlotAnimationsTourbillol;
 
     uint8 BasicAttackComboCount = 0;
 
-    UPROPERTY(Category = Weapon, EditAnywhere)
-    float Dammage = 20.f;
-    
-    UPROPERTY(Category = Stats, EditAnywhere)
+    /**
+    * @brief This collider is use when player use its feature "Charge"
+    */
+    UPROPERTY(EditAnywhere, Category = Weapon)
+    class USphereComponent* SphericChargeZone;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
+    float ChargeImpulsionForce = 2000.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
+    float ChargeExpulseForce = 1500.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
+    float ChargeExpulseHeigthRatio = 0.5f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
+    float WeaponShootForce = 7500.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
+    float WeaponShootHeigthRatio = 1.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
+    float PushForce = 100.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float MaxRage = 1000.f;
-    
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stats, meta = (AllowPrivateAccess = "true"))
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
     float Rage = 0.f;
 
     UPROPERTY(Category = Stats, EditAnywhere)
-    uint8 MaxLevel = 3;
-    
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stats, meta = (AllowPrivateAccess = "true"))
+    uint8 MaxLevel = 5;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stats)
     uint8 Level = 0;
 
-    bool bAttacking = false;
-    bool bCanAttack = true;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
+    int32 Score = 0;
+
+     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
+     float DurationOfTheSlowdownEvil = 5.f;
+    
+     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
+     float WorldSlowingSpeedEvil = 0.25f;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
+    float PlayerSlowingSpeedEvil = 1.25f;
+    
+    bool bTourbillolIsUnlock      = false;
+    bool bEvilSpellAttackIsUnlock = false;
+    bool bEvilSpellCapacityIsUnlock = false;
+    FTimerHandle MemberTimerEvilCapacity;
+
 
 public:
-    ABasePlayer();
 
+    UPROPERTY(EditAnywhere, meta=(UIMin = "0.0", UIMax = "100.0"))
+    float RageToUnlockLevel1;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnLevelUpActionSignature OnPlayerUpgradLevel1;
+
+    UPROPERTY(EditAnywhere)
+    float RageToUnlockLevel2;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnLevelUpActionSignature OnPlayerUpgradLevel2;
+
+    UPROPERTY(EditAnywhere)
+    float RageToUnlockLevel3;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnLevelUpActionSignature OnPlayerUpgradLevel3;
+
+    UPROPERTY(EditAnywhere)
+    float RageToUnlockLevel4;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnLevelUpActionSignature OnPlayerUpgradLevel4;
+
+    UPROPERTY(EditAnywhere)
+    float RageToUnlockLevel5;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnLevelUpActionSignature OnPlayerUpgradLevel5;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnLevelUpActionSignature OnPlayerLevelUp;
+
+private:
+    
+    bool bAttacking = false;
+    bool bCanAttack = true;
+    bool bCanCharge = true;
+    bool bCanTourbillol = true;
+    bool bCanEvilSpellCapacity = true;
+
+public:
+    
+    UPROPERTY(EditAnywhere,BlueprintReadOnly, Category=Attack)
+    class UAnimMontage* Attack;
+    
     /** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+    UPROPERTY(VisibleAnywhere, Category = Camera)
     float BaseTurnRate;
 
     /** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+    UPROPERTY(VisibleAnywhere, Category = Camera)
     float BaseLookUpRate;
+    
+public:
+    ABasePlayer();
+
+
 
 public:
 
@@ -134,7 +226,7 @@ protected:
     */
     UFUNCTION(BlueprintCallable, Category=Character)
     void MoveCameraArmLength(float FScale) noexcept;
-    
+
     UFUNCTION(BlueprintCallable, Category=Character)
     void ResetCameraArmLength() noexcept;
 
@@ -143,37 +235,79 @@ protected:
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
     // End of APawn interface
 
-    UFUNCTION(BlueprintCallable, Category = "Attack")
+    UFUNCTION(BlueprintCallable, Category = Attack)
     void ResetCombo();
 
-    UFUNCTION(BlueprintCallable, Category = "Attack")
-    void SetCanAttack(bool canAttack);
+    UFUNCTION(BlueprintCallable, Category = Attack)
+    void SetCanAttack(bool bNewCanAttack);
+
+    UFUNCTION(BlueprintCallable, Category = Attack)
+    void SetCanCharge(bool bNewCanCharge);
+
+    UFUNCTION(BlueprintCallable, Category = Attack)
+    void SetCanTourbillol(bool bNewCanTourbillol);
+
+    UFUNCTION(BlueprintCallable, Category = Attack)
+    void SetCanEvilCapacity();
+
+    virtual void OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+                                      UPrimitiveComponent* OtherComp, int32        OtherBodyIndex, bool bFromSweep,
+                                      const FHitResult&    SweepResult) override;
 
     UFUNCTION()
-    void OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-        int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-    
+    void OnChargeBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+                              int32                OtherBodyIndex, bool    bFromSweep, const FHitResult& SweepResult);
+
+    UFUNCTION()
+    void Push(AActor* other);
+
+    UFUNCTION(BlueprintCallable, Category = "Attack")
+    void ChargeActiveHitBox(bool bIsActive);
+
 public:
     /** Returns CameraBoom subobject **/
     FORCEINLINE class UCharacterCameraBoom* GetCameraBoom() const { return CameraBoom; }
-    
+
     /** Returns FollowCamera subobject **/
     FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     void TakeRage(float AdditionnalRage) noexcept;
-    
+
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetRage() const noexcept { return Rage; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    bool IsTourbillolIsUnlock() const { return bTourbillolIsUnlock; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetTourbillolIsUnlock(bool bNewTourbillolIsUnlock) { bTourbillolIsUnlock = bNewTourbillolIsUnlock; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    bool IsEvilSpellAttackIsUnlock() const { return bEvilSpellAttackIsUnlock; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetEvilSpellAttackIsUnlock(bool bNewEvilSpellAttackIsUnlock)
+    {
+        bEvilSpellAttackIsUnlock = bNewEvilSpellAttackIsUnlock;
+    }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetRageRatio() const noexcept { return Rage / MaxRage; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     void LevelUp() noexcept;
-        
+
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE uint8 GetPlayerLevel() const noexcept { return Level; }
 
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    FORCEINLINE int32 GetScore() const noexcept { return Score; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void AddScore(int32 AdditionalScore) noexcept { Score += AdditionalScore; }
+
     virtual void Kill() override;
 };
+
+

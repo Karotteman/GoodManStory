@@ -25,18 +25,21 @@ protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    class UDataTable* WaveDataTable = nullptr;
-
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
-    TSubclassOf<class ABaseEnemy> TrashMob = nullptr;
+    class UDataTable* WaveDataTable = nullptr;
 
     UPROPERTY(VisibleAnywhere)
     TArray<class ABaseEnemy*> DeathEnemyContainer;
 
+    UPROPERTY(VisibleAnywhere)
+    TArray<class AActor*> DeathWeaponContainer;
+
     UPROPERTY(EditAnywhere)
     uint16 MaxDeathEnemies = 100;
 
+    UPROPERTY(EditAnywhere)
+    uint16 MaxDeathWeapon = 100;
+    
     UPROPERTY(EditAnywhere)
     TArray<FEnemyState> EnemiesStatsContainer;
 
@@ -50,6 +53,7 @@ protected:
 
     bool bWaveSpawnerIsRunning  = false;
     bool bPlayerCanStartTheWave = false;
+    bool bCurrentWaveIsDone = true; //True because the first wave dosn't start
 
     UPROPERTY(VisibleAnywhere)
     uint16 WaveIndex = 0;

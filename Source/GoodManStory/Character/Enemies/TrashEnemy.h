@@ -13,27 +13,21 @@ UCLASS()
 class GOODMANSTORY_API ATrashEnemy : public ABaseEnemy
 {
     GENERATED_BODY()
+
+public : 
+
+    UPROPERTY(EditAnywhere,BlueprintReadOnly, Category=Attack)
+    class UAnimMontage* Attack;
+    
 public:
+
     ATrashEnemy();
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
-    class UStaticMeshComponent* Weapon;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
-    class UBoxComponent* BoxWeapon;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
-    class UStaticMeshComponent* Shield;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Weapon, meta = (AllowPrivateAccess = "true"))
-    class UBoxComponent* BoxShield;  
-
-
-protected:
-    UFUNCTION()
-    void OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-                              int32                OtherBodyIndex, bool    bFromSweep, const FHitResult& SweepResult);
-
-
-public:
     virtual void Kill() override;
+    
+protected:
+
+    virtual void OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+                                      UPrimitiveComponent* OtherComp, int32        OtherBodyIndex, bool bFromSweep,
+                                      const FHitResult&    SweepResult) override;
 };

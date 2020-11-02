@@ -5,13 +5,14 @@
 
 #include "AIController.h"
 #include "BaseEnemy.h"
+#include "TrashEnemy.h"
 #include "Animation/AnimMontage.h"
 
 
 EBTNodeResult::Type UMyBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-    ABaseEnemy* enemy = Cast<ABaseEnemy>(OwnerComp.GetAIOwner()->GetPawn());
-    if(enemy != nullptr)
+    ATrashEnemy* enemy = Cast<ATrashEnemy>(OwnerComp.GetAIOwner()->GetPawn());
+    if(enemy != nullptr && !enemy->bAttacking)
     {
         enemy->bAttacking = true;
         enemy->PlayAnimMontage(enemy->Attack);

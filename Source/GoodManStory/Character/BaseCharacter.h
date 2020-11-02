@@ -7,7 +7,22 @@
 #include "BaseCharacter.generated.h"
 
 UDELEGATE(BlueprintAuthorityOnly)
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FOnCharacterDeathActionSignature, class ABaseCharacter*, pBaseCharacter);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+    FOnCharacterDeathActionSignature, class ABaseCharacter*, pBaseCharacter);
+
+UDELEGATE(BlueprintAuthorityOnly)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
+    FOnTakeDamageActionSignature, class ABaseCharacter*, pBaseCharacter, float, RealDamageGive, float, RealDamageTake);
+
+UDELEGATE(BlueprintAuthorityOnly)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
+    FOnTakeLifeActionSignature, class ABaseCharacter*, pBaseCharacter, float, RealLifeGive, float, RealLifeTake);
+
+UDELEGATE(BlueprintAuthorityOnly)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterSpawnActionSignature);
+
+UDELEGATE(BlueprintAuthorityOnly)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterIsDestroyActionSignature);
 
 UCLASS()
 class GOODMANSTORY_API ABaseCharacter : public ACharacter
@@ -18,25 +33,38 @@ public:
     // Sets default values for this character's properties
     ABaseCharacter();
 
-	UPROPERTY(BlueprintAssignable)
-	FOnCharacterDeathActionSignature OnCharacterDeath;
-	
+    UPROPERTY(BlueprintAssignable)
+    FOnCharacterDeathActionSignature OnCharacterDeath;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnTakeDamageActionSignature OnCharacterTakeDamage;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnTakeLifeActionSignature OnCharacterTakeLife;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnCharacterSpawnActionSignature OnCharacterSpawn;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnCharacterIsDestroyActionSignature OnCharacterIsDestroy;
+
 protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
-    UPROPERTY(Category = Stats, EditAnywhere, BlueprintReadOnly)
+    virtual void BeginDestroy() override;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float LifeMax = 100.f;
 
-    UPROPERTY(Category = Stats, blueprintReadWrite)
+    UPROPERTY(EditAnywhere, Category = Stats)
     float Life = LifeMax;
 
-    UPROPERTY(Category = Stats, EditAnywhere, blueprintReadWrite)
-    float Damage = 20.f;
-
-    UPROPERTY(Category = Settings, EditAnywhere, blueprintReadWrite)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stats)
     bool bIsDead = false;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stats)
+    bool bIsExpelled = false;
 
 public:
     // Called every frame
@@ -52,6 +80,12 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Kill")
     virtual void Kill();
+
+    UFUNCTION(BlueprintCallable)
+    void Launch(const FVector& Direction, float Force, bool bXYOverride = false, bool bZOverride = false);
+
+    UFUNCTION(BlueprintCallable)
+    void Expelled(const FVector& Direction, float Force, bool bXYOverride, bool bZOverride);
 
     /**
     * @brief Function to heal the player
@@ -74,7 +108,4 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Life")
     FORCEINLINE bool IsDead() const noexcept { return bIsDead; }
-
-    UFUNCTION(BlueprintCallable, Category = "Attack")
-    void AttackActiveHitBox(bool isActive, class UBoxComponent* BoxWeapon);
 };
