@@ -103,6 +103,7 @@ ABasePlayer::ABasePlayer()
     SphericChargeZone->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
     SphericChargeZone->SetRelativeScale3D({1.5f, 1.5f, 1.5f});
 
+    bIsStunable = false;
     // Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
     // are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
