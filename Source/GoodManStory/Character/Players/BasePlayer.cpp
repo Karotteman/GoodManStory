@@ -123,7 +123,7 @@ void ABasePlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
     PlayerInputComponent->BindAction("BasicAttack", IE_Pressed, this, &ABasePlayer::BasicAttack);
     PlayerInputComponent->BindAction("TourbilolAttack", IE_Pressed, this, &ABasePlayer::TourbilolAttack);
     PlayerInputComponent->BindAction("EvilSpellAttack", IE_Pressed, this, &ABasePlayer::EvilSpellAttack);
-    PlayerInputComponent->BindAction("EvilSpellCapcity", IE_Pressed, this, &ABasePlayer::EvilSpellCapcity);
+    PlayerInputComponent->BindAction("EvilSpellCapcity", IE_Pressed, this, &ABasePlayer::EvilSpellCapacity);
     PlayerInputComponent->BindAction("SwitchCameraMode", IE_Pressed, this, &ABasePlayer::SwitchCameraMode);
 
     //Bind axis inputs actions
@@ -156,6 +156,7 @@ void ABasePlayer::BasicAttack()
         bAttacking = true;
         bCanAttack = false;
         PlayAnimMontage(SlotAnimationsAttackCombo[BasicAttackComboCount]);
+        OnPlayerBeginBasicAttack.Broadcast();
 
         if (BasicAttackComboCount >= SlotAnimationsAttackCombo.Num() - 1)
             BasicAttackComboCount = 0;
@@ -191,8 +192,11 @@ void ABasePlayer::EvilSpellAttack()
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellAttack"));
 }
 
-void ABasePlayer::EvilSpellCapcity()
+void ABasePlayer::EvilSpellCapacity()
 {
+    if (!bEvilSpellCapacityIsUnlock)
+        return;
+    
     if (bCanEvilSpellCapacity)
     {
         bCanEvilSpellCapacity = false;
@@ -200,6 +204,8 @@ void ABasePlayer::EvilSpellCapcity()
         CustomTimeDilation = 1 - WorldSlowingSpeedEvil + PlayerSlowingSpeedEvil + 2;
         GetWorldTimerManager().SetTimer(MemberTimerEvilCapacity, this, &ABasePlayer::SetCanEvilCapacity,
                                         DurationOfTheSlowdownEvil, false, 1);
+
+        OnPlayerBeginEvilCapacity.Broadcast();
     }
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellCapcity"));
@@ -211,6 +217,8 @@ void ABasePlayer::SetCanEvilCapacity()
     UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1);
     CustomTimeDilation = 1;
     GetWorldTimerManager().ClearTimer(MemberTimerEvilCapacity);
+
+    OnPlayerEndEvilCapacity.Broadcast();
 }
 
 void ABasePlayer::SwitchCameraMode()
@@ -336,7 +344,7 @@ void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
 
 void ABasePlayer::SetCanTourbillol(bool bNewCanTourbillol)
 {
-    bCanTourbillol = bNewCanTourbillol;
+    bCanTourbillol = bNewCanTourbillol;    
     bCanAttack     = bNewCanTourbillol;
 }
 

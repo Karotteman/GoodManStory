@@ -8,8 +8,29 @@
 
 #include "BasePlayer.generated.h"
 
-UDELEGATE(BlueprintAuthorityOnly)DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
-    FOnLevelUpActionSignature, int, CurrentLevel);
+class AActor;
+
+/*Stats events*/
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelUpActionSignature, int, CurrentLevel);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayerTakeRageActionSignature, float, RageTake, float, RealRageTake);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerTakeScoreActionSignature, float, ScoreTake);
+
+/*Attack events*/
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerBeginBasicAttackActionSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayerBasicAttackHitActionSignature, AActor*, OtherHit);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerEndBasicAttackActionSignature);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerBeginChargeActionSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayerChargeHitActionSignature, AActor*, OtherHit);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerEndChargeActionSignature);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerBeginTourbilolActionSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayerTourbilolHitActionSignature, AActor*, OtherHit);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerEndTourbilolActionSignature);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerBeginEvilCapacityActionSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerEndEvilCapacityActionSignature);
+
 
 /**
  * 
@@ -130,6 +151,48 @@ public:
     UPROPERTY(BlueprintAssignable)
     FOnLevelUpActionSignature OnPlayerLevelUp;
 
+    UPROPERTY(BlueprintAssignable)
+    FOnPlayerTakeRageActionSignature OnPlayerTakeRage;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnPlayerTakeScoreActionSignature OnPlayerTakeScore;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnPlayerBeginBasicAttackActionSignature OnPlayerBeginBasicAttack;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnPlayerBasicAttackHitActionSignature OnPlayerBasicAttackHit;
+
+    //UPROPERTY(BlueprintAssignable)
+    //FOnPlayerEndBasicAttackActionSignature OnPlayerEndBasicAttack;
+
+
+    UPROPERTY(BlueprintAssignable)
+    FOnPlayerBeginChargeActionSignature OnPlayerBeginCharge;
+
+    //UPROPERTY(BlueprintAssignable)
+    //FOnPlayerChargeHitActionSignature OnPlayerChargeHit;
+
+    //UPROPERTY(BlueprintAssignable)
+    //FOnPlayerEndChargeActionSignature OnPlayerEndCharge;
+
+
+    UPROPERTY(BlueprintAssignable)
+    FOnPlayerBeginTourbilolActionSignature OnPlayerBeginTourbilol;
+
+    //UPROPERTY(BlueprintAssignable)
+    //FOnPlayerTourbilolHitActionSignature OnPlayerTourbilolHit;
+
+    //UPROPERTY(BlueprintAssignable)
+    //FOnPlayerEndTourbilolActionSignature OnPlayerEndTourbilol;
+
+
+    UPROPERTY(BlueprintAssignable)
+    FOnPlayerBeginEvilCapacityActionSignature OnPlayerBeginEvilCapacity;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnPlayerEndEvilCapacityActionSignature OnPlayerEndEvilCapacity;
+
 private:
     
     bool bAttacking = false;
@@ -213,7 +276,7 @@ protected:
     * @brief Slow down time and boost the hero. Each enemy hit give life
     */
     UFUNCTION(BlueprintCallable, Category=Character)
-    void EvilSpellCapcity();
+    void EvilSpellCapacity();
 
     /**
     * @brief Chang the camera's side view shoulder 
