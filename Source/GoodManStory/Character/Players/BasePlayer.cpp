@@ -103,6 +103,7 @@ ABasePlayer::ABasePlayer()
     SphericChargeZone->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
     SphericChargeZone->SetRelativeScale3D({1.5f, 1.5f, 1.5f});
 
+    bIsStunable = false;
     // Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
     // are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
@@ -357,27 +358,32 @@ void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
     {
         case 0:
             if (RageRate > RageToUnlockLevel1)
-                LevelUp();
+                while (GetPlayerLevel() < 1)
+                    LevelUp();
             break;
 
         case 1:
             if (RageRate > RageToUnlockLevel2)
-                LevelUp();
+                while (GetPlayerLevel() < 2)
+                    LevelUp();
             break;
 
         case 2:
             if (RageRate > RageToUnlockLevel3)
-                LevelUp();
+                while (GetPlayerLevel() < 3)
+                    LevelUp();
             break;
 
         case 3:
             if (RageRate > RageToUnlockLevel4)
-                LevelUp();
+                while (GetPlayerLevel() < 4)
+                    LevelUp();
             break;
 
         case 4:
             if (RageRate > RageToUnlockLevel5)
-                LevelUp();
+                while (GetPlayerLevel() < 5)
+                    LevelUp();
             break;
         default: ;
     }
@@ -435,7 +441,7 @@ void ABasePlayer::OnChargeBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
             LaunchForce *= pEnemy->ForceEjection;
             LaunchForce.Z = ChargeExpulseHeigthRatio * ChargeExpulseForce;
 
-            pEnemy->LaunchCharacter(LaunchForce, true, true);
+            pEnemy->LaunchAndStun(LaunchForce, true, true);
         }
     }
 }

@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 
+#include <Utility/Utility.h>
+
+
 #include "BaseEnemy.h"
 #include "BaseBoss.generated.h"
 
@@ -143,7 +146,7 @@ protected :
     class USphereComponent* GroundAttackZone;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "GroundAttack")
-    float GroundAttackZoneRadius = 1000.f;
+    float GroundAttackZoneRadius = 300.f;
 
     UPROPERTY(EditAnywhere)
     class UBoxComponent* GroundZone;
@@ -171,13 +174,17 @@ protected :
     float GroundAttackDamage = 10.f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "GroundAttack | Attack")
-    float GroundAttackChocForce = 5000.f;
+    float GroundAttackChocForce = 1000.f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "GroundAttack | Attack")
     float GroundAttackChocForceHeightRatio = 1.f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "GroundAttack | Attack")
     float GroundAttackCooldown = 2.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "ChocWave")
+    bool ChocForceDependingOfDistance = true;
+    
 
 protected :
 

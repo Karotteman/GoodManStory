@@ -120,5 +120,6 @@ public:
     UFUNCTION(Category = Stats)
     void SetIsEjectOnCharge(bool NewIsEjectOnCharge) { bIsEjectOnCharge = NewIsEjectOnCharge; }
 
-protected:
+    virtual void SetIsStun(bool bNewStun) noexcept override;
+    
 };

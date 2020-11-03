@@ -177,6 +177,7 @@ ABaseBoss::ABaseBoss()
     ExternChocWaveZone->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
     ExternChocWaveZone->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
     ExternChocWaveZone->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Overlap);
+    ExternChocWaveZone->SetCollisionResponseToChannel(COLLISION_CHANNEL_TRASH, ECollisionResponse::ECR_Overlap);
 
     RightHandObject = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
     RightHandObject->SetupAttachment(GetMesh(), "hand_r");
@@ -280,17 +281,24 @@ void ABaseBoss::DoChocWave() noexcept
     ExternChocWaveZone->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
     for (AActor* pActor : pActorsOverllapingWithChocWave)
-    {
+    {        
         ABaseCharacter* pCharacter = Cast<ABaseCharacter>(pActor);
 
         FVector LaunchForce = pActor->GetActorLocation() - GetActorLocation();
+        const float ChocForceWithDistance = GroundAttackChocForce * (ChocForceDependingOfDistance ? 1.f : 1.f - (LaunchForce
+        .SizeSquared() / (ExternChocWaveZone->GetScaledSphereRadius() * ExternChocWaveZone->GetScaledSphereRadius())));
         LaunchForce.Normalize();
-        LaunchForce *= GroundAttackChocForce;
-        LaunchForce.Z = GroundAttackChocForceHeightRatio * GroundAttackChocForce;
+        LaunchForce *= ChocForceWithDistance;
+        LaunchForce.Z = GroundAttackChocForceHeightRatio * ChocForceWithDistance;
 
-        pCharacter->TakeDamageCharacter(GroundAttackDamage);
+        ABasePlayer* pPlayer = Cast<ABasePlayer>(pActor);
 
-        pCharacter->LaunchCharacter(LaunchForce, true, true);
+        if (pPlayer)
+        {
+            pPlayer->TakeDamageCharacter(Damage);
+        }
+
+        pCharacter->LaunchAndStun(LaunchForce, true, true);
     }
 
     OnChocWave.Broadcast();
@@ -300,19 +308,38 @@ void ABaseBoss::SetLevel(uint8 NewLevel) noexcept
 {
     Level = NewLevel;
 
-    switch (Level)
+    switch (Level) /*Cannot be reverse for optimize line numbers. Lower level must be execute before upper level*/
     {
-        case 4:
-            OnUpgradLevel5.Broadcast(Level);
-        case 3:
-            OnUpgradLevel4.Broadcast(Level);
-        case 2:
-            OnUpgradLevel3.Broadcast(Level);
-        case 1:
-            OnUpgradLevel2.Broadcast(Level);
         case 0:
             OnUpgradLevel1.Broadcast(Level);
             break;
+            
+        case 1:
+            OnUpgradLevel1.Broadcast(Level);
+            OnUpgradLevel2.Broadcast(Level);
+        break;
+
+        case 2:
+            OnUpgradLevel1.Broadcast(Level);
+            OnUpgradLevel2.Broadcast(Level);
+            OnUpgradLevel3.Broadcast(Level);
+        break;
+
+        case 3:
+            OnUpgradLevel1.Broadcast(Level);
+            OnUpgradLevel2.Broadcast(Level);
+            OnUpgradLevel3.Broadcast(Level);
+            OnUpgradLevel4.Broadcast(Level);
+        break;
+
+        case 4:
+            OnUpgradLevel1.Broadcast(Level);
+            OnUpgradLevel2.Broadcast(Level);
+            OnUpgradLevel3.Broadcast(Level);
+            OnUpgradLevel4.Broadcast(Level);
+            OnUpgradLevel5.Broadcast(Level);
+        break;
+
         default: ;
     }
 }

@@ -63,13 +63,27 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stats)
     bool bIsDead = false;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stats)
-    bool bIsExpelled = false;
+private :
 
-public:
+    /**
+     * @brief Use virtual getter and setter
+     */
+    UPROPERTY()
+    bool bIsStun = false;
+    
+protected :
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
+    bool bIsStunable = true;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
+    float StunRecoveryDelay = 3.f;
+
     // Called every frame
     virtual void Tick(float DeltaTime) override;
 
+public :
+    
     /**
     * @brief Function to inflict damage to player
     * @param damage 
@@ -82,10 +96,7 @@ public:
     virtual void Kill();
 
     UFUNCTION(BlueprintCallable)
-    void Launch(const FVector& Direction, float Force, bool bXYOverride = false, bool bZOverride = false);
-
-    UFUNCTION(BlueprintCallable)
-    void Expelled(const FVector& Direction, float Force, bool bXYOverride, bool bZOverride);
+    void LaunchAndStun(const FVector& Force, bool bXYOverride, bool bZOverride);
 
     /**
     * @brief Function to heal the player
@@ -102,10 +113,30 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Life")
     FORCEINLINE float GetLife() const noexcept { return Life; }
 
-
     UFUNCTION(BlueprintCallable, Category = "Life")
     FORCEINLINE float GetLifeRatio() const noexcept { return Life / LifeMax; }
 
     UFUNCTION(BlueprintCallable, Category = "Life")
     FORCEINLINE bool IsDead() const noexcept { return bIsDead; }
+
+    UFUNCTION(BlueprintCallable)
+    virtual void SetIsStun(bool bNewStun) noexcept { bIsStun = bNewStun; }
+
+    UFUNCTION(BlueprintCallable)
+    void SetIsStunable(bool bNewIsStunable) noexcept { bIsStunable = bNewIsStunable; }
+
+    UFUNCTION(BlueprintCallable)
+    FORCEINLINE bool IsStunable() const noexcept { return bIsStunable; }
+    
+    UFUNCTION(BlueprintCallable)
+    FORCEINLINE bool IsStun() const noexcept { return bIsStun; }
+
+    UFUNCTION(BlueprintCallable)
+    FORCEINLINE float GetStunRecoveryDelay() const { return StunRecoveryDelay; }
+
+    UFUNCTION(BlueprintCallable)
+    void SetStunRecoveryDelay(float NewStunRecoveryDelay) { StunRecoveryDelay = NewStunRecoveryDelay; }
+
+    UFUNCTION(BlueprintCallable)
+    void StartStunRecovery() noexcept;
 };

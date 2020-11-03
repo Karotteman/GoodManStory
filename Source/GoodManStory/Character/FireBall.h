@@ -37,6 +37,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float Damage = 10.f;
     
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool DestroyOnlyIfGroundTagFound = true;
+    
 #if WITH_EDITORONLY_DATA
     /** Component shown in the editor only to indicate character facing */
     UPROPERTY()
@@ -54,7 +57,7 @@ protected:
     virtual void BeginPlay() override;
 
     UFUNCTION()
-    void OnFireBallBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+    virtual void OnFireBallBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                                 UPrimitiveComponent* OtherComp, int32        OtherBodyIndex, bool bFromSweep,
                                 const FHitResult&    SweepResult);
 public:

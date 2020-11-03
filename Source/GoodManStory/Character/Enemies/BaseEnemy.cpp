@@ -2,15 +2,15 @@
 
 
 #include "BaseEnemy.h"
+
 #include "GameFramework/Character.h"
 #include "AIController.h"
 #include "BrainComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "DesktopPlatform/Private/Windows/WindowsNativeFeedbackContext.h"
-#include "Engine/Channel.h"
+#include "BaseEnemy_AIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Physics/PhysicsFiltering.h"
 
 #define COLLISION_CHANNEL_PLAYER ECC_GameTraceChannel1
 #define COLLISION_CHANNEL_ENEMY ECC_GameTraceChannel3
@@ -37,4 +37,18 @@ void ABaseEnemy::Kill()
     GetCapsuleComponent()->SetCollisionProfileName("NoCollision");
     Cast<AAIController>(GetController())->BrainComponent->StopLogic(TEXT("dead"));
     GetCharacterMovement()->SetAvoidanceEnabled(false);
+}
+
+void ABaseEnemy::SetIsStun(bool bNewStun) noexcept
+{
+    Super::SetIsStun(bNewStun);
+    Cast<ABaseEnemy_AIController>(GetController())->SetPaused(bNewStun);
+    
+    if (bNewStun)
+    {
+        StopAnimMontage();
+        bAttacking = false;
+        AttackActiveHitBox(false, BoxWeapon);
+        AttackActiveHitBox(false, BoxShield);
+    }
 }
