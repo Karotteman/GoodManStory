@@ -18,6 +18,12 @@ UDELEGATE(BlueprintAuthorityOnly)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
     FOnTakeLifeActionSignature, class ABaseCharacter*, pBaseCharacter, float, RealLifeGive, float, RealLifeTake);
 
+UDELEGATE(BlueprintAuthorityOnly)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterSpawnActionSignature);
+
+UDELEGATE(BlueprintAuthorityOnly)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterIsDestroyActionSignature);
+
 UCLASS()
 class GOODMANSTORY_API ABaseCharacter : public ACharacter
 {
@@ -36,9 +42,17 @@ public:
     UPROPERTY(BlueprintAssignable)
     FOnTakeLifeActionSignature OnCharacterTakeLife;
 
+    UPROPERTY(BlueprintAssignable)
+    FOnCharacterSpawnActionSignature OnCharacterSpawn;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnCharacterIsDestroyActionSignature OnCharacterIsDestroy;
+
 protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
+
+    virtual void BeginDestroy() override;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float LifeMax = 100.f;
@@ -46,10 +60,10 @@ protected:
     UPROPERTY(EditAnywhere, Category = Stats)
     float Life = LifeMax;
 
-    UPROPERTY(EditAnywhere, Category = Settings)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stats)
     bool bIsDead = false;
 
-    UPROPERTY(EditAnywhere, Category = Settings)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stats)
     bool bIsExpelled = false;
 
 public:

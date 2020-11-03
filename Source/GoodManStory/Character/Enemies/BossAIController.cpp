@@ -34,8 +34,10 @@ void ABossAIController::OnPossess(APawn* InPawn)
     
     if(pBoss && Blackboard)
     {
+        Blackboard->SetValueAsFloat("AttackRadius", pBoss->GetRangeAttack());
         Blackboard->SetValueAsFloat("PunchCooldown", pBoss->GetPunchCooldown());
         Blackboard->SetValueAsFloat("GroundAttackCooldown", pBoss->GetGroundAttackCooldown());
+        Blackboard->SetValueAsFloat("FireBoalAttackCoolDown", pBoss->GetFireBallAttackCoolDown());
     }
     else
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Boss or blackboard null"));

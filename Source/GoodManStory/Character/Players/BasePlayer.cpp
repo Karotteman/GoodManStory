@@ -68,6 +68,8 @@ ABasePlayer::ABasePlayer()
 
     GetMesh()->SetRelativeLocation({0.f, 0.f, -80.f});
     GetMesh()->SetRelativeRotation({0.f, 0.f, -90.f});
+    GetMesh()->SetCollisionProfileName(FName{"NoCollision"});
+    GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
     GetCapsuleComponent()->SetCollisionObjectType(COLLISION_CHANNEL_PLAYER);
     GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_CHANNEL_TRASH_MOB, ECollisionResponse::ECR_Overlap);
@@ -167,14 +169,13 @@ void ABasePlayer::BasicAttack()
 
 void ABasePlayer::TourbilolAttack()
 {
-    //if (!bTourbillolIsUnlock)
-    //    return;
+    if (!bTourbillolIsUnlock)
+        return;
 
-    if(bCanTourbillol)
+    if (bCanTourbillol)
     {
         bCanTourbillol = false;
         PlayAnimMontage(SlotAnimationsTourbillol);
-        
     }
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("TourbilolAttack"));
@@ -184,20 +185,20 @@ void ABasePlayer::EvilSpellAttack()
 {
     if (!bEvilSpellAttackIsUnlock)
         return;
-    
+
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellAttack"));
 }
 
 void ABasePlayer::EvilSpellCapcity()
 {
-    if(bCanEvilSpellCapacity)
+    if (bCanEvilSpellCapacity)
     {
         bCanEvilSpellCapacity = false;
-        UGameplayStatics::SetGlobalTimeDilation(GetWorld(),WorldSlowingSpeedEvil);
-        CustomTimeDilation = 1-WorldSlowingSpeedEvil + PlayerSlowingSpeedEvil + 2;
-        GetWorldTimerManager().SetTimer(MemberTimerEvilCapacity, this, &ABasePlayer::SetCanEvilCapacity, 
-        DurationOfTheSlowdownEvil, false,1);
+        UGameplayStatics::SetGlobalTimeDilation(GetWorld(), WorldSlowingSpeedEvil);
+        CustomTimeDilation = 1 - WorldSlowingSpeedEvil + PlayerSlowingSpeedEvil + 2;
+        GetWorldTimerManager().SetTimer(MemberTimerEvilCapacity, this, &ABasePlayer::SetCanEvilCapacity,
+                                        DurationOfTheSlowdownEvil, false, 1);
     }
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellCapcity"));
@@ -206,7 +207,7 @@ void ABasePlayer::EvilSpellCapcity()
 void ABasePlayer::SetCanEvilCapacity()
 {
     bCanEvilSpellCapacity = true;
-    UGameplayStatics::SetGlobalTimeDilation(GetWorld(),1);
+    UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1);
     CustomTimeDilation = 1;
     GetWorldTimerManager().ClearTimer(MemberTimerEvilCapacity);
 }
@@ -241,7 +242,7 @@ void ABasePlayer::LookUpAtRate(float Rate)
 void ABasePlayer::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-    
+
     CameraBoom->Update(DeltaTime);
 
     TArray<AActor*> othersOverllaping;
@@ -293,7 +294,6 @@ void ABasePlayer::SetCanAttack(bool bNewCanAttack)
 {
     bCanAttack = bNewCanAttack;
     bCanCharge = bNewCanAttack; //lock charge
-  
 }
 
 void ABasePlayer::SetCanCharge(bool bNewCanCharge)
@@ -303,19 +303,26 @@ void ABasePlayer::SetCanCharge(bool bNewCanCharge)
 }
 
 void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                                UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+                                                const FHitResult&    SweepResult)
 {
     if (OtherComp->ComponentHasTag("Body"))
     {
         ABaseEnemy* Enemy = Cast<ABaseEnemy>(OtherActor);
 
-        FVector LaunchForce = OtherActor->GetActorLocation() - OverlappedComp->GetComponentLocation();
-        LaunchForce.Normalize();
-        LaunchForce *= WeaponShootForce;
-        LaunchForce.Z = WeaponShootHeigthRatio * WeaponShootForce;
+        if (!Enemy)
+            return;
 
-        Enemy->TakeDamageCharacter(Damage);        
-        Enemy->GetMesh()->AddImpulse(LaunchForce, NAME_None, true);
+        Enemy->TakeDamageCharacter(Damage);
+
+        if (Enemy->IsEjectOnAttack())
+        {
+            FVector LaunchForce = OtherActor->GetActorLocation() - OverlappedComp->GetComponentLocation();
+            LaunchForce.Normalize();
+            LaunchForce *= WeaponShootForce;
+            LaunchForce.Z = WeaponShootHeigthRatio * WeaponShootForce;
+            Enemy->GetMesh()->AddImpulse(LaunchForce, NAME_None, true);
+        }
 
         if (Enemy->IsDead())
         {
@@ -329,9 +336,8 @@ void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
 void ABasePlayer::SetCanTourbillol(bool bNewCanTourbillol)
 {
     bCanTourbillol = bNewCanTourbillol;
-    bCanAttack = bNewCanTourbillol; 
+    bCanAttack     = bNewCanTourbillol;
 }
-
 
 
 void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
@@ -346,39 +352,39 @@ void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
     }
 
     float RageRate = Rage / MaxRage * 100.f;
-    
+
     switch (Level)
     {
-        case 0 :
+        case 0:
             if (RageRate > RageToUnlockLevel1)
                 LevelUp();
-        break;
-        
-        case 1 :
+            break;
+
+        case 1:
             if (RageRate > RageToUnlockLevel2)
                 LevelUp();
-        break;
-        
-        case 2 :
+            break;
+
+        case 2:
             if (RageRate > RageToUnlockLevel3)
                 LevelUp();
-        break;
-        
-        case 3 :
+            break;
+
+        case 3:
             if (RageRate > RageToUnlockLevel4)
                 LevelUp();
-        break;
-        
-        case 4 :
+            break;
+
+        case 4:
             if (RageRate > RageToUnlockLevel5)
                 LevelUp();
-        break;
+            break;
         default: ;
-    }    
+    }
 }
 
 void ABasePlayer::LevelUp() noexcept
-{    
+{
     if (Level + 1 > MaxLevel)
     {
         OnPlayerLevelUp.Broadcast(MaxLevel);
@@ -389,28 +395,28 @@ void ABasePlayer::LevelUp() noexcept
         Level ++;
         OnPlayerLevelUp.Broadcast(Level);
     }
-    
+
     switch (Level)
     {
-        case 1 :
+        case 1:
             OnPlayerUpgradLevel1.Broadcast(Level);
-        break;
-        
-        case 2 :
+            break;
+
+        case 2:
             OnPlayerUpgradLevel2.Broadcast(Level);
-        break;
-        
-        case 3 :
+            break;
+
+        case 3:
             OnPlayerUpgradLevel3.Broadcast(Level);
-        break;
-        
-        case 4 :
+            break;
+
+        case 4:
             OnPlayerUpgradLevel4.Broadcast(Level);
-        break;
-        
-        case 5 :
+            break;
+
+        case 5:
             OnPlayerUpgradLevel5.Broadcast(Level);
-        break;
+            break;
         default: ;
     }
 }
@@ -421,33 +427,33 @@ void ABasePlayer::OnChargeBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
 {
     if (OtherComp->ComponentHasTag("Body"))
     {
-        ABaseEnemy* enemy = Cast<ABaseEnemy>(OtherActor);
-        if (enemy)
+        ABaseEnemy* pEnemy = Cast<ABaseEnemy>(OtherActor);
+        if (pEnemy && pEnemy->IsEjectOnCharge())
         {
             FVector LaunchForce = OtherActor->GetActorLocation() - GetActorLocation();
             LaunchForce.Normalize();
-            LaunchForce *= enemy->ForceEjection;
+            LaunchForce *= pEnemy->ForceEjection;
             LaunchForce.Z = ChargeExpulseHeigthRatio * ChargeExpulseForce;
 
-            enemy->LaunchCharacter(LaunchForce, true, true);
+            pEnemy->LaunchCharacter(LaunchForce, true, true);
         }
     }
 }
 
 void ABasePlayer::Push(AActor* other)
 {
-    ABaseEnemy* enemy = Cast<ABaseEnemy>(other);
-    if (enemy && enemy->IsPushable())
+    ABaseEnemy* pEnemy = Cast<ABaseEnemy>(other);
+    if (pEnemy && pEnemy->IsPushable())
     {
         FVector Direction = other->GetActorLocation() - GetActorLocation();
         Direction.Normalize();
         Direction.Z = 0.f;
 
-        //enemy->SetActorLocation(GetActorLocation() + Direction * (enemy->GetCapsuleComponent()->GetScaledCapsuleRadius() + 
+        //pEnemy->SetActorLocation(GetActorLocation() + Direction * (pEnemy->GetCapsuleComponent()->GetScaledCapsuleRadius() + 
         //GetCapsuleComponent()->GetScaledCapsuleRadius()));
-        //enemy->GetCharacterMovement()->AddForce(Direction * PushForce);
-        //enemy->GetCharacterMovement()->AddImpulse(Direction * PushForce, true);
-        enemy->LaunchCharacter(Direction * PushForce, true, true);
+        //pEnemy->GetCharacterMovement()->AddForce(Direction * PushForce);
+        //pEnemy->GetCharacterMovement()->AddImpulse(Direction * PushForce, true);
+        pEnemy->LaunchCharacter(Direction * PushForce, true, true);
     }
 }
 

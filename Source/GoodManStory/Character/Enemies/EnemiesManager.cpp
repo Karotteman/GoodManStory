@@ -20,23 +20,9 @@ AEnemiesManager::AEnemiesManager()
     // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
 
-    static ConstructorHelpers::FObjectFinder<UDataTable> WaveDataTableObject(
-        TEXT("DataTable'/Game/Assets/LevelDesign/WaveSetting/WaveDataTable.WaveDataTable'"));
-
-    if (WaveDataTableObject.Succeeded())
-    {
-        WaveDataTable = WaveDataTableObject.Object;
-
-        /*Reserve emplacement for death enemies*/
-        DeathEnemyContainer.Reserve(MaxDeathEnemies);
-    }
-    else
-    {
-        if (GEngine)
-            GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("CANT FIND WAVE DATA TABLE")));
-        return;
-    }
-
+    /*Reserve emplacement for death enemies*/
+    DeathEnemyContainer.Reserve(MaxDeathEnemies);
+    
     /*Reserve emplacement for living enemies*/
     for (FEnemyState& EnemyStats : EnemiesStatsContainer)
     {
@@ -47,8 +33,21 @@ AEnemiesManager::AEnemiesManager()
 // Called when the game starts or when spawned
 void AEnemiesManager::BeginPlay()
 {
+    /*Create Event class befor BP beginPlay*/
+    for (auto WaveTableIterator = WaveDataTable->GetRowMap().begin(); WaveTableIterator != WaveDataTable->GetRowMap()
+    .end(); ++WaveTableIterator)
+    {
+        reinterpret_cast<FWaveInfo*>(WaveTableIterator.Value())->WaveEvent = NewObject<UWaveEvent>();
+    }
+    
     Super::BeginPlay();
 
+    if (!WaveDataTable)
+    {
+        if (GEngine)
+            GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("CANT FIND WAVE DATA TABLE")));
+    }
+    
     SpawnParams.Owner                          = this;
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 }
@@ -64,6 +63,12 @@ void AEnemiesManager::Tick(float DeltaTime)
     }
     else if (WaveIndex < WaveDataTable->GetRowMap().Num() && IsAllEnemiesDied())
     {
+        if (!bCurrentWaveIsDone)
+        {
+            bCurrentWaveIsDone = true;
+            pCurrentWave->WaveEvent->OnWaveEnd.Broadcast();
+        }
+        
         if (bPlayerCanStartTheWave)
         {
             NextWave();
@@ -224,6 +229,8 @@ void AEnemiesManager::NextWave()
     WaveIndex++; //Increment for the next wave
 
     pCurrentWave = reinterpret_cast<FWaveInfo*>(WaveTableIterator.Value());
+    pCurrentWave->WaveEvent->OnWaveBegin.Broadcast();
+    bCurrentWaveIsDone = false;
 
     /*Init the wave*/
     for (int i = 0; i < pCurrentWave->SpawnInfoContainer.Num(); ++i)

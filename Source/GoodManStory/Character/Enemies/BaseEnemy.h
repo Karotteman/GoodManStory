@@ -34,10 +34,10 @@ protected :
     UPROPERTY(Category = Stats, EditAnywhere)
     float RangeAttack = 100.f;
 
-    UPROPERTY(EditAnywhere, Category = Attack)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
     bool bIsEjectOnAttack = true;
 
-    UPROPERTY(EditAnywhere, Category = Attack)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
     bool bIsEjectOnCharge = true;
 
     UPROPERTY(Category = Stats, EditAnywhere,meta=(EditCondition="bRandomSize"))
@@ -107,6 +107,18 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetSize() const noexcept { return Size; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    FORCEINLINE bool IsEjectOnAttack() const { return bIsEjectOnAttack; }
+
+    UFUNCTION(Category = Stats)
+    void SetIsEjectOnAttack(bool NewIsEjectOnAttack) { bIsEjectOnAttack = NewIsEjectOnAttack; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    FORCEINLINE bool IsEjectOnCharge() const { return bIsEjectOnCharge; }
+
+    UFUNCTION(Category = Stats)
+    void SetIsEjectOnCharge(bool NewIsEjectOnCharge) { bIsEjectOnCharge = NewIsEjectOnCharge; }
 
 protected:
 };

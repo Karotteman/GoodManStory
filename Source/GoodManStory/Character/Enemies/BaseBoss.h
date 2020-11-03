@@ -10,10 +10,20 @@
 UDELEGATE(BlueprintAuthorityOnly)DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
     FOnLevelUpActionSignatureBoss, int, CurrentLevel);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPunchActionSignature);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGroundAttackActionSignature);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnChocWaveActionSignature);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFireBallThrowActionSignature);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFireBallAttackBeginActionSignature);
+
 /**
  * 
  */
-UCLASS()
+UCLASS(meta=(BlueprintSpawnableComponent))
 class GOODMANSTORY_API ABaseBoss : public ABaseEnemy
 {
     GENERATED_BODY()
@@ -32,6 +42,30 @@ protected :
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0", UIMax = "1.0"))
     float BellyZoneHeightRatio = 0.3f;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "FireBall | Attack")
+    float FireBallDamage = 10.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "FireBall | Attack")
+    float FireBallVelocity = 100.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "FireBall | Attack")
+    float FireBallScale = 1.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "FireBall | Attack")
+    float FireBallAttackCoolDown = 3.f;
+
+    UPROPERTY(EditAnywhere,BlueprintReadOnly, Category= "FireBall | Attack")
+    class UAnimMontage* FireBallAttackSpeedAnimMontage;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "FireBall | Attack")
+    float FireBallAttackSpeed = 1.f;
+
+    UPROPERTY(EditAnywhere, Category= "FireBall | Attack")
+    TSubclassOf<class AFireBall> FireBallType = nullptr;
+
+    UPROPERTY(EditAnywhere, Category= "FireBall | Attack")
+    FName FireBallSpawningBoneName = TEXT("hand_l");
+
     UPROPERTY(BlueprintAssignable)
     FOnLevelUpActionSignatureBoss OnUpgradLevel1;
 
@@ -46,7 +80,24 @@ protected :
 
     UPROPERTY(BlueprintAssignable)
     FOnLevelUpActionSignatureBoss OnUpgradLevel5;
-    
+
+public :
+
+    UPROPERTY(BlueprintAssignable)
+    FOnPunchActionSignature OnPunch;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnGroundAttackActionSignature OnGroundAttack;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnChocWaveActionSignature OnChocWave;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnFireBallThrowActionSignature OnFireBallThrow;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnFireBallAttackBeginActionSignature OnFireBallAttackBegin;
+
     /**
      * @brief In second
      */
@@ -57,13 +108,13 @@ protected :
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     bool bPlayerIsOnPunchZone;
 
-public : 
+public :
 
     UPROPERTY(EditAnywhere,BlueprintReadOnly, Category= "Punch | Attack")
     class UAnimMontage* PunchAttack;
 
 protected :
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "Punch | Attack")
     float PunchSpeed = 1.f;
 
@@ -72,13 +123,13 @@ protected :
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "Punch | Attack")
     float PunchCooldown = 2.f;
-    
+
     UPROPERTY(Category = Stats, EditAnywhere)
     uint8 MaxLevel = 5;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stats)
     uint8 Level = 0;
-    
+
 protected :
 
     UPROPERTY(EditAnywhere, Category= "GroundAttack")
@@ -87,7 +138,7 @@ protected :
     // Add if you want like real choc wave
     //UPROPERTY(EditAnywhere, Category= "GroundAttack")
     //class USphereComponent* InternChocWaveZone;
-    
+
     UPROPERTY(EditAnywhere, Category= "GroundAttack")
     class USphereComponent* GroundAttackZone;
 
@@ -106,33 +157,33 @@ protected :
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     bool bPlayerIsOnGroundAttackZone = false;
 
-    public : 
+public :
 
     UPROPERTY(EditAnywhere,BlueprintReadOnly, Category= "GroundAttack | Attack")
     class UAnimMontage* GroundAttackAnimMontage;
 
-    protected :
-    
+protected :
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "GroundAttack | Attack")
     float GroundAttackSpeed = 1.f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "GroundAttack | Attack")
     float GroundAttackDamage = 10.f;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "GroundAttack | Attack")
     float GroundAttackChocForce = 5000.f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "GroundAttack | Attack")
     float GroundAttackChocForceHeightRatio = 1.f;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "GroundAttack | Attack")
     float GroundAttackCooldown = 2.f;
 
 protected :
 
     virtual void OnHandsObjectsBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-                                               UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
-                                               const FHitResult&    SweepResult) override;
+                                            UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+                                            const FHitResult&    SweepResult) override;
 
     UFUNCTION()
     void OnBellyZoneBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -154,26 +205,25 @@ protected :
 
     UFUNCTION()
     void OnGroundZoneBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-                             UPrimitiveComponent* OtherComp, int32        OtherBodyIndex, bool bFromSweep,
-                             const FHitResult&    SweepResult);
+                                  UPrimitiveComponent* OtherComp, int32        OtherBodyIndex, bool bFromSweep,
+                                  const FHitResult&    SweepResult);
 
     UFUNCTION()
     void OnGroundZoneEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-                               int32                OtherBodyIndex);
+                                int32                OtherBodyIndex);
 
     UFUNCTION()
     void OnGroundAttackZoneBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-                             UPrimitiveComponent* OtherComp, int32        OtherBodyIndex, bool bFromSweep,
-                             const FHitResult&    SweepResult);
+                                        UPrimitiveComponent* OtherComp, int32        OtherBodyIndex, bool bFromSweep,
+                                        const FHitResult&    SweepResult);
 
     UFUNCTION()
-    void OnGroundAttackZoneEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* 
-    OtherComp,
-                               int32                OtherBodyIndex);
+    void OnGroundAttackZoneEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+                                      UPrimitiveComponent* OtherComp, int32        OtherBodyIndex);
 
 
     virtual void BeginPlay() override;
-    
+
 public :
 
     ABaseBoss();
@@ -183,6 +233,12 @@ public :
 
     UFUNCTION(BlueprintCallable)
     void GroundAttack() noexcept;
+
+    UFUNCTION(BlueprintCallable)
+    void FireBallAttack() noexcept;
+
+    UFUNCTION(BlueprintCallable)
+    void ThrowFireBall() noexcept;
 
     UFUNCTION(BlueprintCallable)
     void DoChocWave() noexcept;
@@ -197,11 +253,50 @@ public :
     float GetPunchCooldown() const { return PunchCooldown; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
-    void  SetPunchCooldown(float NewPunchCooldown) { PunchCooldown = NewPunchCooldown; }
+    void SetPunchCooldown(float NewPunchCooldown) { PunchCooldown = NewPunchCooldown; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     float GetGroundAttackCooldown() const { return GroundAttackCooldown; }
-    
+
     UFUNCTION(BlueprintCallable, Category = Stats)
-    void  SetGroundAttackCooldown(float NewGroundAttackCooldown) { GroundAttackCooldown = NewGroundAttackCooldown; }
+    void SetGroundAttackCooldown(float NewGroundAttackCooldown) { GroundAttackCooldown = NewGroundAttackCooldown; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    float GetFireBallDamage() const { return FireBallDamage; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetFireBallDamage(float NewFireBallDamage) { FireBallDamage = NewFireBallDamage; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    float GetFireBallVelocity() const { return FireBallVelocity; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetFireBallVelocity(float NewFireBallVelocity) { FireBallVelocity = NewFireBallVelocity; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    float GetFireBallScale() const { return FireBallScale; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetFireBallScale(float NewFireBallScale) { FireBallScale = NewFireBallScale; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    float GetFireBallAttackCoolDown() const { return FireBallAttackCoolDown; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetFireBallAttackCoolDown(float NewFireBallAttackCoolDown)
+    {
+        FireBallAttackCoolDown = NewFireBallAttackCoolDown;
+    }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    float GetFireBallAttackSpeed() const { return FireBallAttackSpeed; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetFireBallAttackSpeed(float NewFireBallAttackSpeed) { FireBallAttackSpeed = NewFireBallAttackSpeed; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    TSubclassOf<AFireBall> GetFireBallType() const { return FireBallType; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetFireBallType(const TSubclassOf<AFireBall>& NewFireBallType) { FireBallType = NewFireBallType; }
 };
