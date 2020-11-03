@@ -33,6 +33,8 @@ AEnemiesManager::AEnemiesManager()
 // Called when the game starts or when spawned
 void AEnemiesManager::BeginPlay()
 {
+    checkf(WaveDataTable, TEXT("Data table not set (nullptr) in EnemiesManager blueprint"))
+    
     /*Create Event class befor BP beginPlay*/
     for (auto WaveTableIterator = WaveDataTable->GetRowMap().begin(); WaveTableIterator != WaveDataTable->GetRowMap()
     .end(); ++WaveTableIterator)
@@ -41,12 +43,6 @@ void AEnemiesManager::BeginPlay()
     }
     
     Super::BeginPlay();
-
-    if (!WaveDataTable)
-    {
-        if (GEngine)
-            GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("CANT FIND WAVE DATA TABLE")));
-    }
     
     SpawnParams.Owner                          = this;
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
