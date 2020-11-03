@@ -12,25 +12,27 @@ class AActor;
 
 /*Stats events*/
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelUpActionSignature, int, CurrentLevel);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayerTakeRageActionSignature, float, RageTake, float, RealRageTake);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerTakeScoreActionSignature, float, ScoreTake);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnPlayerTakeRageActionSignature, float, CurrrentRage, float, RageTake, 
+float, RealRageTake);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayerTakeScoreActionSignature, float, CurrentScore, float, ScoreTake);
 
 /*Attack events*/
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerBeginBasicAttackActionSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayerBasicAttackHitActionSignature, AActor*, OtherHit);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerBasicAttackHitActionSignature, AActor*, OtherHit);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerEndBasicAttackActionSignature);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerBeginChargeActionSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayerChargeHitActionSignature, AActor*, OtherHit);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerChargeHitActionSignature, AActor*, OtherHit);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerEndChargeActionSignature);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerBeginTourbilolActionSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayerTourbilolHitActionSignature, AActor*, OtherHit);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerTourbilolHitActionSignature, AActor*, OtherHit);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerEndTourbilolActionSignature);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerBeginEvilCapacityActionSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerEndEvilCapacityActionSignature);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerBeginSwitchCameraActionSignature);
 
 /**
  * 
@@ -160,8 +162,8 @@ public:
     UPROPERTY(BlueprintAssignable)
     FOnPlayerBeginBasicAttackActionSignature OnPlayerBeginBasicAttack;
 
-    UPROPERTY(BlueprintAssignable)
-    FOnPlayerBasicAttackHitActionSignature OnPlayerBasicAttackHit;
+    //UPROPERTY(BlueprintAssignable)
+    //FOnPlayerBasicAttackHitActionSignature OnPlayerBasicAttackHit;
 
     //UPROPERTY(BlueprintAssignable)
     //FOnPlayerEndBasicAttackActionSignature OnPlayerEndBasicAttack;
@@ -192,6 +194,9 @@ public:
 
     UPROPERTY(BlueprintAssignable)
     FOnPlayerEndEvilCapacityActionSignature OnPlayerEndEvilCapacity;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnPlayerBeginSwitchCameraActionSignature OnPlayerBeginSwitchCamera;
 
 private:
     
@@ -368,7 +373,7 @@ public:
     FORCEINLINE int32 GetScore() const noexcept { return Score; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
-    void AddScore(int32 AdditionalScore) noexcept { Score += AdditionalScore; }
+    void AddScore(int32 AdditionalScore) noexcept;
 
     virtual void Kill() override;
 };

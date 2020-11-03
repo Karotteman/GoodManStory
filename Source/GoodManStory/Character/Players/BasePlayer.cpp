@@ -224,6 +224,8 @@ void ABasePlayer::SetCanEvilCapacity()
 void ABasePlayer::SwitchCameraMode()
 {
     CameraBoom->InterpolateOffSet(FVector::ZeroVector);
+    
+    OnPlayerBeginSwitchCamera.Broadcast();
 }
 
 void ABasePlayer::MoveCameraArmLength(float FScale) noexcept
@@ -354,12 +356,14 @@ void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
     if (Rage + AdditionnalRage > MaxRage)
     {
         Rage = MaxRage;
+        OnPlayerTakeRage.Broadcast(Rage, AdditionnalRage, MaxRage - Rage);
     }
     else
     {
         Rage += AdditionnalRage;
+        OnPlayerTakeRage.Broadcast(Rage, AdditionnalRage, AdditionnalRage);
     }
-
+    
     float RageRate = Rage / MaxRage * 100.f;
 
     switch (Level)
@@ -489,6 +493,12 @@ void ABasePlayer::ChargeActiveHitBox(bool bIsActive)
         GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
         SphericChargeZone->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     }
+}
+
+void ABasePlayer::AddScore(int32 AdditionalScore) noexcept
+{
+    Score += AdditionalScore;
+    OnPlayerTakeScore.Broadcast(Score, AdditionalScore);
 }
 
 void ABasePlayer::Kill()
