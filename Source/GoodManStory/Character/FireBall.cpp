@@ -51,7 +51,7 @@ AFireBall::AFireBall()
 	Collider->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
 	Collider->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Overlap);
 
-	Collider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	Collider->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Collider->SetCollisionObjectType(COLLISION_CHANNEL_FIREBALL);
 	
 	Collider->OnComponentBeginOverlap.AddDynamic(this, &AFireBall::OnFireBallBeginOverlap);
