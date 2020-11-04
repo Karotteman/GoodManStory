@@ -83,10 +83,10 @@ protected:
      UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
      float DurationOfTheSlowdownEvil = 5.f;
     
-     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
      float WorldSlowingSpeedEvil = 0.25f;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float PlayerSlowingSpeedEvil = 1.25f;
     
     bool bTourbillolIsUnlock      = false;
