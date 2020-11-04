@@ -15,7 +15,7 @@
 
 void AFireBall::OnFireBallBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{	
+{
 	ABasePlayer* pPlayer = Cast<ABasePlayer>(OtherActor);
 
 	if (pPlayer)
@@ -27,6 +27,12 @@ void AFireBall::OnFireBallBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
 	{
 		Destroy();
 	}
+}
+
+void AFireBall::Destroyed()
+{
+	Super::Destroyed();
+	OnFireBallDestroy.Broadcast();
 }
 
 // Sets default values
@@ -86,7 +92,6 @@ AFireBall::AFireBall()
 		Mesh->SetCanEverAffectNavigation(false);
 		Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
-	
 }
 
 // Called when the game starts or when spawned
@@ -94,15 +99,8 @@ void AFireBall::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SpawnPoint = GetActorLocation();
 	OnFireBallSpawn.Broadcast();
-	
-}
-
-void AFireBall::BeginDestroy()
-{
-	Super::BeginDestroy();
-	
-	OnFireBallDestroy.Broadcast();
 }
 
 // Called every frame
@@ -110,6 +108,8 @@ void AFireBall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if ((GetActorLocation() - SpawnPoint).SizeSquared() > MaxRangeLife * MaxRangeLife)
+		Destroy();
 }
 
 void AFireBall::Throw(float Force)

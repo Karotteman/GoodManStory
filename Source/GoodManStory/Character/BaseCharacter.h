@@ -52,7 +52,7 @@ protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
-    virtual void BeginDestroy() override;
+    virtual void Destroyed() override;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float LifeMax = 100.f;
