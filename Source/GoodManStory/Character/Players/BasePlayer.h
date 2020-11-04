@@ -53,6 +53,7 @@ class GOODMANSTORY_API ABasePlayer : public ABaseWarrior
     class UMaterialInstanceDynamic* DynMaterial;
 
 protected:
+
     UPROPERTY(EditAnywhere, Category = Attack)
     TArray<UAnimMontage*> SlotAnimationsAttackCombo;
 
@@ -63,6 +64,8 @@ protected:
     UAnimMontage* SlotAnimationsTourbillol;
 
     uint8 BasicAttackComboCount = 0;
+
+    class UMonoHitBehaviours* MonoHitBehavioursComponent;
 
     /**
     * @brief This collider is use when player use its feature "Charge"
@@ -88,12 +91,15 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float PushForce = 100.f;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
+    float WeakZoneDamageMultiplicator = 2.f;
+    
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float MaxRage = 1000.f;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
     float Rage = 0.f;
-
+    
     UPROPERTY(Category = Stats, EditAnywhere)
     uint8 MaxLevel = 5;
 

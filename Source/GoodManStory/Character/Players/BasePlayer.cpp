@@ -19,15 +19,16 @@
 #include "Engine/Engine.h"
 #include "AIController.h"
 #include "../Enemies/BaseEnemy.h"
-/*Debug*/
-#include <Utility/Utility.h>
-
-#include "Containers/UnrealString.h"
-
+#include "GoodManStory/Character/MonoHitBehaviours.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetSystemLibrary.h"
+
+/*Debug*/
+#include <Utility/Utility.h>
+#include "Containers/UnrealString.h"
+
+
 
 #define COLLISION_CHANNEL_PLAYER ECC_GameTraceChannel1
 #define COLLISION_CHANNEL_TRASH_MOB ECC_GameTraceChannel2
@@ -79,8 +80,9 @@ ABasePlayer::ABasePlayer()
     LeftHandObject->SetRelativeScale3D({1.5f, 1.5f, 1.f});
     LeftHandObject->SetRelativeRotation({0.f, 0.f, 20.f});
     LeftHandObject->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-    LeftHandObject->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Ignore);
-    LeftHandObject->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+    LeftHandObject->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+    LeftHandObject->SetCollisionResponseToChannel(COLLISION_CHANNEL_TRASH_MOB, ECollisionResponse::ECR_Overlap);
+    LeftHandObject->SetCollisionResponseToChannel(COLLISION_CHANNEL_ENEMY, ECollisionResponse::ECR_Overlap);
 
     BoxWeapon = CreateDefaultSubobject<UBoxComponent>("BoxWeapon");
     BoxWeapon->SetupAttachment(LeftHandObject);
@@ -102,6 +104,8 @@ ABasePlayer::ABasePlayer()
     SphericChargeZone->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Ignore);
     SphericChargeZone->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
     SphericChargeZone->SetRelativeScale3D({1.5f, 1.5f, 1.5f});
+
+    MonoHitBehavioursComponent = CreateDefaultSubobject<UMonoHitBehaviours>(TEXT("MonoHitBehavioursComponent"));
 
     bIsStunable = false;
     // Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
@@ -152,12 +156,14 @@ void ABasePlayer::Charge()
 void ABasePlayer::BasicAttack()
 {
     if (bCanAttack)
-    {
+    {        
         bAttacking = true;
         bCanAttack = false;
         PlayAnimMontage(SlotAnimationsAttackCombo[BasicAttackComboCount]);
-        OnPlayerBeginBasicAttack.Broadcast();
+        MonoHitBehavioursComponent->Reset();
 
+        OnPlayerBeginBasicAttack.Broadcast();
+        
         if (BasicAttackComboCount >= SlotAnimationsAttackCombo.Num() - 1)
             BasicAttackComboCount = 0;
         else
@@ -296,6 +302,7 @@ void ABasePlayer::MoveRight(float Value)
 
 void ABasePlayer::ResetCombo()
 {
+    MonoHitBehavioursComponent->Reset();
     BasicAttackComboCount = 0;
     bCanAttack            = false;
     bAttacking            = false;
@@ -316,23 +323,26 @@ void ABasePlayer::SetCanCharge(bool bNewCanCharge)
 void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
                                                 const FHitResult&    SweepResult)
-{
+{    
     if (OtherComp->ComponentHasTag("Body"))
-    {
+    {        
         ABaseEnemy* Enemy = Cast<ABaseEnemy>(OtherActor);
 
-        if (!Enemy)
+        if (UNLIKELY(!Enemy))
             return;
 
-        PRINTINT(Enemy->GetMesh()->GetBoneIndex(TEXT("Head")))
-        PRINTINT(OtherBodyIndex)
-        if (Enemy->GetMesh()->GetBoneIndex(TEXT("Head")) == OtherBodyIndex)
-            Enemy->TakeDamageCharacter(Damage * 2.f);
+        /*Add the actor on if is has not already hit by the fire ball*/
+        if (UNLIKELY(MonoHitBehavioursComponent->CheckIfAlreadyExistAndAdd(OtherActor)))
+            return;
+
+        PRINTSTRING(OtherComp->GetName())
+        
+        if (UNLIKELY(OtherComp->ComponentHasTag(TEXT("CharacterWeakZone"))))
+            Enemy->TakeDamageCharacter(Damage * WeakZoneDamageMultiplicator);
         else
             Enemy->TakeDamageCharacter(Damage);
             
-
-        if (Enemy->IsEjectOnAttack())
+        if (LIKELY(Enemy->IsEjectOnAttack()))
         {
             FVector LaunchForce = OtherActor->GetActorLocation() - OverlappedComp->GetComponentLocation();
             LaunchForce.Normalize();
@@ -341,7 +351,7 @@ void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
             Enemy->GetMesh()->AddImpulse(LaunchForce, NAME_None, true);
         }
 
-        if (Enemy->IsDead())
+        if (LIKELY(Enemy->IsDead()))
         {
             AddScore(Enemy->GetScoreRewardOnKill());
             TakeRage(Enemy->GetRageRewardOnKill());

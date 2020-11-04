@@ -11,6 +11,7 @@
 #include "Components/SphereComponent.h"
 #include "Engine/Engine.h"
 #include "GameFramework/Controller.h"
+#include "GenericPlatform/GenericPlatformMisc.h"
 #include "GoodManStory/Character/FireBall.h"
 #include "GoodManStory/Character/Players/BasePlayer.h"
 #include "Kismet/GameplayStatics.h"
@@ -109,7 +110,25 @@ void ABaseBoss::OnGroundAttackZoneEndOverlap(UPrimitiveComponent* OverlappedComp
 
 ABaseBoss::ABaseBoss()
 {
-    /*Punch setting*/
+    GetCapsuleComponent()->SetGenerateOverlapEvents(false);
+
+    GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+    GetMesh()->SetGenerateOverlapEvents(false);
+    GetMesh()->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Overlap);
+    GetMesh()->SetCollisionObjectType(COLLISION_CHANNEL_ENEMY);
+    GetMesh()->bMultiBodyOverlap = false;
+
+    HeadCollision = CreateDefaultSubobject<USphereComponent>("Head");
+    HeadCollision->SetupAttachment(GetMesh(), TEXT("headSocket"));
+    HeadCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    HeadCollision->SetSphereRadius(32.f);
+    HeadCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+    HeadCollision->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Overlap);
+    HeadCollision->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
+    HeadCollision->SetCollisionObjectType(COLLISION_CHANNEL_ENEMY);
+    HeadCollision->ComponentTags.Add(TEXT("CharacterWeakZone"));
+    HeadCollision->ComponentTags.Add(TEXT("Body"));
+    
     PunchZone = CreateDefaultSubobject<USphereComponent>("PunchZone");
     PunchZone->SetupAttachment(GetCapsuleComponent());
     PunchZone->SetCollisionEnabled(ECollisionEnabled::QueryOnly);

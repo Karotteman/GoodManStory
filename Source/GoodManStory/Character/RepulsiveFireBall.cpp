@@ -6,6 +6,7 @@
 #include <Utility/Utility.h>
 
 
+#include "MonoHitBehaviours.h"
 #include "BaseCharacter.h"
 #include "Players/BasePlayer.h"
 

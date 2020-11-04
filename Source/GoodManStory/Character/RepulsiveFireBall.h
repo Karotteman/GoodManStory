@@ -4,8 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "ExplosiveFireBall.h"
-#include "MonoHitBehaviours.h"
-
 #include "RepulsiveFireBall.generated.h"
 
 /**
@@ -18,7 +16,7 @@ class GOODMANSTORY_API ARepulsiveFireBall : public AExplosiveFireBall
 
 	protected :
 
-	UMonoHitBehaviours* MonoHitBehavioursComponent;
+	class UMonoHitBehaviours* MonoHitBehavioursComponent;
 
 	protected :
 

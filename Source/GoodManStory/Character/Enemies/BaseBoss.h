@@ -33,6 +33,9 @@ class GOODMANSTORY_API ABaseBoss : public ABaseEnemy
 
 protected :
 
+    UPROPERTY(EditAnywhere)
+    class USphereComponent* HeadCollision;
+    
     UPROPERTY(EditAnywhere, Category= "Punch | Attack")
     class USphereComponent* PunchZone;
 
