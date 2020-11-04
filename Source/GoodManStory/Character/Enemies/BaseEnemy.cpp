@@ -10,6 +10,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "DesktopPlatform/Private/Windows/WindowsNativeFeedbackContext.h"
 #include "BaseEnemy_AIController.h"
+#include "Components/BoxComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 #define COLLISION_CHANNEL_PLAYER ECC_GameTraceChannel1
@@ -33,6 +34,9 @@ void ABaseEnemy::Kill()
     GetMesh()->SetSimulatePhysics(true);
     GetMesh()->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Ignore);
     GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECollisionResponse::ECR_Ignore);
+
+    BoxWeapon->DestroyComponent();
+    BoxShield->DestroyComponent();
     
     GetCapsuleComponent()->SetCollisionProfileName("NoCollision");
     Cast<AAIController>(GetController())->BrainComponent->StopLogic(TEXT("dead"));

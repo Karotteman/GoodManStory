@@ -123,7 +123,7 @@ void ABasePlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
     PlayerInputComponent->BindAction("BasicAttack", IE_Pressed, this, &ABasePlayer::BasicAttack);
     PlayerInputComponent->BindAction("TourbilolAttack", IE_Pressed, this, &ABasePlayer::TourbilolAttack);
     PlayerInputComponent->BindAction("EvilSpellAttack", IE_Pressed, this, &ABasePlayer::EvilSpellAttack);
-    PlayerInputComponent->BindAction("EvilSpellCapcity", IE_Pressed, this, &ABasePlayer::EvilSpellCapcity);
+    PlayerInputComponent->BindAction("EvilSpellCapcity", IE_Pressed, this, &ABasePlayer::EvilSpellCapacity);
     PlayerInputComponent->BindAction("SwitchCameraMode", IE_Pressed, this, &ABasePlayer::SwitchCameraMode);
 
     //Bind axis inputs actions
@@ -156,6 +156,7 @@ void ABasePlayer::BasicAttack()
         bAttacking = true;
         bCanAttack = false;
         PlayAnimMontage(SlotAnimationsAttackCombo[BasicAttackComboCount]);
+        OnPlayerBeginBasicAttack.Broadcast();
 
         if (BasicAttackComboCount >= SlotAnimationsAttackCombo.Num() - 1)
             BasicAttackComboCount = 0;
@@ -191,8 +192,11 @@ void ABasePlayer::EvilSpellAttack()
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellAttack"));
 }
 
-void ABasePlayer::EvilSpellCapcity()
+void ABasePlayer::EvilSpellCapacity()
 {
+    if (!bEvilSpellCapacityIsUnlock)
+        return;
+    
     if (bCanEvilSpellCapacity)
     {
         bCanEvilSpellCapacity = false;
@@ -200,6 +204,8 @@ void ABasePlayer::EvilSpellCapcity()
         CustomTimeDilation = 1 - WorldSlowingSpeedEvil + PlayerSlowingSpeedEvil + 2;
         GetWorldTimerManager().SetTimer(MemberTimerEvilCapacity, this, &ABasePlayer::SetCanEvilCapacity,
                                         DurationOfTheSlowdownEvil, false, 1);
+
+        OnPlayerBeginEvilCapacity.Broadcast();
     }
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellCapcity"));
@@ -211,11 +217,15 @@ void ABasePlayer::SetCanEvilCapacity()
     UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1);
     CustomTimeDilation = 1;
     GetWorldTimerManager().ClearTimer(MemberTimerEvilCapacity);
+
+    OnPlayerEndEvilCapacity.Broadcast();
 }
 
 void ABasePlayer::SwitchCameraMode()
 {
     CameraBoom->InterpolateOffSet(FVector::ZeroVector);
+    
+    OnPlayerBeginSwitchCamera.Broadcast();
 }
 
 void ABasePlayer::MoveCameraArmLength(float FScale) noexcept
@@ -314,7 +324,13 @@ void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
         if (!Enemy)
             return;
 
-        Enemy->TakeDamageCharacter(Damage);
+        PRINTINT(Enemy->GetMesh()->GetBoneIndex(TEXT("Head")))
+        PRINTINT(OtherBodyIndex)
+        if (Enemy->GetMesh()->GetBoneIndex(TEXT("Head")) == OtherBodyIndex)
+            Enemy->TakeDamageCharacter(Damage * 2.f);
+        else
+            Enemy->TakeDamageCharacter(Damage);
+            
 
         if (Enemy->IsEjectOnAttack())
         {
@@ -336,7 +352,7 @@ void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
 
 void ABasePlayer::SetCanTourbillol(bool bNewCanTourbillol)
 {
-    bCanTourbillol = bNewCanTourbillol;
+    bCanTourbillol = bNewCanTourbillol;    
     bCanAttack     = bNewCanTourbillol;
 }
 
@@ -346,12 +362,14 @@ void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
     if (Rage + AdditionnalRage > MaxRage)
     {
         Rage = MaxRage;
+        OnPlayerTakeRage.Broadcast(Rage, AdditionnalRage, MaxRage - Rage);
     }
     else
     {
         Rage += AdditionnalRage;
+        OnPlayerTakeRage.Broadcast(Rage, AdditionnalRage, AdditionnalRage);
     }
-
+    
     float RageRate = Rage / MaxRage * 100.f;
 
     switch (Level)
@@ -481,6 +499,12 @@ void ABasePlayer::ChargeActiveHitBox(bool bIsActive)
         GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
         SphericChargeZone->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     }
+}
+
+void ABasePlayer::AddScore(int32 AdditionalScore) noexcept
+{
+    Score += AdditionalScore;
+    OnPlayerTakeScore.Broadcast(Score, AdditionalScore);
 }
 
 void ABasePlayer::Kill()

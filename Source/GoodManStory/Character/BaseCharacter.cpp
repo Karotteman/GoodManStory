@@ -26,12 +26,13 @@ void ABaseCharacter::BeginPlay()
 	OnCharacterSpawn.Broadcast();
 }
 
-void ABaseCharacter::BeginDestroy()
+void ABaseCharacter::Destroyed()
 {
-	Super::BeginDestroy();
+	Super::Destroyed();
 
 	OnCharacterIsDestroy.Broadcast();
 }
+
 
 // Called every frame
 void ABaseCharacter::Tick(float DeltaTime)
