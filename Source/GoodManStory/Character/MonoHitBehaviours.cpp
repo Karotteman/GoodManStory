@@ -5,6 +5,8 @@
 
 #include <Utility/Utility.h>
 
+#include "GameFramework/Actor.h"
+
 // Sets default values for this component's properties
 UMonoHitBehaviours::UMonoHitBehaviours()
 {
@@ -42,6 +44,6 @@ bool UMonoHitBehaviours::CheckIfAlreadyExistAndAdd(AActor* pNewActor)
 
 bool UMonoHitBehaviours::IsAlreadyExist(AActor* pActor)
 {
-	return !(bool)ActorAlreadyHit.Find(pActor);
+	return ActorAlreadyHit.Find(pActor) != INDEX_NONE;
 }
 
