@@ -23,8 +23,12 @@ void ARepulsiveFireBall::OnFireBallBeginOverlap(UPrimitiveComponent* OverlappedC
 void ARepulsiveFireBall::OnChocWaveZoneBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
     UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 { 
-    if (!OtherComp->ComponentHasTag(TEXT("Body")) && !OtherComp->ComponentHasTag(TEXT("PlayerBody")))
+    if (UNLIKELY(!OtherComp->ComponentHasTag(TEXT("Body")) && !OtherComp->ComponentHasTag(TEXT("PlayerBody"))))
         return;
+
+    /*Add the actor on if is has not already hit by the fire ball*/
+    if (UNLIKELY(MonoHitBehavioursComponent->CheckIfAlreadyExistAndAdd(OtherActor)))
+       return;
     
     ABaseCharacter* pCharacter = Cast<ABaseCharacter>(OtherActor);
 
@@ -37,7 +41,7 @@ void ARepulsiveFireBall::OnChocWaveZoneBeginOverlap(UPrimitiveComponent* Overlap
 
     ABasePlayer* pPlayer = Cast<ABasePlayer>(OtherActor);
 
-    if (pPlayer)
+    if (UNLIKELY(pPlayer)) //More chance to hit trash than the player
     {
         pPlayer->TakeDamageCharacter(Damage);
     }
@@ -51,4 +55,6 @@ ARepulsiveFireBall::ARepulsiveFireBall()
 {
     ChocWaveZone->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     ChocWaveZone->OnComponentBeginOverlap.AddDynamic(this, &ARepulsiveFireBall::OnChocWaveZoneBeginOverlap);
+
+    MonoHitBehavioursComponent = CreateDefaultSubobject<UMonoHitBehaviours>(TEXT("MonoHitBehavioursComponent"));
 }

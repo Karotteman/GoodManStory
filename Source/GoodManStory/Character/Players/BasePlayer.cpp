@@ -324,7 +324,13 @@ void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
         if (!Enemy)
             return;
 
-        Enemy->TakeDamageCharacter(Damage);
+        PRINTINT(Enemy->GetMesh()->GetBoneIndex(TEXT("Head")))
+        PRINTINT(OtherBodyIndex)
+        if (Enemy->GetMesh()->GetBoneIndex(TEXT("Head")) == OtherBodyIndex)
+            Enemy->TakeDamageCharacter(Damage * 2.f);
+        else
+            Enemy->TakeDamageCharacter(Damage);
+            
 
         if (Enemy->IsEjectOnAttack())
         {
