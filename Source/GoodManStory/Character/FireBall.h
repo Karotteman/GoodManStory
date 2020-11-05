@@ -9,12 +9,13 @@
 #include "FireBall.generated.h"
 
 class UArrowComponent;
+class AActor;
+class ABasePlayer;
 
-UDELEGATE(BlueprintAuthorityOnly)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFireBallSpawnActionSignature);
-
-UDELEGATE(BlueprintAuthorityOnly)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFireBallDestroyActionSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFireBallHitActorActionSignature, AActor*, ActorHit);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFireBallHitPlayerActionSignature, ABasePlayer*, Player);
 
 UCLASS()
 class GOODMANSTORY_API AFireBall : public AActor
@@ -34,9 +35,23 @@ protected:
     UPROPERTY(BlueprintAssignable)
     FOnFireBallDestroyActionSignature OnFireBallDestroy;
 
+    UPROPERTY(BlueprintAssignable)
+    FOnFireBallHitActorActionSignature OnFireBallHitActor;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnFireBallHitPlayerActionSignature OnFireBallHitPlayer;
+
+    FVector SpawnPoint;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float MaxRangeLife = 10000.f;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float Damage = 10.f;
-    
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool DestroyOnlyIfGroundTagFound = true;
+
 #if WITH_EDITORONLY_DATA
     /** Component shown in the editor only to indicate character facing */
     UPROPERTY()
@@ -54,11 +69,12 @@ protected:
     virtual void BeginPlay() override;
 
     UFUNCTION()
-    void OnFireBallBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-                                UPrimitiveComponent* OtherComp, int32        OtherBodyIndex, bool bFromSweep,
-                                const FHitResult&    SweepResult);
+    virtual void OnFireBallBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+                                        UPrimitiveComponent* OtherComp, int32        OtherBodyIndex, bool bFromSweep,
+                                        const FHitResult&    SweepResult);
 public:
-    virtual void BeginDestroy() override;
+
+    virtual void Destroyed() override;
     
     // Called every frame
     virtual void Tick(float DeltaTime) override;
@@ -68,14 +84,13 @@ public:
 
     UFUNCTION(BlueprintCallable)
     FORCEINLINE float GetDamage() const { return Damage; }
-    
+
     UFUNCTION(BlueprintCallable)
-    void  SetDamage(float NewDamage) { Damage = NewDamage; }
+    void SetDamage(float NewDamage) { Damage = NewDamage; }
 
     UFUNCTION(BlueprintCallable)
     FORCEINLINE float GetRadius() const { return Collider->GetScaledSphereRadius(); }
-    
+
     UFUNCTION(BlueprintCallable)
-    void  SetRadius(float NewRadius) { Collider->SetSphereRadius(NewRadius); }
-    
+    void SetRadius(float NewRadius) { Collider->SetSphereRadius(NewRadius); }
 };

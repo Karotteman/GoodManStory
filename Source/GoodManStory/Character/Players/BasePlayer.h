@@ -8,8 +8,31 @@
 
 #include "BasePlayer.generated.h"
 
-UDELEGATE(BlueprintAuthorityOnly)DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
-    FOnLevelUpActionSignature, int, CurrentLevel);
+class AActor;
+
+/*Stats events*/
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelUpActionSignature, int, CurrentLevel);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnPlayerTakeRageActionSignature, float, CurrrentRage, float, RageTake, 
+float, RealRageTake);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayerTakeScoreActionSignature, float, CurrentScore, float, ScoreTake);
+
+/*Attack events*/
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerBeginBasicAttackActionSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerBasicAttackHitActionSignature, AActor*, OtherHit);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerEndBasicAttackActionSignature);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerBeginChargeActionSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerChargeHitActionSignature, AActor*, OtherHit);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerEndChargeActionSignature);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerBeginTourbilolActionSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerTourbilolHitActionSignature, AActor*, OtherHit);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerEndTourbilolActionSignature);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerBeginEvilCapacityActionSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerEndEvilCapacityActionSignature);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerBeginSwitchCameraActionSignature);
 
 /**
  * 
@@ -30,6 +53,7 @@ class GOODMANSTORY_API ABasePlayer : public ABaseWarrior
     class UMaterialInstanceDynamic* DynMaterial;
 
 protected:
+
     UPROPERTY(EditAnywhere, Category = Attack)
     TArray<UAnimMontage*> SlotAnimationsAttackCombo;
 
@@ -41,12 +65,17 @@ protected:
 
     uint8 BasicAttackComboCount = 0;
 
+    class UMonoHitBehaviours* MonoHitBehavioursComponent;
+
     /**
     * @brief This collider is use when player use its feature "Charge"
     */
     UPROPERTY(EditAnywhere, Category = Weapon)
     class USphereComponent* SphericChargeZone;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
+    float BasicAttackSpeed = 1.f;
+    
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float ChargeImpulsionForce = 2000.f;
 
@@ -65,12 +94,15 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float PushForce = 100.f;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
+    float WeakZoneDamageMultiplicator = 2.f;
+    
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float MaxRage = 1000.f;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
     float Rage = 0.f;
-
+    
     UPROPERTY(Category = Stats, EditAnywhere)
     uint8 MaxLevel = 5;
 
@@ -83,11 +115,20 @@ protected:
      UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
      float DurationOfTheSlowdownEvil = 5.f;
     
-     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
      float WorldSlowingSpeedEvil = 0.25f;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float PlayerSlowingSpeedEvil = 1.25f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
+    float Heal = 2.f;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats, meta=(UIMin = "0.0", UIMax = "1.0"))
+    float LosingRageRatioOnDeath = 0.3f;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats, meta=(UIMin = "0.0", UIMax = "1.0"))
+    float LosingScoreRatioOnDeath = 0.f;
     
     bool bTourbillolIsUnlock      = false;
     bool bEvilSpellAttackIsUnlock = false;
@@ -129,6 +170,51 @@ public:
 
     UPROPERTY(BlueprintAssignable)
     FOnLevelUpActionSignature OnPlayerLevelUp;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnPlayerTakeRageActionSignature OnPlayerTakeRage;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnPlayerTakeScoreActionSignature OnPlayerTakeScore;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnPlayerBeginBasicAttackActionSignature OnPlayerBeginBasicAttack;
+
+    //UPROPERTY(BlueprintAssignable)
+    //FOnPlayerBasicAttackHitActionSignature OnPlayerBasicAttackHit;
+
+    //UPROPERTY(BlueprintAssignable)
+    //FOnPlayerEndBasicAttackActionSignature OnPlayerEndBasicAttack;
+
+
+    UPROPERTY(BlueprintAssignable)
+    FOnPlayerBeginChargeActionSignature OnPlayerBeginCharge;
+
+    //UPROPERTY(BlueprintAssignable)
+    //FOnPlayerChargeHitActionSignature OnPlayerChargeHit;
+
+    //UPROPERTY(BlueprintAssignable)
+    //FOnPlayerEndChargeActionSignature OnPlayerEndCharge;
+
+
+    UPROPERTY(BlueprintAssignable)
+    FOnPlayerBeginTourbilolActionSignature OnPlayerBeginTourbilol;
+
+    //UPROPERTY(BlueprintAssignable)
+    //FOnPlayerTourbilolHitActionSignature OnPlayerTourbilolHit;
+
+    //UPROPERTY(BlueprintAssignable)
+    //FOnPlayerEndTourbilolActionSignature OnPlayerEndTourbilol;
+
+
+    UPROPERTY(BlueprintAssignable)
+    FOnPlayerBeginEvilCapacityActionSignature OnPlayerBeginEvilCapacity;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnPlayerEndEvilCapacityActionSignature OnPlayerEndEvilCapacity;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnPlayerBeginSwitchCameraActionSignature OnPlayerBeginSwitchCamera;
 
 private:
     
@@ -213,7 +299,7 @@ protected:
     * @brief Slow down time and boost the hero. Each enemy hit give life
     */
     UFUNCTION(BlueprintCallable, Category=Character)
-    void EvilSpellCapcity();
+    void EvilSpellCapacity();
 
     /**
     * @brief Chang the camera's side view shoulder 
@@ -281,6 +367,9 @@ public:
     bool IsTourbillolIsUnlock() const { return bTourbillolIsUnlock; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
+    bool EvilSpellIsActive() const { return bCanEvilSpellCapacity; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
     void SetTourbillolIsUnlock(bool bNewTourbillolIsUnlock) { bTourbillolIsUnlock = bNewTourbillolIsUnlock; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
@@ -305,9 +394,11 @@ public:
     FORCEINLINE int32 GetScore() const noexcept { return Score; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
-    void AddScore(int32 AdditionalScore) noexcept { Score += AdditionalScore; }
+    void AddScore(int32 AdditionalScore) noexcept;
 
     virtual void Kill() override;
+
+    void EvilHealing();
 };
 
 

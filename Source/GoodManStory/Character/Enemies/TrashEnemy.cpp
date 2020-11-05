@@ -2,6 +2,8 @@
 
 
 #include "TrashEnemy.h"
+
+#include "Trash_AIController.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -63,5 +65,4 @@ void ATrashEnemy::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
 void ATrashEnemy::Kill()
 {
     Super::Kill();
-
 }

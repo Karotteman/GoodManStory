@@ -19,15 +19,16 @@
 #include "Engine/Engine.h"
 #include "AIController.h"
 #include "../Enemies/BaseEnemy.h"
-/*Debug*/
-#include <Utility/Utility.h>
-
-#include "Containers/UnrealString.h"
-
+#include "GoodManStory/Character/MonoHitBehaviours.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetSystemLibrary.h"
+
+/*Debug*/
+#include <Utility/Utility.h>
+#include "Containers/UnrealString.h"
+
+
 
 #define COLLISION_CHANNEL_PLAYER ECC_GameTraceChannel1
 #define COLLISION_CHANNEL_TRASH_MOB ECC_GameTraceChannel2
@@ -75,12 +76,13 @@ ABasePlayer::ABasePlayer()
     GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_CHANNEL_TRASH_MOB, ECollisionResponse::ECR_Overlap);
 
     LeftHandObject = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
-    LeftHandObject->SetupAttachment(GetMesh(), "LeftWeaponShield");
+    LeftHandObject->SetupAttachment(GetMesh(), "hand_l");
     LeftHandObject->SetRelativeScale3D({1.5f, 1.5f, 1.f});
     LeftHandObject->SetRelativeRotation({0.f, 0.f, 20.f});
     LeftHandObject->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-    LeftHandObject->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Ignore);
-    LeftHandObject->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+    LeftHandObject->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+    LeftHandObject->SetCollisionResponseToChannel(COLLISION_CHANNEL_TRASH_MOB, ECollisionResponse::ECR_Overlap);
+    LeftHandObject->SetCollisionResponseToChannel(COLLISION_CHANNEL_ENEMY, ECollisionResponse::ECR_Overlap);
 
     BoxWeapon = CreateDefaultSubobject<UBoxComponent>("BoxWeapon");
     BoxWeapon->SetupAttachment(LeftHandObject);
@@ -103,6 +105,9 @@ ABasePlayer::ABasePlayer()
     SphericChargeZone->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
     SphericChargeZone->SetRelativeScale3D({1.5f, 1.5f, 1.5f});
 
+    MonoHitBehavioursComponent = CreateDefaultSubobject<UMonoHitBehaviours>(TEXT("MonoHitBehavioursComponent"));
+
+    bIsStunable = false;
     // Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
     // are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
@@ -122,7 +127,7 @@ void ABasePlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
     PlayerInputComponent->BindAction("BasicAttack", IE_Pressed, this, &ABasePlayer::BasicAttack);
     PlayerInputComponent->BindAction("TourbilolAttack", IE_Pressed, this, &ABasePlayer::TourbilolAttack);
     PlayerInputComponent->BindAction("EvilSpellAttack", IE_Pressed, this, &ABasePlayer::EvilSpellAttack);
-    PlayerInputComponent->BindAction("EvilSpellCapcity", IE_Pressed, this, &ABasePlayer::EvilSpellCapcity);
+    PlayerInputComponent->BindAction("EvilSpellCapcity", IE_Pressed, this, &ABasePlayer::EvilSpellCapacity);
     PlayerInputComponent->BindAction("SwitchCameraMode", IE_Pressed, this, &ABasePlayer::SwitchCameraMode);
 
     //Bind axis inputs actions
@@ -138,7 +143,7 @@ void ABasePlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
 
 void ABasePlayer::Charge()
 {
-    if (GetCharacterMovement()->IsFalling() || !bCanCharge)
+    if (GetCharacterMovement()->IsFalling() || !bCanCharge || !bCanAttack)
         return;
 
     /*Play animation and activate/Desactivate collider*/
@@ -151,11 +156,14 @@ void ABasePlayer::Charge()
 void ABasePlayer::BasicAttack()
 {
     if (bCanAttack)
-    {
+    {        
         bAttacking = true;
         bCanAttack = false;
-        PlayAnimMontage(SlotAnimationsAttackCombo[BasicAttackComboCount]);
+        PlayAnimMontage(SlotAnimationsAttackCombo[BasicAttackComboCount], BasicAttackSpeed);
+        MonoHitBehavioursComponent->Reset();
 
+        OnPlayerBeginBasicAttack.Broadcast();
+        
         if (BasicAttackComboCount >= SlotAnimationsAttackCombo.Num() - 1)
             BasicAttackComboCount = 0;
         else
@@ -190,8 +198,11 @@ void ABasePlayer::EvilSpellAttack()
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellAttack"));
 }
 
-void ABasePlayer::EvilSpellCapcity()
+void ABasePlayer::EvilSpellCapacity()
 {
+    if (!bEvilSpellCapacityIsUnlock)
+        return;
+    
     if (bCanEvilSpellCapacity)
     {
         bCanEvilSpellCapacity = false;
@@ -199,9 +210,17 @@ void ABasePlayer::EvilSpellCapcity()
         CustomTimeDilation = 1 - WorldSlowingSpeedEvil + PlayerSlowingSpeedEvil + 2;
         GetWorldTimerManager().SetTimer(MemberTimerEvilCapacity, this, &ABasePlayer::SetCanEvilCapacity,
                                         DurationOfTheSlowdownEvil, false, 1);
+
+        OnPlayerBeginEvilCapacity.Broadcast();
     }
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellCapcity"));
+}
+
+
+void ABasePlayer::EvilHealing()
+{
+    Life+= Heal;
 }
 
 void ABasePlayer::SetCanEvilCapacity()
@@ -210,11 +229,15 @@ void ABasePlayer::SetCanEvilCapacity()
     UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1);
     CustomTimeDilation = 1;
     GetWorldTimerManager().ClearTimer(MemberTimerEvilCapacity);
+
+    OnPlayerEndEvilCapacity.Broadcast();
 }
 
 void ABasePlayer::SwitchCameraMode()
 {
     CameraBoom->InterpolateOffSet(FVector::ZeroVector);
+    
+    OnPlayerBeginSwitchCamera.Broadcast();
 }
 
 void ABasePlayer::MoveCameraArmLength(float FScale) noexcept
@@ -285,6 +308,7 @@ void ABasePlayer::MoveRight(float Value)
 
 void ABasePlayer::ResetCombo()
 {
+    MonoHitBehavioursComponent->Reset();
     BasicAttackComboCount = 0;
     bCanAttack            = false;
     bAttacking            = false;
@@ -305,17 +329,24 @@ void ABasePlayer::SetCanCharge(bool bNewCanCharge)
 void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
                                                 const FHitResult&    SweepResult)
-{
+{    
     if (OtherComp->ComponentHasTag("Body"))
-    {
+    {        
         ABaseEnemy* Enemy = Cast<ABaseEnemy>(OtherActor);
 
-        if (!Enemy)
+        if (UNLIKELY(!Enemy))
             return;
 
-        Enemy->TakeDamageCharacter(Damage);
-
-        if (Enemy->IsEjectOnAttack())
+        /*Add the actor on if is has not already hit by the fire ball*/
+        if (UNLIKELY(MonoHitBehavioursComponent->CheckIfAlreadyExistAndAdd(OtherActor)))
+            return;
+        
+        if (UNLIKELY(OtherComp->ComponentHasTag(TEXT("CharacterWeakZone"))))
+            Enemy->TakeDamageCharacter(Damage * WeakZoneDamageMultiplicator);
+        else
+            Enemy->TakeDamageCharacter(Damage);
+            
+        if (LIKELY(Enemy->IsEjectOnAttack()))
         {
             FVector LaunchForce = OtherActor->GetActorLocation() - OverlappedComp->GetComponentLocation();
             LaunchForce.Normalize();
@@ -324,7 +355,7 @@ void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
             Enemy->GetMesh()->AddImpulse(LaunchForce, NAME_None, true);
         }
 
-        if (Enemy->IsDead())
+        if (LIKELY(Enemy->IsDead()))
         {
             AddScore(Enemy->GetScoreRewardOnKill());
             TakeRage(Enemy->GetRageRewardOnKill());
@@ -335,7 +366,7 @@ void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
 
 void ABasePlayer::SetCanTourbillol(bool bNewCanTourbillol)
 {
-    bCanTourbillol = bNewCanTourbillol;
+    bCanTourbillol = bNewCanTourbillol;    
     bCanAttack     = bNewCanTourbillol;
 }
 
@@ -345,40 +376,44 @@ void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
     if (Rage + AdditionnalRage > MaxRage)
     {
         Rage = MaxRage;
+        OnPlayerTakeRage.Broadcast(Rage, AdditionnalRage, MaxRage - Rage);
     }
     else
     {
         Rage += AdditionnalRage;
+        OnPlayerTakeRage.Broadcast(Rage, AdditionnalRage, AdditionnalRage);
     }
-
+    
     float RageRate = Rage / MaxRage * 100.f;
 
     switch (Level)
     {
         case 0:
-            if (RageRate > RageToUnlockLevel1)
+            if (RageRate < RageToUnlockLevel1)
+                break;
+            while (GetPlayerLevel() < 1)
                 LevelUp();
-            break;
-
+        
         case 1:
-            if (RageRate > RageToUnlockLevel2)
+            if (RageRate < RageToUnlockLevel2)
+                break;
+            while (GetPlayerLevel() < 2)
                 LevelUp();
-            break;
-
         case 2:
-            if (RageRate > RageToUnlockLevel3)
+            if (RageRate < RageToUnlockLevel3)
+                break;
+            while (GetPlayerLevel() < 3)
                 LevelUp();
-            break;
-
         case 3:
-            if (RageRate > RageToUnlockLevel4)
+            if (RageRate < RageToUnlockLevel4)
+                break;
+            while (GetPlayerLevel() < 4)
                 LevelUp();
-            break;
-
         case 4:
-            if (RageRate > RageToUnlockLevel5)
+            if (RageRate < RageToUnlockLevel5)
+                break;
+            while (GetPlayerLevel() < 5)
                 LevelUp();
-            break;
         default: ;
     }
 }
@@ -435,7 +470,7 @@ void ABasePlayer::OnChargeBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
             LaunchForce *= pEnemy->ForceEjection;
             LaunchForce.Z = ChargeExpulseHeigthRatio * ChargeExpulseForce;
 
-            pEnemy->LaunchCharacter(LaunchForce, true, true);
+            pEnemy->LaunchAndStun(LaunchForce, true, true);
         }
     }
 }
@@ -477,7 +512,16 @@ void ABasePlayer::ChargeActiveHitBox(bool bIsActive)
     }
 }
 
+void ABasePlayer::AddScore(int32 AdditionalScore) noexcept
+{
+    Score += AdditionalScore;
+    OnPlayerTakeScore.Broadcast(Score, AdditionalScore);
+}
+
 void ABasePlayer::Kill()
 {
     Super::Kill();
+
+    Rage *= 1.f - LosingRageRatioOnDeath;
+    Score *= 1.f - LosingScoreRatioOnDeath;
 }

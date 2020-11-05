@@ -2,7 +2,7 @@
 
 #include "BaseCharacter.h"
 
-#include "Components/BoxComponent.h"
+#include "TimerManager.h"
 #include "Components/CapsuleComponent.h"
 
 // Sets default values
@@ -20,18 +20,19 @@ ABaseCharacter::ABaseCharacter()
 // Called when the game starts or when spawned
 void ABaseCharacter::BeginPlay()
 {
+	Life = LifeMax;
+	
 	Super::BeginPlay();
 	OnCharacterSpawn.Broadcast();
-
-	Life = LifeMax;
 }
 
-void ABaseCharacter::BeginDestroy()
+void ABaseCharacter::Destroyed()
 {
-	Super::BeginDestroy();
+	Super::Destroyed();
 
 	OnCharacterIsDestroy.Broadcast();
 }
+
 
 // Called every frame
 void ABaseCharacter::Tick(float DeltaTime)
@@ -69,19 +70,33 @@ void ABaseCharacter::TakeLife(float AdditionnalLife) noexcept
 	}
 }
 
+void ABaseCharacter::LaunchAndStun(const FVector& Force, bool bXYOverride, bool bZOverride)
+{
+	/*If enemie is stun no not lunch*/
+	if (bIsStun)
+		return;
+	
+	LaunchCharacter(Force, bXYOverride, bZOverride);
+
+	if (IsStunable())
+		SetIsStun(true);
+}
+
+void ABaseCharacter::StartStunRecovery() noexcept
+{
+	FTimerHandle UnusedHandle;
+	FTimerDelegate TimerDel;
+
+	//Binding the function with specific values
+	TimerDel.BindUFunction(this, FName("SetIsStun"), false);
+	
+	GetWorldTimerManager().SetTimer(
+        UnusedHandle, TimerDel, StunRecoveryDelay, false);
+
+}
+
 void ABaseCharacter::Kill()
 {
 	bIsDead = true;
 	OnCharacterDeath.Broadcast(this);
-}
-
-void ABaseCharacter::Launch(const FVector& Direction, float Force, bool bXYOverride, bool bZOverride)
-{
-	LaunchCharacter(Direction * Force, bXYOverride, bZOverride);
-}
-
-void ABaseCharacter::Expelled(const FVector& Direction, float Force, bool bXYOverride, bool bZOverride)
-{
-	LaunchCharacter(Direction * Force, bXYOverride, bZOverride);
-	bIsExpelled = true;
 }

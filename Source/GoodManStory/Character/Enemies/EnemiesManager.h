@@ -84,6 +84,10 @@ protected:
     UFUNCTION(BlueprintCallable)
     void MoveLivingEnemyOnDeathContainer(class ABaseCharacter* pCharacter);
 
+    UFUNCTION(BlueprintCallable)
+    void ResetCurrentWave();
+    
+
     FActorSpawnParameters SpawnParams;
     bool                  Spawning = true;
 
