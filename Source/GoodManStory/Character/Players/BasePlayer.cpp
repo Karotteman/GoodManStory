@@ -520,4 +520,7 @@ void ABasePlayer::AddScore(int32 AdditionalScore) noexcept
 void ABasePlayer::Kill()
 {
     Super::Kill();
+
+    Rage *= 1.f - LosingRageRatioOnDeath;
+    Score *= 1.f - LosingScoreRatioOnDeath;
 }
