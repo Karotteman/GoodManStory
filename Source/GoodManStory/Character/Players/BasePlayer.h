@@ -74,6 +74,9 @@ protected:
     class USphereComponent* SphericChargeZone;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
+    float BasicAttackSpeed = 1.f;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float ChargeImpulsionForce = 2000.f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)

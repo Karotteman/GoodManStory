@@ -159,7 +159,7 @@ void ABasePlayer::BasicAttack()
     {        
         bAttacking = true;
         bCanAttack = false;
-        PlayAnimMontage(SlotAnimationsAttackCombo[BasicAttackComboCount]);
+        PlayAnimMontage(SlotAnimationsAttackCombo[BasicAttackComboCount], BasicAttackSpeed);
         MonoHitBehavioursComponent->Reset();
 
         OnPlayerBeginBasicAttack.Broadcast();
