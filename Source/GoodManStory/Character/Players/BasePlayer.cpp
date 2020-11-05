@@ -340,8 +340,6 @@ void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
         /*Add the actor on if is has not already hit by the fire ball*/
         if (UNLIKELY(MonoHitBehavioursComponent->CheckIfAlreadyExistAndAdd(OtherActor)))
             return;
-
-        PRINTSTRING(OtherComp->GetName())
         
         if (UNLIKELY(OtherComp->ComponentHasTag(TEXT("CharacterWeakZone"))))
             Enemy->TakeDamageCharacter(Damage * WeakZoneDamageMultiplicator);
