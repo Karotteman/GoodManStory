@@ -143,7 +143,7 @@ void ABasePlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
 
 void ABasePlayer::Charge()
 {
-    if (GetCharacterMovement()->IsFalling() || !bCanCharge)
+    if (GetCharacterMovement()->IsFalling() || !bCanCharge || !bCanAttack)
         return;
 
     /*Play animation and activate/Desactivate collider*/
@@ -340,8 +340,6 @@ void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
         /*Add the actor on if is has not already hit by the fire ball*/
         if (UNLIKELY(MonoHitBehavioursComponent->CheckIfAlreadyExistAndAdd(OtherActor)))
             return;
-
-        PRINTSTRING(OtherComp->GetName())
         
         if (UNLIKELY(OtherComp->ComponentHasTag(TEXT("CharacterWeakZone"))))
             Enemy->TakeDamageCharacter(Damage * WeakZoneDamageMultiplicator);
@@ -526,4 +524,7 @@ void ABasePlayer::AddScore(int32 AdditionalScore) noexcept
 void ABasePlayer::Kill()
 {
     Super::Kill();
+
+    Rage *= 1.f - LosingRageRatioOnDeath;
+    Score *= 1.f - LosingScoreRatioOnDeath;
 }

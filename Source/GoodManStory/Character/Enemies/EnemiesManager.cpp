@@ -11,7 +11,6 @@
 #include "Math/UnrealMathUtility.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "UObject/ConstructorHelpers.h"
 #include "Utility/Utility.h"
 
 // Sets default values
@@ -57,21 +56,32 @@ void AEnemiesManager::Tick(float DeltaTime)
     {
         Spawn(DeltaTime);
     }
-    else if (WaveIndex < WaveDataTable->GetRowMap().Num() && IsAllEnemiesDied())
+    else if (IsAllEnemiesDied())
     {
-        if (!bCurrentWaveIsDone)
+        if (WaveIndex < WaveDataTable->GetRowMap().Num())
         {
-            bCurrentWaveIsDone = true;
-            pCurrentWave->WaveEvent->OnWaveEnd.Broadcast();
-        }
+            if (!bCurrentWaveIsDone)
+            {
+                bCurrentWaveIsDone = true;
+                pCurrentWave->WaveEvent->OnWaveEnd.Broadcast();
+            }
         
-        if (bPlayerCanStartTheWave)
-        {
-            NextWave();
+            if (bPlayerCanStartTheWave)
+            {
+                NextWave();
+            }
+            else
+            {
+                CheckIfPlayerCanStartTheNextWave();
+            }
         }
         else
         {
-            CheckIfPlayerCanStartTheNextWave();
+            if (!bCurrentWaveIsDone)
+            {
+                bCurrentWaveIsDone = true;
+                pCurrentWave->WaveEvent->OnWaveEnd.Broadcast();
+            }
         }
     }
 }
@@ -311,4 +321,42 @@ void AEnemiesManager::MoveLivingEnemyOnDeathContainer(ABaseCharacter* pCharacter
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red,
                                          TEXT("TRY TO REMOVE ENEMY NOT REGISTER IN ENEMIES MANAGER"));
+}
+
+void AEnemiesManager::ResetCurrentWave()
+{        
+    bWaveSpawnerIsRunning = false;
+    bCurrentWaveIsDone = false;
+    bPlayerCanStartTheWave = false;
+
+    for (auto&& EnemiesStat : EnemiesStatsContainer)
+    {
+        EnemiesStat.LivingEnemyContainer.Reset();
+    }
+
+    DeathEnemyContainer.Reset();
+    DeathWeaponContainer.Reset();
+
+    for (int i = 0; i < pCurrentWave->SpawnInfoContainer.Num(); ++i)
+    {
+        pCurrentWave->SpawnInfoContainer[i].EnemyCounter = pCurrentWave->SpawnInfoContainer[i].EnemyNumber;
+        pCurrentWave->SpawnInfoContainer[i].bWaitOffset  = pCurrentWave->SpawnInfoContainer[i].FirstSpawnDelayOffset >
+            0.f;
+    }
+
+    if (GEngine)
+        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Wave Reset"));
+    
+    if (WaveIndex == 0)
+        return;
+    
+    /*Pass to the previous wave*/
+    TMap<FName, unsigned char*>::TRangedForConstIterator WaveTableIterator = WaveDataTable->GetRowMap().begin();
+
+    for (int i = 0; i < WaveIndex - 1; ++i)
+    {
+        ++WaveTableIterator;
+    }
+    WaveIndex--;
+    pCurrentWave = reinterpret_cast<FWaveInfo*>(WaveTableIterator.Value());
 }

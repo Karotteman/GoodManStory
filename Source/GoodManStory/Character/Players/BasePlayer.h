@@ -120,6 +120,12 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float Heal = 2.f;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats, meta=(UIMin = "0.0", UIMax = "1.0"))
+    float LosingRageRatioOnDeath = 0.3f;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats, meta=(UIMin = "0.0", UIMax = "1.0"))
+    float LosingScoreRatioOnDeath = 0.f;
     
     bool bTourbillolIsUnlock      = false;
     bool bEvilSpellAttackIsUnlock = false;
