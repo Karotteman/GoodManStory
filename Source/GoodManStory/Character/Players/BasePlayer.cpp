@@ -200,8 +200,8 @@ void ABasePlayer::EvilSpellAttack()
 
 void ABasePlayer::EvilSpellCapacity()
 {
-    //if (!bEvilSpellCapacityIsUnlock)
-   //    return;
+    if (!bEvilSpellCapacityIsUnlock)
+        return;
     
     if (bCanEvilSpellCapacity)
     {
