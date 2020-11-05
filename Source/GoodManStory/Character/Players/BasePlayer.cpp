@@ -194,8 +194,8 @@ void ABasePlayer::EvilSpellAttack()
 
 void ABasePlayer::EvilSpellCapacity()
 {
-    if (!bEvilSpellCapacityIsUnlock)
-        return;
+    //if (!bEvilSpellCapacityIsUnlock)
+   //    return;
     
     if (bCanEvilSpellCapacity)
     {
@@ -209,6 +209,12 @@ void ABasePlayer::EvilSpellCapacity()
     }
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellCapcity"));
+}
+
+
+void ABasePlayer::EvilHealing()
+{
+    Life+= Heal;
 }
 
 void ABasePlayer::SetCanEvilCapacity()

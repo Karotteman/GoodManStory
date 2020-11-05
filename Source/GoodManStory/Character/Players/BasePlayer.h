@@ -111,6 +111,9 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float PlayerSlowingSpeedEvil = 1.25f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
+    float Heal = 2.f;
     
     bool bTourbillolIsUnlock      = false;
     bool bEvilSpellAttackIsUnlock = false;
@@ -349,6 +352,9 @@ public:
     bool IsTourbillolIsUnlock() const { return bTourbillolIsUnlock; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
+    bool EvilSpellIsActive() const { return bCanEvilSpellCapacity; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
     void SetTourbillolIsUnlock(bool bNewTourbillolIsUnlock) { bTourbillolIsUnlock = bNewTourbillolIsUnlock; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
@@ -376,6 +382,8 @@ public:
     void AddScore(int32 AdditionalScore) noexcept;
 
     virtual void Kill() override;
+
+    void EvilHealing();
 };
 
 
