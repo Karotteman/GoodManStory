@@ -143,7 +143,7 @@ void ABasePlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
 
 void ABasePlayer::Charge()
 {
-    if (GetCharacterMovement()->IsFalling() || !bCanCharge)
+    if (GetCharacterMovement()->IsFalling() || !bCanCharge || !bCanAttack)
         return;
 
     /*Play animation and activate/Desactivate collider*/
