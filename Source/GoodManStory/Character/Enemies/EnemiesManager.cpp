@@ -56,21 +56,32 @@ void AEnemiesManager::Tick(float DeltaTime)
     {
         Spawn(DeltaTime);
     }
-    else if (WaveIndex < WaveDataTable->GetRowMap().Num() && IsAllEnemiesDied())
+    else if (IsAllEnemiesDied())
     {
-        if (!bCurrentWaveIsDone)
+        if (WaveIndex < WaveDataTable->GetRowMap().Num())
         {
-            bCurrentWaveIsDone = true;
-            pCurrentWave->WaveEvent->OnWaveEnd.Broadcast();
-        }
+            if (!bCurrentWaveIsDone)
+            {
+                bCurrentWaveIsDone = true;
+                pCurrentWave->WaveEvent->OnWaveEnd.Broadcast();
+            }
         
-        if (bPlayerCanStartTheWave)
-        {
-            NextWave();
+            if (bPlayerCanStartTheWave)
+            {
+                NextWave();
+            }
+            else
+            {
+                CheckIfPlayerCanStartTheNextWave();
+            }
         }
         else
         {
-            CheckIfPlayerCanStartTheNextWave();
+            if (!bCurrentWaveIsDone)
+            {
+                bCurrentWaveIsDone = true;
+                pCurrentWave->WaveEvent->OnWaveEnd.Broadcast();
+            }
         }
     }
 }
