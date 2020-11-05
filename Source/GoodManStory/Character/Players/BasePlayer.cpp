@@ -76,7 +76,7 @@ ABasePlayer::ABasePlayer()
     GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_CHANNEL_TRASH_MOB, ECollisionResponse::ECR_Overlap);
 
     LeftHandObject = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
-    LeftHandObject->SetupAttachment(GetMesh(), "LeftWeaponShield");
+    LeftHandObject->SetupAttachment(GetMesh(), "hand_l");
     LeftHandObject->SetRelativeScale3D({1.5f, 1.5f, 1.f});
     LeftHandObject->SetRelativeRotation({0.f, 0.f, 20.f});
     LeftHandObject->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -200,8 +200,8 @@ void ABasePlayer::EvilSpellAttack()
 
 void ABasePlayer::EvilSpellCapacity()
 {
-    if (!bEvilSpellCapacityIsUnlock)
-        return;
+    //if (!bEvilSpellCapacityIsUnlock)
+   //    return;
     
     if (bCanEvilSpellCapacity)
     {
@@ -215,6 +215,12 @@ void ABasePlayer::EvilSpellCapacity()
     }
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellCapcity"));
+}
+
+
+void ABasePlayer::EvilHealing()
+{
+    Life+= Heal;
 }
 
 void ABasePlayer::SetCanEvilCapacity()
