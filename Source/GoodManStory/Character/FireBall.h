@@ -9,10 +9,13 @@
 #include "FireBall.generated.h"
 
 class UArrowComponent;
+class AActor;
+class ABasePlayer;
 
-UDELEGATE(BlueprintAuthorityOnly)DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFireBallSpawnActionSignature);
-
-UDELEGATE(BlueprintAuthorityOnly)DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFireBallDestroyActionSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFireBallSpawnActionSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFireBallDestroyActionSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFireBallHitActorActionSignature, AActor*, ActorHit);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFireBallHitPlayerActionSignature, ABasePlayer*, Player);
 
 UCLASS()
 class GOODMANSTORY_API AFireBall : public AActor
@@ -31,6 +34,12 @@ protected:
 
     UPROPERTY(BlueprintAssignable)
     FOnFireBallDestroyActionSignature OnFireBallDestroy;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnFireBallHitActorActionSignature OnFireBallHitActor;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnFireBallHitPlayerActionSignature OnFireBallHitPlayer;
 
     FVector SpawnPoint;
 

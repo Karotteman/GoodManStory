@@ -16,10 +16,12 @@
 void AFireBall::OnFireBallBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	OnFireBallHitActor.Broadcast(OtherActor);
 	ABasePlayer* pPlayer = Cast<ABasePlayer>(OtherActor);
 
 	if (pPlayer)
 	{
+		OnFireBallHitPlayer.Broadcast(pPlayer);
 		pPlayer->TakeDamageCharacter(Damage);
 	}
 
