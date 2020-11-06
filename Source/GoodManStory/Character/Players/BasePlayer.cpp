@@ -143,10 +143,10 @@ void ABasePlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
 
 void ABasePlayer::Charge()
 {
-    if (GetCharacterMovement()->IsFalling() || !bCanCharge || bAttacking)
+    if (GetCharacterMovement()->IsFalling() || !bCanDoAction)
         return;
 
-    bAttacking = true;
+    bCanDoAction = false;
     
     /*Play animation and activate/Desactivate collider*/
     PlayAnimMontage(SlotAnimationsCharge);
@@ -157,11 +157,12 @@ void ABasePlayer::Charge()
 
 void ABasePlayer::BasicAttack()
 {    
-    if (!bCanAttack && bAttacking)
+    if (!bCanAttack && !bCanDoAction)
         return;
-    
-    bAttacking = true;
+
+    bCanDoAction = false;
     bCanAttack = false;
+    
     PlayAnimMontage(SlotAnimationsAttackCombo[BasicAttackComboCount], BasicAttackSpeed);
     MonoHitBehavioursComponent->Reset();
 
@@ -179,11 +180,11 @@ void ABasePlayer::BasicAttack()
 
 void ABasePlayer::TourbilolAttack()
 {
-    if (!bTourbillolIsUnlock || bAttacking || !bCanTourbillol)
+    if (!bTourbillolIsUnlock || !bCanDoAction)
         return;
 
-    bCanTourbillol = false;
-    bAttacking = true;
+    bCanDoAction = true;
+    
     PlayAnimMontage(SlotAnimationsTourbillol);
     
     if (GEngine)
@@ -195,8 +196,8 @@ void ABasePlayer::EvilSpellAttack()
     if (!bEvilSpellAttackIsUnlock)
         return;
 
-    if (GEngine)
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellAttack"));
+    //if (GEngine)
+    //    GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellAttack"));
 }
 
 void ABasePlayer::EvilSpellCapacity()
@@ -267,6 +268,9 @@ void ABasePlayer::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
+    PRINTBOOL(bCanAttack)
+    //PRINTBOOL(bCanDoAction)
+    
     CameraBoom->Update(DeltaTime);
 
     TArray<AActor*> othersOverllaping;
@@ -312,19 +316,11 @@ void ABasePlayer::ResetCombo()
     MonoHitBehavioursComponent->Reset();
     BasicAttackComboCount = 0;
     bCanAttack            = false;
-    bAttacking            = false;
 }
 
 void ABasePlayer::SetCanAttack(bool bNewCanAttack)
 {
     bCanAttack = bNewCanAttack;
-    bCanCharge = bNewCanAttack; //lock charge
-}
-
-void ABasePlayer::SetCanCharge(bool bNewCanCharge)
-{
-    bCanCharge = bNewCanCharge;
-    bCanAttack = bNewCanCharge; //lock basic attack
 }
 
 void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -363,15 +359,6 @@ void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
         }
     }
 }
-
-
-void ABasePlayer::SetCanTourbillol(bool bNewCanTourbillol)
-{
-    bCanTourbillol = bNewCanTourbillol;    
-    bCanAttack     = bNewCanTourbillol;
-    bAttacking     = false;
-}
-
 
 void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
 {

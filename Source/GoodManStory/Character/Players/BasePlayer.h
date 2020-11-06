@@ -12,24 +12,33 @@ class AActor;
 
 /*Stats events*/
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelUpActionSignature, int, CurrentLevel);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnPlayerTakeRageActionSignature, float, CurrrentRage, float, RageTake, 
-float, RealRageTake);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnPlayerTakeRageActionSignature, float, CurrrentRage, float, RageTake,
+                                               float, RealRageTake);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayerTakeScoreActionSignature, float, CurrentScore, float, ScoreTake);
 
 /*Attack events*/
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerBeginBasicAttackActionSignature);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerBasicAttackHitActionSignature, AActor*, OtherHit);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerEndBasicAttackActionSignature);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerBeginChargeActionSignature);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerChargeHitActionSignature, AActor*, OtherHit);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerEndChargeActionSignature);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerBeginTourbilolActionSignature);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerTourbilolHitActionSignature, AActor*, OtherHit);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerEndTourbilolActionSignature);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerBeginEvilCapacityActionSignature);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerEndEvilCapacityActionSignature);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerBeginSwitchCameraActionSignature);
@@ -75,7 +84,7 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float BasicAttackSpeed = 1.f;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float ChargeImpulsionForce = 2000.f;
 
@@ -96,13 +105,13 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
     float WeakZoneDamageMultiplicator = 2.f;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float MaxRage = 1000.f;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
     float Rage = 0.f;
-    
+
     UPROPERTY(Category = Stats, EditAnywhere)
     uint8 MaxLevel = 5;
 
@@ -112,11 +121,11 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
     int32 Score = 0;
 
-     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
-     float DurationOfTheSlowdownEvil = 5.f;
-    
-     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
-     float WorldSlowingSpeedEvil = 0.25f;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
+    float DurationOfTheSlowdownEvil = 5.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
+    float WorldSlowingSpeedEvil = 0.25f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float PlayerSlowingSpeedEvil = 1.25f;
@@ -129,10 +138,11 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats, meta=(UIMin = "0.0", UIMax = "1.0"))
     float LosingScoreRatioOnDeath = 0.f;
-    
-    bool bTourbillolIsUnlock      = false;
-    bool bEvilSpellAttackIsUnlock = false;
-    bool bEvilSpellCapacityIsUnlock = false;
+
+
+    bool         bTourbillolIsUnlock        = false;
+    bool         bEvilSpellAttackIsUnlock   = false;
+    bool         bEvilSpellCapacityIsUnlock = false;
     FTimerHandle MemberTimerEvilCapacity;
 
 
@@ -217,18 +227,20 @@ public:
     FOnPlayerBeginSwitchCameraActionSignature OnPlayerBeginSwitchCamera;
 
 private:
-    
-    bool bAttacking = false;
-    bool bCanAttack = true;
-    bool bCanCharge = true;
-    bool bCanTourbillol = true;
+
+    bool bAttacking            = false;
+    bool bCanAttack            = true;
     bool bCanEvilSpellCapacity = true;
 
+protected :
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool bCanDoAction = true;
+
 public:
-    
+
     UPROPERTY(EditAnywhere,BlueprintReadOnly, Category=Attack)
     class UAnimMontage* Attack;
-    
+
     /** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
     UPROPERTY(VisibleAnywhere, Category = Camera)
     float BaseTurnRate;
@@ -236,10 +248,9 @@ public:
     /** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
     UPROPERTY(VisibleAnywhere, Category = Camera)
     float BaseLookUpRate;
-    
+
 public:
     ABasePlayer();
-
 
 
 public:
@@ -328,17 +339,11 @@ protected:
     void SetCanAttack(bool bNewCanAttack);
 
     UFUNCTION(BlueprintCallable, Category = Attack)
-    void SetCanCharge(bool bNewCanCharge);
-
-    UFUNCTION(BlueprintCallable, Category = Attack)
-    void SetCanTourbillol(bool bNewCanTourbillol);
-
-    UFUNCTION(BlueprintCallable, Category = Attack)
     void SetCanEvilCapacity();
 
     virtual void OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-                                      UPrimitiveComponent* OtherComp, int32        OtherBodyIndex, bool bFromSweep,
-                                      const FHitResult&    SweepResult) override;
+                                               UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+                                               const FHitResult&    SweepResult) override;
 
     UFUNCTION()
     void OnChargeBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -400,5 +405,3 @@ public:
 
     void EvilHealing();
 };
-
-
