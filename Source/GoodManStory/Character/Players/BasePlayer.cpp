@@ -147,6 +147,7 @@ void ABasePlayer::Charge()
         return;
 
     bCanDoAction = false;
+    bCanAttack = false;
     
     /*Play animation and activate/Desactivate collider*/
     PlayAnimMontage(SlotAnimationsCharge);
@@ -183,7 +184,9 @@ void ABasePlayer::TourbilolAttack()
     if (!bTourbillolIsUnlock || !bCanDoAction)
         return;
 
-    bCanDoAction = true;
+    bCanDoAction = false;
+    bCanAttack = false;
+    bDoTourbilol = true;
     
     PlayAnimMontage(SlotAnimationsTourbillol);
     
@@ -267,9 +270,6 @@ void ABasePlayer::LookUpAtRate(float Rate)
 void ABasePlayer::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-
-    PRINTBOOL(bCanAttack)
-    //PRINTBOOL(bCanDoAction)
     
     CameraBoom->Update(DeltaTime);
 
@@ -334,8 +334,8 @@ void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
         if (UNLIKELY(!Enemy))
             return;
 
-        /*Add the actor on if is has not already hit by the fire ball*/
-        if (UNLIKELY(MonoHitBehavioursComponent->CheckIfAlreadyExistAndAdd(OtherActor)))
+        /*Add the actor on if is has not already hit*/
+        if (UNLIKELY(!bDoTourbilol && MonoHitBehavioursComponent->CheckIfAlreadyExistAndAdd(OtherActor)))
             return;
         
         if (UNLIKELY(OtherComp->ComponentHasTag(TEXT("CharacterWeakZone"))))

@@ -229,6 +229,7 @@ public:
 private:
 
     bool bAttacking            = false;
+    bool bDoTourbilol          = false;
     bool bCanAttack            = true;
     bool bCanEvilSpellCapacity = true;
 
@@ -398,6 +399,12 @@ public:
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE int32 GetScore() const noexcept { return Score; }
 
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    FORCEINLINE bool IsDoTourbilol() const { return bDoTourbilol; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetDoTourbilol(bool bNewDoTourbilol) { bDoTourbilol = bNewDoTourbilol; }
+    
     UFUNCTION(BlueprintCallable, Category = Stats)
     void AddScore(int32 AdditionalScore) noexcept;
 
