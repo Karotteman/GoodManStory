@@ -382,5 +382,5 @@ void ABaseBoss::BeginPlay()
     });
     GroundZone->SetRelativeLocation(FVector{0.f, 0.f, -GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()});
 
-    SetLevel(Cast<ABasePlayer>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0))->GetPlayerLevel());
+    //SetLevel(Cast<ABasePlayer>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0))->GetPlayerLevel());
 }
