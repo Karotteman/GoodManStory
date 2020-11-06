@@ -331,10 +331,23 @@ void AEnemiesManager::ResetCurrentWave()
 
     for (auto&& EnemiesStat : EnemiesStatsContainer)
     {
+        for (auto&& LivingEntity : EnemiesStat.LivingEnemyContainer)
+        {
+            LivingEntity->Destroy();
+        }
         EnemiesStat.LivingEnemyContainer.Reset();
     }
 
-    DeathEnemyContainer.Reset();
+    for (auto&& DeathEntity : DeathEnemyContainer)
+    {
+        DeathEntity->Destroy();
+    }    
+   DeathEnemyContainer.Reset();
+
+    for (auto&& DeathWeapon : DeathWeaponContainer)
+    {
+        DeathWeapon->Destroy();
+    }
     DeathWeaponContainer.Reset();
 
     for (int i = 0; i < pCurrentWave->SpawnInfoContainer.Num(); ++i)
