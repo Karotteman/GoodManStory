@@ -30,6 +30,8 @@ void ARepulsiveFireBall::OnChocWaveZoneBeginOverlap(UPrimitiveComponent* Overlap
     /*Add the actor on if is has not already hit by the fire ball*/
     if (UNLIKELY(MonoHitBehavioursComponent->CheckIfAlreadyExistAndAdd(OtherActor)))
        return;
+
+    OnFireBallHitActor.Broadcast(OtherActor);
     
     ABaseCharacter* pCharacter = Cast<ABaseCharacter>(OtherActor);
 
@@ -44,6 +46,7 @@ void ARepulsiveFireBall::OnChocWaveZoneBeginOverlap(UPrimitiveComponent* Overlap
 
     if (UNLIKELY(pPlayer)) //More chance to hit trash than the player
     {
+        OnFireBallHitPlayer.Broadcast(pPlayer);
         pPlayer->TakeDamageCharacter(Damage);
     }
 

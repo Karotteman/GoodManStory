@@ -20,7 +20,8 @@ void AExplosiveFireBall::OnFireBallBeginOverlap(UPrimitiveComponent* OverlappedC
     ChocWaveZone->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
     for (AActor* pActor : pActorsOverllapingWithChocWave)
-    {        
+    {
+        OnFireBallHitActor.Broadcast(pActor);
         ABaseCharacter* pCharacter = Cast<ABaseCharacter>(pActor);
 
         FVector LaunchForce = pActor->GetActorLocation() - GetActorLocation();
@@ -34,6 +35,7 @@ void AExplosiveFireBall::OnFireBallBeginOverlap(UPrimitiveComponent* OverlappedC
 
         if (pPlayer)
         {
+            OnFireBallHitPlayer.Broadcast(pPlayer);
             pPlayer->TakeDamageCharacter(Damage);
         }
 
