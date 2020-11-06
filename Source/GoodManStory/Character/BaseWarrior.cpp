@@ -75,6 +75,12 @@ TArray<AActor*> ABaseWarrior::DropOwnedObjects()
 
 void ABaseWarrior::AttackActiveHitBox(bool bIsActive, UBoxComponent* SelectedBoxWeapon)
 {
+    if (UNLIKELY(!IsValid(SelectedBoxWeapon)))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Crash avoided with unvalid Uobject in function AttackActiveHitBox of ABaseWarrior"));
+        return;
+    }
+    
     if (bIsActive)
         SelectedBoxWeapon->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     else

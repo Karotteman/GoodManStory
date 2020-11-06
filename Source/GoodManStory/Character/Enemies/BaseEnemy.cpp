@@ -24,7 +24,7 @@ ABaseEnemy::ABaseEnemy()
     GetMesh()->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Overlap); 
     GetCapsuleComponent()->SetCollisionObjectType(COLLISION_CHANNEL_ENEMY);
     GetCapsuleComponent()->ComponentTags.Add(FName("Body"));
-
+    
     AutoPossessAI = EAutoPossessAI::Spawned;
 }
 
@@ -43,6 +43,8 @@ void ABaseEnemy::Kill()
     GetCapsuleComponent()->SetCollisionProfileName("NoCollision");
     Cast<AAIController>(GetController())->BrainComponent->StopLogic(TEXT("dead"));
     GetCharacterMovement()->SetAvoidanceEnabled(false);
+
+    StopAnimMontage();
 
     ABasePlayer* player = Cast<ABasePlayer>(GetWorld()->GetFirstPlayerController()->GetPawn());
     if(!player->EvilSpellIsActive())
