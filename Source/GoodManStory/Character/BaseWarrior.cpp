@@ -16,6 +16,12 @@ AActor* ABaseWarrior::DropOwnedObject(UStaticMeshComponent* pObjectToDrop)
 
     AActor* pNewObject = GetWorld()->SpawnActor<AActor>(AActor::StaticClass(), WeaponTransform);
 
+    if (UNLIKELY(!IsValid(pNewObject)))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Crash avoided with unvalid Uobject in function DropOwnedObject"));
+        return nullptr;
+    }
+    
     UStaticMeshComponent* NewWeaponStaticMesh = NewObject<UStaticMeshComponent>(this, TEXT("ObjectStaticMesh"));
     NewWeaponStaticMesh->CreationMethod       = EComponentCreationMethod::Native;
     NewWeaponStaticMesh->AttachToComponent(pNewObject->GetRootComponent(),
@@ -47,16 +53,34 @@ TArray<AActor*> ABaseWarrior::DropOwnedObjects()
     TArray<AActor*> ObjectContainer;
 
     if (LeftHandObject)
-        ObjectContainer.Add(DropOwnedObject(LeftHandObject));
-
+    {
+        AActor* pObject = DropOwnedObject(LeftHandObject);
+        if (LIKELY(IsValid(pObject)))
+        {
+            ObjectContainer.Add(pObject);
+        }
+    }
+    
     if (RightHandObject)
-        ObjectContainer.Add(DropOwnedObject(RightHandObject));
-
+    {
+        AActor* pObject = DropOwnedObject(RightHandObject);
+        if (LIKELY(IsValid(pObject)))
+        {
+            ObjectContainer.Add(pObject);
+        }
+    }
+    
     return ObjectContainer;
 }
 
 void ABaseWarrior::AttackActiveHitBox(bool bIsActive, UBoxComponent* SelectedBoxWeapon)
 {
+    if (UNLIKELY(!IsValid(SelectedBoxWeapon)))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Crash avoided with unvalid Uobject in function AttackActiveHitBox of ABaseWarrior"));
+        return;
+    }
+    
     if (bIsActive)
         SelectedBoxWeapon->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     else

@@ -190,6 +190,12 @@ void AEnemiesManager::Spawn(float DeltaTime)
                                                                   SpawnersContainer[IndexSpawner]->GetActorRotation(),
                                                                   SpawnParams);
 
+        if (UNLIKELY(!IsValid(NewEnemy)))
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Crash avoided with unvalid Uobject in function Spawn of EnemiesManager"));
+            continue;
+        }
+
         /*Generate rqandom scale if entity use RandomScale with limits*/
         float Scale;
         if (NewEnemy->bRandomSize)

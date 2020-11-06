@@ -27,7 +27,7 @@
 /*Debug*/
 #include <Utility/Utility.h>
 #include "Containers/UnrealString.h"
-
+#include "Kismet/KismetSystemLibrary.h"
 
 
 #define COLLISION_CHANNEL_PLAYER ECC_GameTraceChannel1
@@ -143,9 +143,11 @@ void ABasePlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
 
 void ABasePlayer::Charge()
 {
-    if (GetCharacterMovement()->IsFalling() || !bCanCharge || !bCanAttack)
+    if (GetCharacterMovement()->IsFalling() || !bCanCharge || bAttacking)
         return;
 
+    bAttacking = true;
+    
     /*Play animation and activate/Desactivate collider*/
     PlayAnimMontage(SlotAnimationsCharge);
 
@@ -154,22 +156,22 @@ void ABasePlayer::Charge()
 }
 
 void ABasePlayer::BasicAttack()
-{
-    if (bCanAttack)
-    {        
-        bAttacking = true;
-        bCanAttack = false;
-        PlayAnimMontage(SlotAnimationsAttackCombo[BasicAttackComboCount], BasicAttackSpeed);
-        MonoHitBehavioursComponent->Reset();
+{    
+    if (!bCanAttack && bAttacking)
+        return;
+    
+    bAttacking = true;
+    bCanAttack = false;
+    PlayAnimMontage(SlotAnimationsAttackCombo[BasicAttackComboCount], BasicAttackSpeed);
+    MonoHitBehavioursComponent->Reset();
 
-        OnPlayerBeginBasicAttack.Broadcast();
-        
-        if (BasicAttackComboCount >= SlotAnimationsAttackCombo.Num() - 1)
-            BasicAttackComboCount = 0;
-        else
-            BasicAttackComboCount++;
-    }
-
+    OnPlayerBeginBasicAttack.Broadcast();
+    
+    if (BasicAttackComboCount >= SlotAnimationsAttackCombo.Num() - 1)
+        BasicAttackComboCount = 0;
+    else
+        BasicAttackComboCount++;
+    
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
                                          "BasicAttack combo:" + FString::FromInt(BasicAttackComboCount));
@@ -177,14 +179,13 @@ void ABasePlayer::BasicAttack()
 
 void ABasePlayer::TourbilolAttack()
 {
-    if (!bTourbillolIsUnlock)
+    if (!bTourbillolIsUnlock || bAttacking || !bCanTourbillol)
         return;
 
-    if (bCanTourbillol)
-    {
-        bCanTourbillol = false;
-        PlayAnimMontage(SlotAnimationsTourbillol);
-    }
+    bCanTourbillol = false;
+    bAttacking = true;
+    PlayAnimMontage(SlotAnimationsTourbillol);
+    
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("TourbilolAttack"));
 }
@@ -368,6 +369,7 @@ void ABasePlayer::SetCanTourbillol(bool bNewCanTourbillol)
 {
     bCanTourbillol = bNewCanTourbillol;    
     bCanAttack     = bNewCanTourbillol;
+    bAttacking     = false;
 }
 
 
