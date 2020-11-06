@@ -196,8 +196,8 @@ void ABasePlayer::TourbilolAttack()
 
 void ABasePlayer::EvilSpellAttack()
 {
-    if (!bEvilSpellAttackIsUnlock)
-        return;
+    /*if (!bEvilSpellAttackIsUnlock)
+        return;*/
 
     //if (GEngine)
     //    GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellAttack"));
