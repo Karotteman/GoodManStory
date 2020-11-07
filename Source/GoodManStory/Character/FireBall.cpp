@@ -16,14 +16,25 @@
 void AFireBall::OnFireBallBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	OnFireBallHitActor.Broadcast(OtherActor);
 	ABasePlayer* pPlayer = Cast<ABasePlayer>(OtherActor);
 
 	if (pPlayer)
 	{
+		OnFireBallHitPlayer.Broadcast(pPlayer);
 		pPlayer->TakeDamageCharacter(Damage);
 	}
 
-    Destroy();
+	if (!DestroyOnlyIfGroundTagFound || OtherComp->ComponentHasTag(TEXT("FireBallDestroyabale")))
+	{
+		Destroy();
+	}
+}
+
+void AFireBall::Destroyed()
+{
+	Super::Destroyed();
+	OnFireBallDestroy.Broadcast();
 }
 
 // Sets default values
@@ -48,7 +59,7 @@ AFireBall::AFireBall()
 	Collider->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
 	Collider->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Overlap);
 
-	Collider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	Collider->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Collider->SetCollisionObjectType(COLLISION_CHANNEL_FIREBALL);
 	
 	Collider->OnComponentBeginOverlap.AddDynamic(this, &AFireBall::OnFireBallBeginOverlap);
@@ -83,7 +94,6 @@ AFireBall::AFireBall()
 		Mesh->SetCanEverAffectNavigation(false);
 		Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
-	
 }
 
 // Called when the game starts or when spawned
@@ -91,15 +101,8 @@ void AFireBall::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SpawnPoint = GetActorLocation();
 	OnFireBallSpawn.Broadcast();
-	
-}
-
-void AFireBall::BeginDestroy()
-{
-	Super::BeginDestroy();
-	
-	OnFireBallDestroy.Broadcast();
 }
 
 // Called every frame
@@ -107,6 +110,8 @@ void AFireBall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if ((GetActorLocation() - SpawnPoint).SizeSquared() > MaxRangeLife * MaxRangeLife)
+		Destroy();
 }
 
 void AFireBall::Throw(float Force)

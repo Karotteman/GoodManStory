@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 
+#include <Utility/Utility.h>
+
+
 #include "BaseEnemy.h"
 #include "BaseBoss.generated.h"
 
@@ -30,6 +33,9 @@ class GOODMANSTORY_API ABaseBoss : public ABaseEnemy
 
 protected :
 
+    UPROPERTY(EditAnywhere)
+    class USphereComponent* HeadCollision;
+    
     UPROPERTY(EditAnywhere, Category= "Punch | Attack")
     class USphereComponent* PunchZone;
 
@@ -80,6 +86,21 @@ protected :
 
     UPROPERTY(BlueprintAssignable)
     FOnLevelUpActionSignatureBoss OnUpgradLevel5;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stats")
+    float StatsForLevel1 = 1000.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stats")
+    float StatsForLevel2 = 2000.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stats")
+    float StatsForLevel3 = 3000.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stats")
+    float StatsForLevel4 = 5000.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stats")
+    float StatsForLevel5 = 10000.f;
 
 public :
 
@@ -143,7 +164,7 @@ protected :
     class USphereComponent* GroundAttackZone;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "GroundAttack")
-    float GroundAttackZoneRadius = 1000.f;
+    float GroundAttackZoneRadius = 300.f;
 
     UPROPERTY(EditAnywhere)
     class UBoxComponent* GroundZone;
@@ -171,13 +192,16 @@ protected :
     float GroundAttackDamage = 10.f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "GroundAttack | Attack")
-    float GroundAttackChocForce = 5000.f;
+    float GroundAttackChocForce = 1000.f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "GroundAttack | Attack")
     float GroundAttackChocForceHeightRatio = 1.f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(UIMin = "0.0"), Category= "GroundAttack | Attack")
     float GroundAttackCooldown = 2.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "ChocWave")
+    bool ChocForceDependingOfDistance = true;
 
 protected :
 
