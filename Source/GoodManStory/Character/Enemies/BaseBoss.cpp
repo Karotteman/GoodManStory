@@ -111,6 +111,7 @@ void ABaseBoss::OnGroundAttackZoneEndOverlap(UPrimitiveComponent* OverlappedComp
 ABaseBoss::ABaseBoss()
 {
     GetCapsuleComponent()->SetGenerateOverlapEvents(false);
+    GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_CHANNEL_TRASH, ECollisionResponse::ECR_Ignore);
 
     GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
     GetMesh()->SetGenerateOverlapEvents(false);
