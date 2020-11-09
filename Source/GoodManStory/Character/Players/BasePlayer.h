@@ -19,7 +19,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnPlayerTakeRageActionSignature,
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayerTakeScoreActionSignature, float, CurrentScore, float, ScoreTake);
 
 /*Attack events*/
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerBeginBasicAttackActionSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerBeginBasicAttackActionSignature, int, IndexCurrentCombo);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerBasicAttackHitActionSignature, AActor*, OtherHit);
 
@@ -200,12 +200,11 @@ public:
     UPROPERTY(BlueprintAssignable)
     FOnPlayerBeginChargeActionSignature OnPlayerBeginCharge;
 
-    //UPROPERTY(BlueprintAssignable)
-    //FOnPlayerChargeHitActionSignature OnPlayerChargeHit;
+    UPROPERTY(BlueprintAssignable)
+    FOnPlayerChargeHitActionSignature OnPlayerChargeHit;
 
-    //UPROPERTY(BlueprintAssignable)
-    //FOnPlayerEndChargeActionSignature OnPlayerEndCharge;
-
+    UPROPERTY(BlueprintAssignable)
+    FOnPlayerEndChargeActionSignature OnPlayerEndCharge;
 
     UPROPERTY(BlueprintAssignable)
     FOnPlayerBeginTourbilolActionSignature OnPlayerBeginTourbilol;
@@ -355,6 +354,9 @@ protected:
 
     UFUNCTION(BlueprintCallable, Category = "Attack")
     void ChargeActiveHitBox(bool bIsActive);
+
+    UFUNCTION(BlueprintCallable, Category = "Attack")
+    void Stopcharge();
 
 public:
     /** Returns CameraBoom subobject **/

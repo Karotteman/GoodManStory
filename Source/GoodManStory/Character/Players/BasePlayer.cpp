@@ -167,7 +167,7 @@ void ABasePlayer::BasicAttack()
     PlayAnimMontage(SlotAnimationsAttackCombo[BasicAttackComboCount], BasicAttackSpeed);
     MonoHitBehavioursComponent->Reset();
 
-    OnPlayerBeginBasicAttack.Broadcast();
+    OnPlayerBeginBasicAttack.Broadcast(BasicAttackComboCount);
     
     if (BasicAttackComboCount >= SlotAnimationsAttackCombo.Num() - 1)
         BasicAttackComboCount = 0;
@@ -454,6 +454,8 @@ void ABasePlayer::OnChargeBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
         ABaseEnemy* pEnemy = Cast<ABaseEnemy>(OtherActor);
         if (pEnemy && pEnemy->IsEjectOnCharge())
         {
+            OnPlayerChargeHit.Broadcast(pEnemy);
+            
             FVector LaunchForce = OtherActor->GetActorLocation() - GetActorLocation();
             LaunchForce.Normalize();
             LaunchForce *= pEnemy->ForceEjection;
@@ -499,6 +501,11 @@ void ABasePlayer::ChargeActiveHitBox(bool bIsActive)
         GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
         SphericChargeZone->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     }
+}
+
+void ABasePlayer::Stopcharge()
+{
+    OnPlayerEndCharge.Broadcast();
 }
 
 void ABasePlayer::AddScore(int32 AdditionalScore) noexcept
