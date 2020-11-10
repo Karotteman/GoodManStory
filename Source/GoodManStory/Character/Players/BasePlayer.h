@@ -63,13 +63,13 @@ class GOODMANSTORY_API ABasePlayer : public ABaseWarrior
 
 protected:
 
-    UPROPERTY(EditAnywhere, Category = Attack)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
     TArray<UAnimMontage*> SlotAnimationsAttackCombo;
 
-    UPROPERTY(EditAnywhere, Category = Attack)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
     UAnimMontage* SlotAnimationsCharge;
 
-    UPROPERTY(EditAnywhere, Category = Attack)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
     UAnimMontage* SlotAnimationsTourbillol;
 
     uint8 BasicAttackComboCount = 0;
@@ -215,7 +215,6 @@ public:
     //UPROPERTY(BlueprintAssignable)
     //FOnPlayerEndTourbilolActionSignature OnPlayerEndTourbilol;
 
-
     UPROPERTY(BlueprintAssignable)
     FOnPlayerBeginEvilCapacityActionSignature OnPlayerBeginEvilCapacity;
 
@@ -251,7 +250,6 @@ public:
 
 public:
     ABasePlayer();
-
 
 public:
 
