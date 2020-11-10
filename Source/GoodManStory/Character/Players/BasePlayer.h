@@ -392,12 +392,6 @@ public:
     bool IsEvilSpellCapacityIsUnlock() const { return bEvilSpellCapacityIsUnlock; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
-    void SetEvilSpellCapacityIsUnlock(bool bNewEvilSpellCapacityIsUnlock)
-    {
-        bEvilSpellCapacityIsUnlock = bNewEvilSpellCapacityIsUnlock;
-    }
-
-    UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetRageRatio() const noexcept { return Rage / MaxRage; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
