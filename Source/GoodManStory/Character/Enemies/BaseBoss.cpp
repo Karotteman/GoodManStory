@@ -112,10 +112,12 @@ ABaseBoss::ABaseBoss()
 {
     GetCapsuleComponent()->SetGenerateOverlapEvents(false);
     GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_CHANNEL_TRASH, ECollisionResponse::ECR_Ignore);
+    GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Ignore);
+    GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 
     GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
     GetMesh()->SetGenerateOverlapEvents(false);
-    GetMesh()->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Overlap);
+    GetMesh()->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Block);
     GetMesh()->SetCollisionObjectType(COLLISION_CHANNEL_ENEMY);
     GetMesh()->bMultiBodyOverlap = false;
 
@@ -235,6 +237,7 @@ ABaseBoss::ABaseBoss()
     BoxShield->SetCollisionResponseToChannel(COLLISION_CHANNEL_TRASH, ECollisionResponse::ECR_Ignore);
     BoxShield->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 
+    bIsStunable      = false;
     bIsPushable      = false;
     bIsEjectOnCharge = false;
     bIsEjectOnAttack = false;
