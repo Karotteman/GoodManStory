@@ -111,9 +111,11 @@ void ABaseBoss::OnGroundAttackZoneEndOverlap(UPrimitiveComponent* OverlappedComp
 ABaseBoss::ABaseBoss()
 {
     GetCapsuleComponent()->SetGenerateOverlapEvents(false);
-    GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_CHANNEL_TRASH, ECollisionResponse::ECR_Ignore);
-    GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Ignore);
-    GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+    GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+    GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic,
+                                                         ECollisionResponse::ECR_Block);
+    GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic,
+                                                         ECollisionResponse::ECR_Block);
 
     GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
     GetMesh()->SetGenerateOverlapEvents(false);
@@ -131,7 +133,7 @@ ABaseBoss::ABaseBoss()
     HeadCollision->SetCollisionObjectType(COLLISION_CHANNEL_ENEMY);
     HeadCollision->ComponentTags.Add(TEXT("CharacterWeakZone"));
     HeadCollision->ComponentTags.Add(TEXT("Body"));
-    
+
     PunchZone = CreateDefaultSubobject<USphereComponent>("PunchZone");
     PunchZone->SetupAttachment(GetCapsuleComponent());
     PunchZone->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -270,13 +272,14 @@ void ABaseBoss::ThrowFireBall() noexcept
     SpawnParams.Owner                          = nullptr;
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-    FVector SpawnLocation = GetMesh()->GetBoneLocation(FireBallSpawningBoneName, EBoneSpaces::WorldSpace) + GetActorForwardVector() * 100.f;
+    FVector SpawnLocation = GetMesh()->GetBoneLocation(FireBallSpawningBoneName, EBoneSpaces::WorldSpace) +
+        GetActorForwardVector() * 100.f;
 
     FVector  PlayerLoc            = GetWorld()->GetFirstPlayerController()->GetCharacter()->GetActorLocation();
     FRotator RotationTowardPlayer = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, PlayerLoc);
 
     AFireBall* NewFireBall = GetWorld()->SpawnActor<AFireBall>(FireBallType.Get(), SpawnLocation, RotationTowardPlayer,
-                                                              SpawnParams);
+                                                               SpawnParams);
 
     if (NewFireBall)
     {
@@ -304,12 +307,15 @@ void ABaseBoss::DoChocWave() noexcept
     ExternChocWaveZone->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
     for (AActor* pActor : pActorsOverllapingWithChocWave)
-    {        
+    {
         ABaseCharacter* pCharacter = Cast<ABaseCharacter>(pActor);
 
-        FVector LaunchForce = pActor->GetActorLocation() - GetActorLocation();
-        const float ChocForceWithDistance = GroundAttackChocForce * (ChocForceDependingOfDistance ? 1.f : 1.f - (LaunchForce
-        .SizeSquared() / (ExternChocWaveZone->GetScaledSphereRadius() * ExternChocWaveZone->GetScaledSphereRadius())));
+        FVector     LaunchForce           = pActor->GetActorLocation() - GetActorLocation();
+        const float ChocForceWithDistance = GroundAttackChocForce * (ChocForceDependingOfDistance ? 1.f :
+                                                                         1.f - (LaunchForce.SizeSquared() / (
+                                                                             ExternChocWaveZone->GetScaledSphereRadius()
+                                                                             * ExternChocWaveZone->
+                                                                             GetScaledSphereRadius())));
         LaunchForce.Normalize();
         LaunchForce *= ChocForceWithDistance;
         LaunchForce.Z = GroundAttackChocForceHeightRatio * ChocForceWithDistance;
@@ -336,24 +342,24 @@ void ABaseBoss::SetLevel(uint8 NewLevel) noexcept
         case 0:
             OnUpgradLevel1.Broadcast(Level);
             break;
-            
+
         case 1:
             OnUpgradLevel1.Broadcast(Level);
             OnUpgradLevel2.Broadcast(Level);
-        break;
+            break;
 
         case 2:
             OnUpgradLevel1.Broadcast(Level);
             OnUpgradLevel2.Broadcast(Level);
             OnUpgradLevel3.Broadcast(Level);
-        break;
+            break;
 
         case 3:
             OnUpgradLevel1.Broadcast(Level);
             OnUpgradLevel2.Broadcast(Level);
             OnUpgradLevel3.Broadcast(Level);
             OnUpgradLevel4.Broadcast(Level);
-        break;
+            break;
 
         case 4:
             OnUpgradLevel1.Broadcast(Level);
@@ -361,7 +367,7 @@ void ABaseBoss::SetLevel(uint8 NewLevel) noexcept
             OnUpgradLevel3.Broadcast(Level);
             OnUpgradLevel4.Broadcast(Level);
             OnUpgradLevel5.Broadcast(Level);
-        break;
+            break;
 
         default: ;
     }
