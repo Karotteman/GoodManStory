@@ -140,7 +140,7 @@ protected:
     float LosingScoreRatioOnDeath = 0.f;
 
 
-    bool         bTourbillolIsUnlock        = false;
+    bool bTourbillolIsUnlock = false;
     //bool         bEvilSpellAttackIsUnlock   = false;
     bool         bEvilSpellCapacityIsUnlock = false;
     FTimerHandle MemberTimerEvilCapacity;
@@ -374,21 +374,19 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     bool EvilSpellIsActive() const { return bCanEvilSpellCapacity; }
-    
-    UFUNCTION(BlueprintCallable, Category = Stats)
-    void SetEvilSpellCapacityIsUnlock(bool bNewEvilSpellCapacityIsUnlock) { bEvilSpellCapacityIsUnlock = bNewEvilSpellCapacityIsUnlock; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     void SetTourbillolIsUnlock(bool bNewTourbillolIsUnlock) { bTourbillolIsUnlock = bNewTourbillolIsUnlock; }
-/*
-    UFUNCTION(BlueprintCallable, Category = Stats)
-    bool IsEvilSpellAttackIsUnlock() const { return bEvilSpellAttackIsUnlock; }
 
-    UFUNCTION(BlueprintCallable, Category = Stats)
-    void SetEvilSpellAttackIsUnlock(bool bNewEvilSpellAttackIsUnlock)
-    {
-        bEvilSpellAttackIsUnlock = bNewEvilSpellAttackIsUnlock;
-    }*/
+    /*
+        UFUNCTION(BlueprintCallable, Category = Stats)
+        bool IsEvilSpellAttackIsUnlock() const { return bEvilSpellAttackIsUnlock; }
+    
+        UFUNCTION(BlueprintCallable, Category = Stats)
+        void SetEvilSpellAttackIsUnlock(bool bNewEvilSpellAttackIsUnlock)
+        {
+            bEvilSpellAttackIsUnlock = bNewEvilSpellAttackIsUnlock;
+        }*/
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     bool IsEvilSpellCapacityIsUnlock() const { return bEvilSpellCapacityIsUnlock; }
@@ -416,7 +414,7 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     void SetDoTourbilol(bool bNewDoTourbilol) { bDoTourbilol = bNewDoTourbilol; }
-    
+
     UFUNCTION(BlueprintCallable, Category = Stats)
     void AddScore(int32 AdditionalScore) noexcept;
 
