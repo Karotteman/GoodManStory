@@ -132,6 +132,7 @@ protected:
     
     bool bTourbillolIsUnlock      = false;
     bool bEvilSpellAttackIsUnlock = false;
+    
     bool bEvilSpellCapacityIsUnlock = false;
     FTimerHandle MemberTimerEvilCapacity;
 
@@ -368,6 +369,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     bool EvilSpellIsActive() const { return bCanEvilSpellCapacity; }
+    
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetEvilSpellCapacityIsUnlock(bool bNewEvilSpellCapacityIsUnlock) { bEvilSpellCapacityIsUnlock = bNewEvilSpellCapacityIsUnlock; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     void SetTourbillolIsUnlock(bool bNewTourbillolIsUnlock) { bTourbillolIsUnlock = bNewTourbillolIsUnlock; }
