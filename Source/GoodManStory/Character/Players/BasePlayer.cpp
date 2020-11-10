@@ -143,10 +143,11 @@ void ABasePlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
 
 void ABasePlayer::Charge()
 {
-    if (GetCharacterMovement()->IsFalling() || !bCanCharge || bAttacking)
+    if (GetCharacterMovement()->IsFalling() || !bCanDoAction)
         return;
 
-    bAttacking = true;
+    bCanDoAction = false;
+    bCanAttack = false;
     
     /*Play animation and activate/Desactivate collider*/
     PlayAnimMontage(SlotAnimationsCharge);
@@ -157,15 +158,16 @@ void ABasePlayer::Charge()
 
 void ABasePlayer::BasicAttack()
 {    
-    if (!bCanAttack && bAttacking)
+    if (!bCanAttack && !bCanDoAction)
         return;
-    
-    bAttacking = true;
+
+    bCanDoAction = false;
     bCanAttack = false;
+    
     PlayAnimMontage(SlotAnimationsAttackCombo[BasicAttackComboCount], BasicAttackSpeed);
     MonoHitBehavioursComponent->Reset();
 
-    OnPlayerBeginBasicAttack.Broadcast();
+    OnPlayerBeginBasicAttack.Broadcast(BasicAttackComboCount);
     
     if (BasicAttackComboCount >= SlotAnimationsAttackCombo.Num() - 1)
         BasicAttackComboCount = 0;
@@ -179,11 +181,13 @@ void ABasePlayer::BasicAttack()
 
 void ABasePlayer::TourbilolAttack()
 {
-    if (!bTourbillolIsUnlock || bAttacking || !bCanTourbillol)
+    if (!bTourbillolIsUnlock || !bCanDoAction)
         return;
 
-    bCanTourbillol = false;
-    bAttacking = true;
+    bCanDoAction = false;
+    bCanAttack = false;
+    bDoTourbilol = true;
+    
     PlayAnimMontage(SlotAnimationsTourbillol);
     
     if (GEngine)
@@ -192,11 +196,11 @@ void ABasePlayer::TourbilolAttack()
 
 void ABasePlayer::EvilSpellAttack()
 {
-    if (!bEvilSpellAttackIsUnlock)
-        return;
+    /*if (!bEvilSpellAttackIsUnlock)
+        return;*/
 
-    if (GEngine)
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellAttack"));
+    //if (GEngine)
+    //    GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellAttack"));
 }
 
 void ABasePlayer::EvilSpellCapacity()
@@ -266,7 +270,7 @@ void ABasePlayer::LookUpAtRate(float Rate)
 void ABasePlayer::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-
+    
     CameraBoom->Update(DeltaTime);
 
     TArray<AActor*> othersOverllaping;
@@ -312,19 +316,11 @@ void ABasePlayer::ResetCombo()
     MonoHitBehavioursComponent->Reset();
     BasicAttackComboCount = 0;
     bCanAttack            = false;
-    bAttacking            = false;
 }
 
 void ABasePlayer::SetCanAttack(bool bNewCanAttack)
 {
     bCanAttack = bNewCanAttack;
-    bCanCharge = bNewCanAttack; //lock charge
-}
-
-void ABasePlayer::SetCanCharge(bool bNewCanCharge)
-{
-    bCanCharge = bNewCanCharge;
-    bCanAttack = bNewCanCharge; //lock basic attack
 }
 
 void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -338,8 +334,8 @@ void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
         if (UNLIKELY(!Enemy))
             return;
 
-        /*Add the actor on if is has not already hit by the fire ball*/
-        if (UNLIKELY(MonoHitBehavioursComponent->CheckIfAlreadyExistAndAdd(OtherActor)))
+        /*Add the actor on if is has not already hit*/
+        if (UNLIKELY(!bDoTourbilol && MonoHitBehavioursComponent->CheckIfAlreadyExistAndAdd(OtherActor)))
             return;
         
         if (UNLIKELY(OtherComp->ComponentHasTag(TEXT("CharacterWeakZone"))))
@@ -363,15 +359,6 @@ void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
         }
     }
 }
-
-
-void ABasePlayer::SetCanTourbillol(bool bNewCanTourbillol)
-{
-    bCanTourbillol = bNewCanTourbillol;    
-    bCanAttack     = bNewCanTourbillol;
-    bAttacking     = false;
-}
-
 
 void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
 {
@@ -467,6 +454,8 @@ void ABasePlayer::OnChargeBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
         ABaseEnemy* pEnemy = Cast<ABaseEnemy>(OtherActor);
         if (pEnemy && pEnemy->IsEjectOnCharge())
         {
+            OnPlayerChargeHit.Broadcast(pEnemy);
+            
             FVector LaunchForce = OtherActor->GetActorLocation() - GetActorLocation();
             LaunchForce.Normalize();
             LaunchForce *= pEnemy->ForceEjection;
@@ -512,6 +501,11 @@ void ABasePlayer::ChargeActiveHitBox(bool bIsActive)
         GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
         SphericChargeZone->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     }
+}
+
+void ABasePlayer::Stopcharge()
+{
+    OnPlayerEndCharge.Broadcast();
 }
 
 void ABasePlayer::AddScore(int32 AdditionalScore) noexcept

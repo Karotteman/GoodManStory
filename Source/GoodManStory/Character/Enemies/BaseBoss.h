@@ -87,6 +87,21 @@ protected :
     UPROPERTY(BlueprintAssignable)
     FOnLevelUpActionSignatureBoss OnUpgradLevel5;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stats")
+    float StatsForLevel1 = 1000.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stats")
+    float StatsForLevel2 = 2000.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stats")
+    float StatsForLevel3 = 3000.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stats")
+    float StatsForLevel4 = 5000.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Stats")
+    float StatsForLevel5 = 10000.f;
+
 public :
 
     UPROPERTY(BlueprintAssignable)
@@ -187,7 +202,6 @@ protected :
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "ChocWave")
     bool ChocForceDependingOfDistance = true;
-    
 
 protected :
 

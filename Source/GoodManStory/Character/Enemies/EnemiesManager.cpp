@@ -44,7 +44,7 @@ void AEnemiesManager::BeginPlay()
     Super::BeginPlay();
     
     SpawnParams.Owner                          = this;
-    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 }
 
 // Called every frame
@@ -192,7 +192,8 @@ void AEnemiesManager::Spawn(float DeltaTime)
 
         if (UNLIKELY(!IsValid(NewEnemy)))
         {
-            UE_LOG(LogTemp, Warning, TEXT("Crash avoided with unvalid Uobject in function Spawn of EnemiesManager"));
+            PRINTSTR("Enemy canno't spawn")
+            UE_LOG(LogTemp, Warning, TEXT("NewEnemies can't spawn. Spawn of EnemiesManager"));
             continue;
         }
 
@@ -309,7 +310,8 @@ void AEnemiesManager::MoveLivingEnemyOnDeathContainer(ABaseCharacter* pCharacter
             }
             
             /*Kill character*/
-            EnemyStats.LivingEnemyContainer.Remove(Cast<ABaseEnemy>(pCharacter));
+            ABaseEnemy* pEnemy = Cast<ABaseEnemy>(pCharacter);
+            EnemyStats.LivingEnemyContainer.Remove(pEnemy);
             
             if (DeathEnemyContainer.Num() == MaxDeathEnemies)
             {
@@ -319,7 +321,7 @@ void AEnemiesManager::MoveLivingEnemyOnDeathContainer(ABaseCharacter* pCharacter
                 DeathEnemyContainer.RemoveAt(0);
             }            
 
-            DeathEnemyContainer.Add(Cast<ABaseEnemy>(pCharacter));
+            DeathEnemyContainer.Add(pEnemy);
             return;
         }
     }
@@ -337,10 +339,26 @@ void AEnemiesManager::ResetCurrentWave()
 
     for (auto&& EnemiesStat : EnemiesStatsContainer)
     {
+        for (auto&& LivingEntity : EnemiesStat.LivingEnemyContainer)
+        {
+            if (IsValid(LivingEntity))
+                LivingEntity->Destroy();
+        }
         EnemiesStat.LivingEnemyContainer.Reset();
     }
 
-    DeathEnemyContainer.Reset();
+    for (auto&& DeathEntity : DeathEnemyContainer)
+    {
+        if (IsValid(DeathEntity))
+            DeathEntity->Destroy();
+    }    
+   DeathEnemyContainer.Reset();
+
+    for (auto&& DeathWeapon : DeathWeaponContainer)
+    {
+        if (IsValid(DeathWeapon))
+            DeathWeapon->Destroy();
+    }
     DeathWeaponContainer.Reset();
 
     for (int i = 0; i < pCurrentWave->SpawnInfoContainer.Num(); ++i)
