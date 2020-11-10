@@ -378,6 +378,10 @@ public:
     UFUNCTION(BlueprintCallable, Category = Stats)
     void SetTourbillolIsUnlock(bool bNewTourbillolIsUnlock) { bTourbillolIsUnlock = bNewTourbillolIsUnlock; }
 
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetEvilSpellCapacityIsUnlock(bool bNewEvilSpellCapacityIsUnlock) { bEvilSpellCapacityIsUnlock = 
+    bNewEvilSpellCapacityIsUnlock; }
+    
     /*
         UFUNCTION(BlueprintCallable, Category = Stats)
         bool IsEvilSpellAttackIsUnlock() const { return bEvilSpellAttackIsUnlock; }
