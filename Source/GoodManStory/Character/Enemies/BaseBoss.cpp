@@ -277,8 +277,7 @@ void ABaseBoss::ThrowFireBall() noexcept
     SpawnParams.Owner                          = nullptr;
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-    FVector SpawnLocation = GetMesh()->GetBoneLocation(FireBallSpawningBoneName, EBoneSpaces::WorldSpace) +
-        GetActorForwardVector() * 100.f;
+    FVector SpawnLocation = GetMesh()->GetSocketLocation(FireBallSpawningBoneName);
 
     FVector  PlayerLoc            = GetWorld()->GetFirstPlayerController()->GetCharacter()->GetActorLocation();
     FRotator RotationTowardPlayer = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, PlayerLoc);
