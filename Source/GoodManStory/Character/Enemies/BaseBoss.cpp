@@ -255,7 +255,7 @@ void ABaseBoss::Punch() noexcept
 void ABaseBoss::GroundAttack() noexcept
 {
     bAttacking = true;
-    PlayAnimMontage(GroundAttackAnimMontage, PunchSpeed);
+    PlayAnimMontage(GroundAttackAnimMontage, GroundAttackSpeed);
     OnGroundAttack.Broadcast();
 }
 
