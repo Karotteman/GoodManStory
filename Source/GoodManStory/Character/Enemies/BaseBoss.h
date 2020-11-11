@@ -129,6 +129,15 @@ public :
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     bool bPlayerIsOnPunchZone;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool bCanPunch = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool bCanGroundAttack = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool bCanThrowFireBall = true;
+    
 public :
 
     UPROPERTY(EditAnywhere,BlueprintReadOnly, Category= "Punch | Attack")

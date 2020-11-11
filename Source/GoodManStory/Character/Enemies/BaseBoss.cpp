@@ -248,6 +248,7 @@ ABaseBoss::ABaseBoss()
 void ABaseBoss::Punch() noexcept
 {
     bAttacking = true;
+    bCanPunch = false;
     PlayAnimMontage(PunchAttack, PunchSpeed);
     OnPunch.Broadcast();
 }
@@ -255,6 +256,7 @@ void ABaseBoss::Punch() noexcept
 void ABaseBoss::GroundAttack() noexcept
 {
     bAttacking = true;
+    bCanGroundAttack = false;
     PlayAnimMontage(GroundAttackAnimMontage, GroundAttackSpeed);
     OnGroundAttack.Broadcast();
 }
@@ -262,6 +264,7 @@ void ABaseBoss::GroundAttack() noexcept
 void ABaseBoss::FireBallAttack() noexcept
 {
     bAttacking = true;
+    bCanThrowFireBall = false;
     PlayAnimMontage(FireBallAttackSpeedAnimMontage, FireBallAttackSpeed);
     OnFireBallAttackBegin.Broadcast();
 }
