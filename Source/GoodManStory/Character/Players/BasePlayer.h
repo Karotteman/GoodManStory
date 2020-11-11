@@ -63,13 +63,13 @@ class GOODMANSTORY_API ABasePlayer : public ABaseWarrior
 
 protected:
 
-    UPROPERTY(EditAnywhere, Category = Attack)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
     TArray<UAnimMontage*> SlotAnimationsAttackCombo;
 
-    UPROPERTY(EditAnywhere, Category = Attack)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
     UAnimMontage* SlotAnimationsCharge;
 
-    UPROPERTY(EditAnywhere, Category = Attack)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
     UAnimMontage* SlotAnimationsTourbillol;
 
     uint8 BasicAttackComboCount = 0;
@@ -140,7 +140,7 @@ protected:
     float LosingScoreRatioOnDeath = 0.f;
 
 
-    bool         bTourbillolIsUnlock        = false;
+    bool bTourbillolIsUnlock = false;
     //bool         bEvilSpellAttackIsUnlock   = false;
     bool         bEvilSpellCapacityIsUnlock = false;
     FTimerHandle MemberTimerEvilCapacity;
@@ -215,7 +215,6 @@ public:
     //UPROPERTY(BlueprintAssignable)
     //FOnPlayerEndTourbilolActionSignature OnPlayerEndTourbilol;
 
-
     UPROPERTY(BlueprintAssignable)
     FOnPlayerBeginEvilCapacityActionSignature OnPlayerBeginEvilCapacity;
 
@@ -251,7 +250,6 @@ public:
 
 public:
     ABasePlayer();
-
 
 public:
 
@@ -379,24 +377,23 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     void SetTourbillolIsUnlock(bool bNewTourbillolIsUnlock) { bTourbillolIsUnlock = bNewTourbillolIsUnlock; }
-/*
-    UFUNCTION(BlueprintCallable, Category = Stats)
-    bool IsEvilSpellAttackIsUnlock() const { return bEvilSpellAttackIsUnlock; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
-    void SetEvilSpellAttackIsUnlock(bool bNewEvilSpellAttackIsUnlock)
-    {
-        bEvilSpellAttackIsUnlock = bNewEvilSpellAttackIsUnlock;
-    }*/
+    void SetEvilSpellCapacityIsUnlock(bool bNewEvilSpellCapacityIsUnlock) { bEvilSpellCapacityIsUnlock = 
+    bNewEvilSpellCapacityIsUnlock; }
+    
+    /*
+        UFUNCTION(BlueprintCallable, Category = Stats)
+        bool IsEvilSpellAttackIsUnlock() const { return bEvilSpellAttackIsUnlock; }
+    
+        UFUNCTION(BlueprintCallable, Category = Stats)
+        void SetEvilSpellAttackIsUnlock(bool bNewEvilSpellAttackIsUnlock)
+        {
+            bEvilSpellAttackIsUnlock = bNewEvilSpellAttackIsUnlock;
+        }*/
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     bool IsEvilSpellCapacityIsUnlock() const { return bEvilSpellCapacityIsUnlock; }
-
-    UFUNCTION(BlueprintCallable, Category = Stats)
-    void SetEvilSpellCapacityIsUnlock(bool bNewEvilSpellCapacityIsUnlock)
-    {
-        bEvilSpellCapacityIsUnlock = bNewEvilSpellCapacityIsUnlock;
-    }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetRageRatio() const noexcept { return Rage / MaxRage; }
@@ -415,7 +412,7 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     void SetDoTourbilol(bool bNewDoTourbilol) { bDoTourbilol = bNewDoTourbilol; }
-    
+
     UFUNCTION(BlueprintCallable, Category = Stats)
     void AddScore(int32 AdditionalScore) noexcept;
 
