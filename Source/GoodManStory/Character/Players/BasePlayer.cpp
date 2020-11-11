@@ -92,6 +92,7 @@ ABasePlayer::ABasePlayer()
     BoxWeapon->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
     BoxWeapon->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Ignore);
     BoxWeapon->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+    BoxWeapon->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
     BoxWeapon->SetRelativeLocation({0.f, 70.f, 0.f});
     BoxWeapon->SetRelativeScale3D({1.f, 0.8f, 0.5f});
 
