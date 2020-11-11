@@ -288,7 +288,7 @@ void ABaseBoss::ThrowFireBall() noexcept
     if (NewFireBall)
     {
         NewFireBall->SetDamage(FireBallDamage);
-        NewFireBall->SetRadius(FireBallScale * 32.f);
+        //NewFireBall->SetRadius(FireBallScale * 40.f);
         NewFireBall->SetActorScale3D(FVector{FireBallScale});
         NewFireBall->Throw(FireBallVelocity);
         OnFireBallThrow.Broadcast();
