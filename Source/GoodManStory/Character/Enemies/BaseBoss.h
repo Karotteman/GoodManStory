@@ -33,6 +33,9 @@ class GOODMANSTORY_API ABaseBoss : public ABaseEnemy
 
 protected :
 
+    UPROPERTY(EditAnywhere,BlueprintReadOnly)
+    class UAnimMontage* FirstAnimMontage = nullptr;
+    
     UPROPERTY(EditAnywhere)
     class USphereComponent* HeadCollision;
     

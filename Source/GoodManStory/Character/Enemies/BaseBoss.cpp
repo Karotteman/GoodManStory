@@ -5,6 +5,8 @@
 
 #include <Utility/Utility.h>
 
+
+#include "BossAIController.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -395,5 +397,13 @@ void ABaseBoss::BeginPlay()
     });
     GroundZone->SetRelativeLocation(FVector{0.f, 0.f, -GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()});
 
+    
+    if(FirstAnimMontage != nullptr)
+    {
+        PlayAnimMontage(FirstAnimMontage);
+    }
+    else
+        Cast<ABossAIController>(GetController())->StartBehaviours();
+    
     //SetLevel(Cast<ABasePlayer>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0))->GetPlayerLevel());
 }
