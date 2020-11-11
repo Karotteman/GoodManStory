@@ -25,7 +25,7 @@ void AFireBall::OnFireBallBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
 		pPlayer->TakeDamageCharacter(Damage);
 	}
 
-	if (!DestroyOnlyIfGroundTagFound || OtherComp->ComponentHasTag(TEXT("FireBallDestroyabale")))
+	if (!DestroyOnlyIfGroundTagFound || OtherComp->ComponentHasTag(TEXT("FireBallDestroyable")))
 	{
 		Destroy();
 	}
@@ -44,7 +44,7 @@ AFireBall::AFireBall()
 	PrimaryActorTick.bCanEverTick = true;
 
 	Collider = CreateDefaultSubobject<USphereComponent>(TEXT("Collider"));
-	Collider->InitSphereRadius(64.f);
+	Collider->InitSphereRadius(40.f);
 	//Collider->SetCollisionProfileName();
 
 	Collider->CanCharacterStepUpOn = ECB_No;
