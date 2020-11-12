@@ -371,6 +371,12 @@ public:
     FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetRage(float NewRage) noexcept;
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetLevel(int NewLevel) noexcept;
+    
+    UFUNCTION(BlueprintCallable, Category = Stats)
     void TakeRage(float AdditionnalRage) noexcept;
 
     UFUNCTION(BlueprintCallable, Category = Stats)

@@ -347,29 +347,29 @@ void ABaseBoss::SetLevel(uint8 NewLevel) noexcept
 
     switch (Level) /*Cannot be reverse for optimize line numbers. Lower level must be execute before upper level*/
     {
-        case 0:
-            OnUpgradLevel1.Broadcast(Level);
-            break;
-
         case 1:
             OnUpgradLevel1.Broadcast(Level);
-            OnUpgradLevel2.Broadcast(Level);
             break;
 
         case 2:
             OnUpgradLevel1.Broadcast(Level);
             OnUpgradLevel2.Broadcast(Level);
-            OnUpgradLevel3.Broadcast(Level);
             break;
 
         case 3:
             OnUpgradLevel1.Broadcast(Level);
             OnUpgradLevel2.Broadcast(Level);
             OnUpgradLevel3.Broadcast(Level);
-            OnUpgradLevel4.Broadcast(Level);
             break;
 
         case 4:
+            OnUpgradLevel1.Broadcast(Level);
+            OnUpgradLevel2.Broadcast(Level);
+            OnUpgradLevel3.Broadcast(Level);
+            OnUpgradLevel4.Broadcast(Level);
+            break;
+
+        case 5:
             OnUpgradLevel1.Broadcast(Level);
             OnUpgradLevel2.Broadcast(Level);
             OnUpgradLevel3.Broadcast(Level);
