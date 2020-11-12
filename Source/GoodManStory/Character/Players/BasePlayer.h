@@ -374,7 +374,7 @@ public:
     void SetRage(float NewRage) noexcept;
 
     UFUNCTION(BlueprintCallable, Category = Stats)
-    void SetLevel(float NewLevel) noexcept;
+    void SetLevel(int NewLevel) noexcept;
     
     UFUNCTION(BlueprintCallable, Category = Stats)
     void TakeRage(float AdditionnalRage) noexcept;

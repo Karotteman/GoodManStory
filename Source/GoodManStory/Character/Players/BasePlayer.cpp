@@ -363,10 +363,10 @@ void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
 
 void ABasePlayer::SetRage(float NewRage) noexcept
 {
-    Rage = MaxRage;
+    Rage = NewRage;
 }
 
-void ABasePlayer::SetLevel(float NewLevel) noexcept
+void ABasePlayer::SetLevel(int NewLevel) noexcept
 {
     Level = NewLevel;
 
