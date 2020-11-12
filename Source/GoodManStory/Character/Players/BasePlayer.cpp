@@ -135,9 +135,9 @@ void ABasePlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
     PlayerInputComponent->BindAxis("MoveForward", this, &ABasePlayer::MoveForward);
     PlayerInputComponent->BindAxis("MoveRight", this, &ABasePlayer::MoveRight);
 
-    PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+    PlayerInputComponent->BindAxis("Turn", this, &ABasePlayer::Turn);
     PlayerInputComponent->BindAxis("TurnRate", this, &ABasePlayer::LookUpAtRate);
-    PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+    PlayerInputComponent->BindAxis("LookUp", this, &ABasePlayer::LookUp);
 
     //PlayerInputComponent->BindAxis("LookUpRate", this, &ABasePlayer::TurnAtRate);
 }
@@ -521,4 +521,22 @@ void ABasePlayer::Kill()
 
     Rage *= 1.f - LosingRageRatioOnDeath;
     Score *= 1.f - LosingScoreRatioOnDeath;
+}
+
+void ABasePlayer::Turn(float Val)
+{
+    if(!bInvertedAxisY)
+    AddControllerYawInput(Val*Sensibility*GetWorld()->DeltaTimeSeconds);
+    else
+        AddControllerYawInput(Val*Sensibility*GetWorld()->DeltaTimeSeconds*-1);
+
+}
+
+void ABasePlayer::LookUp(float Val)
+{
+    if(!bInvertedAxisX)
+        AddControllerPitchInput(Val*Sensibility*GetWorld()->DeltaTimeSeconds);
+    else
+        AddControllerPitchInput(Val*Sensibility*GetWorld()->DeltaTimeSeconds*-1);
+
 }
