@@ -361,6 +361,31 @@ void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
     }
 }
 
+void ABasePlayer::SetRage(float NewRage) noexcept
+{
+    Rage = MaxRage;
+}
+
+void ABasePlayer::SetLevel(float NewLevel) noexcept
+{
+    Level = NewLevel;
+
+    switch (Level)
+    {
+        case 4:
+            OnPlayerUpgradLevel5.Broadcast(Level);
+        case 3:
+            OnPlayerUpgradLevel4.Broadcast(Level);
+        case 2:
+            OnPlayerUpgradLevel3.Broadcast(Level);
+        case 1:
+            OnPlayerUpgradLevel2.Broadcast(Level);
+        case 0:
+            OnPlayerUpgradLevel1.Broadcast(Level);
+        default: ;
+    }
+}
+
 void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
 {
     if (Rage + AdditionnalRage > MaxRage)
@@ -379,31 +404,21 @@ void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
     switch (Level)
     {
         case 0:
-            if (RageRate < RageToUnlockLevel1)
-                break;
-            while (GetPlayerLevel() < 1)
+            if (RageRate >= RageToUnlockLevel1)
                 LevelUp();
-        
         case 1:
-            if (RageRate < RageToUnlockLevel2)
-                break;
-            while (GetPlayerLevel() < 2)
+            if (RageRate >= RageToUnlockLevel2)
                 LevelUp();
         case 2:
-            if (RageRate < RageToUnlockLevel3)
-                break;
-            while (GetPlayerLevel() < 3)
+            if (RageRate >= RageToUnlockLevel3)
                 LevelUp();
         case 3:
-            if (RageRate < RageToUnlockLevel4)
-                break;
-            while (GetPlayerLevel() < 4)
+            if (RageRate >= RageToUnlockLevel4)
                 LevelUp();
         case 4:
-            if (RageRate < RageToUnlockLevel5)
-                break;
-            while (GetPlayerLevel() < 5)
+            if (RageRate >= RageToUnlockLevel5)
                 LevelUp();
+        
         default: ;
     }
 }
