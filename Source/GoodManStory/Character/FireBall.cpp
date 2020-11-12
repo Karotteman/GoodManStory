@@ -23,6 +23,7 @@ void AFireBall::OnFireBallBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
 	{
 		OnFireBallHitPlayer.Broadcast(pPlayer);
 		pPlayer->TakeDamageCharacter(Damage);
+		Destroy();
 	}
 
 	if (!DestroyOnlyIfGroundTagFound || OtherComp->ComponentHasTag(TEXT("FireBallDestroyable")))
