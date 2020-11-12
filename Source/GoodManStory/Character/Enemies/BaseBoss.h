@@ -268,6 +268,9 @@ public :
     void Punch() noexcept;
 
     UFUNCTION(BlueprintCallable)
+    void TryToResetAttacking() noexcept;
+
+    UFUNCTION(BlueprintCallable)
     void GroundAttack() noexcept;
 
     UFUNCTION(BlueprintCallable)

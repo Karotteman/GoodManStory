@@ -255,6 +255,12 @@ void ABaseBoss::Punch() noexcept
     OnPunch.Broadcast();
 }
 
+void ABaseBoss::TryToResetAttacking() noexcept
+{
+    if (bCanThrowFireBall && bCanPunch && bCanGroundAttack)
+        bAttacking = false;
+}
+
 void ABaseBoss::GroundAttack() noexcept
 {
     bAttacking = true;
@@ -302,8 +308,6 @@ void ABaseBoss::ThrowFireBall() noexcept
 
 void ABaseBoss::DoChocWave() noexcept
 {
-    bAttacking = true;
-
     TArray<AActor*> pActorsOverllapingWithChocWave;
 
     ExternChocWaveZone->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
