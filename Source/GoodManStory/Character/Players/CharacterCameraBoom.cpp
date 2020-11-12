@@ -78,6 +78,12 @@ void UCharacterCameraBoom::InitOffSetInterpolationTimeLine() noexcept
     TimeLineSocketOffSet.SetTimelineLength(1.f);
 }
 
+void UCharacterCameraBoom::SetNewArmLength(float NewArmLength) noexcept
+{
+    FBaseArmLength = NewArmLength;
+    TargetArmLength = NewArmLength;
+}
+
 void UCharacterCameraBoom::InitArmLengthInterpolationTimeLine() noexcept
 {
     TimeLineSocketArmLength = FTimeline{};

@@ -38,7 +38,7 @@ protected:
     float     FStartPositionSocketArmLength;
     float     FEndPositionSocketArmLength;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = ArmLengthInterpolationSetting, meta = (AllowPrivateAccess = 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ArmLengthInterpolationSetting, meta = (AllowPrivateAccess = 
     "true"))
     float     FBaseArmLength;
     
@@ -81,6 +81,9 @@ private:
 
     UFUNCTION()
     void InitOffSetInterpolationTimeLine() noexcept;
+
+    UFUNCTION(BlueprintCallable)
+    void SetNewArmLength(float NewArmLength) noexcept;
 
     UFUNCTION()
     void InitArmLengthInterpolationTimeLine() noexcept;

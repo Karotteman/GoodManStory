@@ -51,10 +51,6 @@ class GOODMANSTORY_API ABasePlayer : public ABaseWarrior
 {
     GENERATED_BODY()
 
-    /** Camera boom positioning the camera behind the character */
-    UPROPERTY(VisibleAnywhere, Category = Camera)
-    class UCharacterCameraBoom* CameraBoom;
-
     /** Follow camera */
     UPROPERTY(VisibleAnywhere, Category = Camera)
     class UCameraComponent* FollowCamera;
@@ -63,6 +59,11 @@ class GOODMANSTORY_API ABasePlayer : public ABaseWarrior
 
 protected:
 
+    /** Camera boom positioning the camera behind the character */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+    class UCharacterCameraBoom* CameraBoom;
+
+    
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
     TArray<UAnimMontage*> SlotAnimationsAttackCombo;
 
