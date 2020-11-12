@@ -6,14 +6,16 @@
 
 
 #include "BaseBoss.h"
+#include "BrainComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Engine/Engine.h"
 #include "GameFramework/PlayerController.h"
+#include "MemPro/MemPro.h"
 
 
 void ABossAIController::BeginPlay()
 {
-    Super::BeginPlay();
+    Super::BeginPlay();    
 
     if(BehaviorTree)
     {
@@ -21,9 +23,11 @@ void ABossAIController::BeginPlay()
     }
     else
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("BehaviorTree null"));
-    
-    Blackboard->SetValueAsObject("Player", GetWorld()->GetFirstPlayerController()->GetPawn());
 
+    Blackboard->SetValueAsObject("Player", GetWorld()->GetFirstPlayerController()->GetPawn());
+    
+    BrainComponent->PauseLogic("Pause");
+    StopMovement();
 }
 
 
@@ -41,4 +45,9 @@ void ABossAIController::OnPossess(APawn* InPawn)
     }
     else
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Boss or blackboard null"));
+}
+
+void ABossAIController::StartBehaviours()
+{
+    BrainComponent->ResumeLogic("StopPause");
 }
