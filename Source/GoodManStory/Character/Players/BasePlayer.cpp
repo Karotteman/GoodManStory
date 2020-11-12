@@ -148,8 +148,8 @@ void ABasePlayer::Charge()
         return;
 
     bCanDoAction = false;
-    bCanAttack = false;
-    
+    bCanAttack   = false;
+
     /*Play animation and activate/Desactivate collider*/
     PlayAnimMontage(SlotAnimationsCharge);
 
@@ -158,23 +158,23 @@ void ABasePlayer::Charge()
 }
 
 void ABasePlayer::BasicAttack()
-{    
+{
     if (!bCanAttack && !bCanDoAction)
         return;
 
     bCanDoAction = false;
-    bCanAttack = false;
-    
+    bCanAttack   = false;
+
     PlayAnimMontage(SlotAnimationsAttackCombo[BasicAttackComboCount], BasicAttackSpeed);
     MonoHitBehavioursComponent->Reset();
 
     OnPlayerBeginBasicAttack.Broadcast(BasicAttackComboCount);
-    
+
     if (BasicAttackComboCount >= SlotAnimationsAttackCombo.Num() - 1)
         BasicAttackComboCount = 0;
     else
         BasicAttackComboCount++;
-    
+
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
                                          "BasicAttack combo:" + FString::FromInt(BasicAttackComboCount));
@@ -186,11 +186,11 @@ void ABasePlayer::TourbilolAttack()
         return;
 
     bCanDoAction = false;
-    bCanAttack = false;
+    bCanAttack   = false;
     bDoTourbilol = true;
-    
+
     PlayAnimMontage(SlotAnimationsTourbillol);
-    
+
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("TourbilolAttack"));
 }
@@ -208,7 +208,7 @@ void ABasePlayer::EvilSpellCapacity()
 {
     if (!bEvilSpellCapacityIsUnlock)
         return;
-    
+
     if (bCanEvilSpellCapacity)
     {
         bCanEvilSpellCapacity = false;
@@ -226,7 +226,7 @@ void ABasePlayer::EvilSpellCapacity()
 
 void ABasePlayer::EvilHealing()
 {
-    Life+= Heal;
+    Life += Heal;
 }
 
 void ABasePlayer::SetCanEvilCapacity()
@@ -242,7 +242,7 @@ void ABasePlayer::SetCanEvilCapacity()
 void ABasePlayer::SwitchCameraMode()
 {
     CameraBoom->InterpolateOffSet(FVector::ZeroVector);
-    
+
     OnPlayerBeginSwitchCamera.Broadcast();
 }
 
@@ -271,7 +271,7 @@ void ABasePlayer::LookUpAtRate(float Rate)
 void ABasePlayer::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-    
+
     CameraBoom->Update(DeltaTime);
 
     TArray<AActor*> othersOverllaping;
@@ -327,9 +327,9 @@ void ABasePlayer::SetCanAttack(bool bNewCanAttack)
 void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
                                                 const FHitResult&    SweepResult)
-{    
+{
     if (OtherComp->ComponentHasTag("Body"))
-    {        
+    {
         ABaseEnemy* Enemy = Cast<ABaseEnemy>(OtherActor);
 
         if (UNLIKELY(!Enemy))
@@ -338,12 +338,12 @@ void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
         /*Add the actor on if is has not already hit*/
         if (UNLIKELY(!bDoTourbilol && MonoHitBehavioursComponent->CheckIfAlreadyExistAndAdd(OtherActor)))
             return;
-        
+
         if (UNLIKELY(OtherComp->ComponentHasTag(TEXT("CharacterWeakZone"))))
             Enemy->TakeDamageCharacter(Damage * WeakZoneDamageMultiplicator);
         else
             Enemy->TakeDamageCharacter(Damage);
-            
+
         if (LIKELY(Enemy->IsEjectOnAttack()))
         {
             FVector LaunchForce = OtherActor->GetActorLocation() - OverlappedComp->GetComponentLocation();
@@ -370,18 +370,38 @@ void ABasePlayer::SetLevel(int NewLevel) noexcept
 {
     Level = NewLevel;
 
-    switch (Level)
+    switch (Level) /*Cannot be reverse for optimize line numbers. Lower level must be execute before upper level*/
     {
-        case 4:
-            OnPlayerUpgradLevel5.Broadcast(Level);
-        case 3:
-            OnPlayerUpgradLevel4.Broadcast(Level);
-        case 2:
-            OnPlayerUpgradLevel3.Broadcast(Level);
         case 1:
-            OnPlayerUpgradLevel2.Broadcast(Level);
-        case 0:
             OnPlayerUpgradLevel1.Broadcast(Level);
+            break;
+
+        case 2:
+            OnPlayerUpgradLevel1.Broadcast(Level);
+            OnPlayerUpgradLevel2.Broadcast(Level);
+            break;
+
+        case 3:
+            OnPlayerUpgradLevel1.Broadcast(Level);
+            OnPlayerUpgradLevel2.Broadcast(Level);
+            OnPlayerUpgradLevel3.Broadcast(Level);
+            break;
+
+        case 4:
+            OnPlayerUpgradLevel1.Broadcast(Level);
+            OnPlayerUpgradLevel2.Broadcast(Level);
+            OnPlayerUpgradLevel3.Broadcast(Level);
+            OnPlayerUpgradLevel4.Broadcast(Level);
+            break;
+
+        case 5:
+            OnPlayerUpgradLevel1.Broadcast(Level);
+            OnPlayerUpgradLevel2.Broadcast(Level);
+            OnPlayerUpgradLevel3.Broadcast(Level);
+            OnPlayerUpgradLevel4.Broadcast(Level);
+            OnPlayerUpgradLevel5.Broadcast(Level);
+            break;
+
         default: ;
     }
 }
@@ -398,7 +418,7 @@ void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
         Rage += AdditionnalRage;
         OnPlayerTakeRage.Broadcast(Rage, AdditionnalRage, AdditionnalRage);
     }
-    
+
     float RageRate = Rage / MaxRage * 100.f;
 
     switch (Level)
@@ -418,7 +438,7 @@ void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
         case 4:
             if (RageRate >= RageToUnlockLevel5)
                 LevelUp();
-        
+
         default: ;
     }
 }
@@ -471,7 +491,7 @@ void ABasePlayer::OnChargeBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
         if (pEnemy && pEnemy->IsEjectOnCharge())
         {
             OnPlayerChargeHit.Broadcast(pEnemy);
-            
+
             FVector LaunchForce = OtherActor->GetActorLocation() - GetActorLocation();
             LaunchForce.Normalize();
             LaunchForce *= pEnemy->ForceEjection;
@@ -540,18 +560,16 @@ void ABasePlayer::Kill()
 
 void ABasePlayer::Turn(float Val)
 {
-    if(!bInvertedAxisY)
-    AddControllerYawInput(Val*Sensibility*GetWorld()->DeltaTimeSeconds);
+    if (!bInvertedAxisY)
+        AddControllerYawInput(Val * Sensibility * GetWorld()->DeltaTimeSeconds);
     else
-        AddControllerYawInput(Val*Sensibility*GetWorld()->DeltaTimeSeconds*-1);
-
+        AddControllerYawInput(Val * Sensibility * GetWorld()->DeltaTimeSeconds * -1);
 }
 
 void ABasePlayer::LookUp(float Val)
 {
-    if(!bInvertedAxisX)
-        AddControllerPitchInput(Val*Sensibility*GetWorld()->DeltaTimeSeconds);
+    if (!bInvertedAxisX)
+        AddControllerPitchInput(Val * Sensibility * GetWorld()->DeltaTimeSeconds);
     else
-        AddControllerPitchInput(Val*Sensibility*GetWorld()->DeltaTimeSeconds*-1);
-
+        AddControllerPitchInput(Val * Sensibility * GetWorld()->DeltaTimeSeconds * -1);
 }
