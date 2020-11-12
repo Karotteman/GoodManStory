@@ -130,7 +130,7 @@ ABaseBoss::ABaseBoss()
     HeadCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     HeadCollision->SetSphereRadius(32.f);
     HeadCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-    HeadCollision->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Overlap);
+    HeadCollision->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Block);
     HeadCollision->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
     HeadCollision->SetCollisionObjectType(COLLISION_CHANNEL_ENEMY);
     HeadCollision->ComponentTags.Add(TEXT("CharacterWeakZone"));
