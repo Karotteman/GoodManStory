@@ -145,6 +145,12 @@ protected:
     bool         bEvilSpellCapacityIsUnlock = false;
     FTimerHandle MemberTimerEvilCapacity;
 
+    UPROPERTY(BlueprintReadWrite)
+    bool bInvertedAxisX = false;
+    UPROPERTY(BlueprintReadWrite)
+    bool bInvertedAxisY = false;
+    UPROPERTY(BlueprintReadWrite)
+    float Sensibility = 1.f;
 
 public:
 
@@ -419,4 +425,7 @@ public:
     virtual void Kill() override;
 
     void EvilHealing();
+
+    void Turn(float Val);
+    void LookUp(float Val);
 };
