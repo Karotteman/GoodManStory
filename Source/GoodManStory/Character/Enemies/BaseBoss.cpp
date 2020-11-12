@@ -328,7 +328,7 @@ void ABaseBoss::DoChocWave() noexcept
 
         if (pPlayer)
         {
-            pPlayer->TakeDamageCharacter(Damage);
+            pPlayer->TakeDamageCharacter(GroundAttackDamage);
         }
 
         pCharacter->LaunchAndStun(LaunchForce, true, true);
