@@ -5,6 +5,8 @@
 
 #include <Utility/Utility.h>
 
+
+#include "BossAIController.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -248,6 +250,7 @@ ABaseBoss::ABaseBoss()
 void ABaseBoss::Punch() noexcept
 {
     bAttacking = true;
+    bCanPunch = false;
     PlayAnimMontage(PunchAttack, PunchSpeed);
     OnPunch.Broadcast();
 }
@@ -255,13 +258,15 @@ void ABaseBoss::Punch() noexcept
 void ABaseBoss::GroundAttack() noexcept
 {
     bAttacking = true;
-    PlayAnimMontage(GroundAttackAnimMontage, PunchSpeed);
+    bCanGroundAttack = false;
+    PlayAnimMontage(GroundAttackAnimMontage, GroundAttackSpeed);
     OnGroundAttack.Broadcast();
 }
 
 void ABaseBoss::FireBallAttack() noexcept
 {
     bAttacking = true;
+    bCanThrowFireBall = false;
     PlayAnimMontage(FireBallAttackSpeedAnimMontage, FireBallAttackSpeed);
     OnFireBallAttackBegin.Broadcast();
 }
@@ -272,8 +277,7 @@ void ABaseBoss::ThrowFireBall() noexcept
     SpawnParams.Owner                          = nullptr;
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-    FVector SpawnLocation = GetMesh()->GetBoneLocation(FireBallSpawningBoneName, EBoneSpaces::WorldSpace) +
-        GetActorForwardVector() * 100.f;
+    FVector SpawnLocation = GetMesh()->GetSocketLocation(FireBallSpawningBoneName);
 
     FVector  PlayerLoc            = GetWorld()->GetFirstPlayerController()->GetCharacter()->GetActorLocation();
     FRotator RotationTowardPlayer = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, PlayerLoc);
@@ -284,7 +288,7 @@ void ABaseBoss::ThrowFireBall() noexcept
     if (NewFireBall)
     {
         NewFireBall->SetDamage(FireBallDamage);
-        NewFireBall->SetRadius(FireBallScale * 32.f);
+        //NewFireBall->SetRadius(FireBallScale * 40.f);
         NewFireBall->SetActorScale3D(FVector{FireBallScale});
         NewFireBall->Throw(FireBallVelocity);
         OnFireBallThrow.Broadcast();
@@ -392,5 +396,13 @@ void ABaseBoss::BeginPlay()
     });
     GroundZone->SetRelativeLocation(FVector{0.f, 0.f, -GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()});
 
+    
+    if(FirstAnimMontage != nullptr)
+    {
+        PlayAnimMontage(FirstAnimMontage);
+    }
+    else
+        Cast<ABossAIController>(GetController())->StartBehaviours();
+    
     //SetLevel(Cast<ABasePlayer>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0))->GetPlayerLevel());
 }
