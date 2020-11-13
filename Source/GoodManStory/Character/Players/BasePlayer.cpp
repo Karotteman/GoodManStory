@@ -220,7 +220,7 @@ void ABasePlayer::EvilSpellCapacity()
         bDoEvilSpellCapacity = true;
         bCanEvilSpellCapacity = false;
         MaleficeCoolDownTimer = 0.f;
-        
+        Sensibility *= 1/WorldSlowingSpeedEvil;
         UGameplayStatics::SetGlobalTimeDilation(GetWorld(), WorldSlowingSpeedEvil);
         CustomTimeDilation = 1 - WorldSlowingSpeedEvil + PlayerSlowingSpeedEvil + 2;
         GetWorldTimerManager().SetTimer(MemberTimerEvilCapacity, this, &ABasePlayer::SetCanEvilCapacity,
@@ -244,7 +244,7 @@ void ABasePlayer::SetCanEvilCapacity()
     UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1);
     CustomTimeDilation = 1;
     GetWorldTimerManager().ClearTimer(MemberTimerEvilCapacity);
-
+    Sensibility /= 1/WorldSlowingSpeedEvil;
     OnPlayerEndEvilCapacity.Broadcast();
 }
 
