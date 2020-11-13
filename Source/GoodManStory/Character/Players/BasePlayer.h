@@ -73,6 +73,14 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
     UAnimMontage* SlotAnimationsTourbillol;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
+    float TourbilolCoolDown = 7.f;
+    float TourbilolCoolDownTimer = 0.f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
+    float MaleficeCoolDown = 10.f;
+    float MaleficeCoolDownTimer = 0.f;
+    
     uint8 BasicAttackComboCount = 0;
 
     class UMonoHitBehaviours* MonoHitBehavioursComponent;
@@ -104,7 +112,7 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float PushForce = 100.f;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float WeakZoneDamageMultiplicator = 2.f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
@@ -235,7 +243,10 @@ private:
 
     bool bAttacking            = false;
     bool bDoTourbilol          = false;
+    bool bCanDoTourbilol       = true;
     bool bCanAttack            = true;
+
+    bool bDoEvilSpellCapacity  = false;
     bool bCanEvilSpellCapacity = true;
 
 protected :
@@ -388,6 +399,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = Stats)
     bool EvilSpellIsActive() const { return bCanEvilSpellCapacity; }
 
+    UFUNCTION(BlueprintCallable, Category = Attack)
+    void ReduceCoolDownTimerForSkills(float ReducingTime);
+
     UFUNCTION(BlueprintCallable, Category = Stats)
     void SetTourbillolIsUnlock(bool bNewTourbillolIsUnlock) { bTourbillolIsUnlock = bNewTourbillolIsUnlock; }
 
@@ -410,6 +424,12 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetRageRatio() const noexcept { return Rage / MaxRage; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    FORCEINLINE float GetTourbilolCoolDownRatio() const noexcept { return TourbilolCoolDownTimer / TourbilolCoolDown; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    FORCEINLINE float GetMaleficeCooldownRatio() const noexcept { return MaleficeCoolDownTimer / MaleficeCoolDown; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     void LevelUp() noexcept;

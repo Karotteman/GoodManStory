@@ -108,6 +108,9 @@ ABasePlayer::ABasePlayer()
 
     MonoHitBehavioursComponent = CreateDefaultSubobject<UMonoHitBehaviours>(TEXT("MonoHitBehavioursComponent"));
 
+    TourbilolCoolDownTimer = TourbilolCoolDown;
+    MaleficeCoolDownTimer = MaleficeCoolDown;
+    
     bIsStunable = false;
     // Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
     // are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
@@ -150,6 +153,7 @@ void ABasePlayer::Charge()
     bCanDoAction = false;
     bCanAttack   = false;
 
+
     /*Play animation and activate/Desactivate collider*/
     PlayAnimMontage(SlotAnimationsCharge);
 
@@ -182,12 +186,14 @@ void ABasePlayer::BasicAttack()
 
 void ABasePlayer::TourbilolAttack()
 {
-    if (!bTourbillolIsUnlock || !bCanDoAction)
+    if (!bTourbillolIsUnlock || !bCanDoAction || !bCanDoTourbilol)
         return;
 
     bCanDoAction = false;
     bCanAttack   = false;
     bDoTourbilol = true;
+    bCanDoTourbilol = false;
+    TourbilolCoolDownTimer = 0.f;
 
     PlayAnimMontage(SlotAnimationsTourbillol);
 
@@ -209,9 +215,12 @@ void ABasePlayer::EvilSpellCapacity()
     if (!bEvilSpellCapacityIsUnlock)
         return;
 
-    if (bCanEvilSpellCapacity)
+    if (!bDoEvilSpellCapacity && bCanEvilSpellCapacity)
     {
+        bDoEvilSpellCapacity = true;
         bCanEvilSpellCapacity = false;
+        MaleficeCoolDownTimer = 0.f;
+        Sensibility *= 1/WorldSlowingSpeedEvil;
         UGameplayStatics::SetGlobalTimeDilation(GetWorld(), WorldSlowingSpeedEvil);
         CustomTimeDilation = 1 - WorldSlowingSpeedEvil + PlayerSlowingSpeedEvil + 2;
         GetWorldTimerManager().SetTimer(MemberTimerEvilCapacity, this, &ABasePlayer::SetCanEvilCapacity,
@@ -231,11 +240,11 @@ void ABasePlayer::EvilHealing()
 
 void ABasePlayer::SetCanEvilCapacity()
 {
-    bCanEvilSpellCapacity = true;
+    bDoEvilSpellCapacity = false;
     UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1);
     CustomTimeDilation = 1;
     GetWorldTimerManager().ClearTimer(MemberTimerEvilCapacity);
-
+    Sensibility /= 1/WorldSlowingSpeedEvil;
     OnPlayerEndEvilCapacity.Broadcast();
 }
 
@@ -281,6 +290,8 @@ void ABasePlayer::Tick(float DeltaTime)
     {
         Push(other);
     }
+    
+    ReduceCoolDownTimerForSkills(DeltaTime);
 }
 
 void ABasePlayer::MoveForward(float Value)
@@ -357,6 +368,7 @@ void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
         {
             AddScore(Enemy->GetScoreRewardOnKill());
             TakeRage(Enemy->GetRageRewardOnKill());
+            ReduceCoolDownTimerForSkills(Enemy->GetReducingTimePlayerSkillsRewardOnKill());
         }
     }
 }
@@ -441,6 +453,31 @@ void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
 
         default: ;
     }
+}
+
+void ABasePlayer::ReduceCoolDownTimerForSkills(float ReducingTime)
+{
+    if (!bCanEvilSpellCapacity)
+    {
+        MaleficeCoolDownTimer += ReducingTime;
+
+        if (MaleficeCoolDownTimer >= MaleficeCoolDown)
+        {
+            bCanEvilSpellCapacity = true;
+            MaleficeCoolDownTimer = MaleficeCoolDown;
+        }
+    }
+
+    if (!bCanDoTourbilol)
+    {
+        TourbilolCoolDownTimer += ReducingTime;
+
+        if (TourbilolCoolDownTimer >= TourbilolCoolDown)
+        {
+            bCanDoTourbilol = true;
+            TourbilolCoolDownTimer = TourbilolCoolDown;
+        }
+    }    
 }
 
 void ABasePlayer::LevelUp() noexcept
