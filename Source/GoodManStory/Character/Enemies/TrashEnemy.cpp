@@ -3,6 +3,9 @@
 
 #include "TrashEnemy.h"
 
+#include <Utility/Utility.h>
+
+
 #include "Trash_AIController.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
@@ -55,10 +58,19 @@ ATrashEnemy::ATrashEnemy()
 void ATrashEnemy::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
     UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {   
-    if(OtherComp->ComponentHasTag("PlayerBody"))
+    if(LIKELY(OtherComp->ComponentHasTag("PlayerBody")))
     {
-         ABasePlayer* player = Cast<ABasePlayer>(OtherActor);
-         player->TakeDamageCharacter(Damage);
+         ABasePlayer* pPlayer = Cast<ABasePlayer>(OtherActor);
+         pPlayer->TakeDamageCharacter(Damage);
+
+        if (UNLIKELY(bCanEjectPlayer))
+        {
+            FVector LaunchForce = OtherActor->GetActorLocation() - GetActorLocation();
+            LaunchForce.Normalize();
+            LaunchForce *= WeaponShootForce;
+            LaunchForce.Z = WeaponShootHeigthRatio * WeaponShootForce;
+            pPlayer->LaunchAndStun(LaunchForce, true, true);
+        }
     }
 }
 
