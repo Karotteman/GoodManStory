@@ -48,7 +48,10 @@ protected :
 
     UPROPERTY(Category = Stats, EditAnywhere,meta=(EditCondition="!bRandomSize"))
     float Size = 1.f;
-
+    
+    UPROPERTY(Category = Stats, EditAnywhere)
+    float ReducingTimePlayerSkillsRewardOnKill = 1.f;
+    
 public:
 
     UPROPERTY(Category = Stats, EditAnywhere, meta=(EditCondition="bIsEjectOnCharge"))
@@ -107,6 +110,15 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE float GetSize() const noexcept { return Size; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    FORCEINLINE float GetReducingTimePlayerSkillsRewardOnKill() const { return ReducingTimePlayerSkillsRewardOnKill; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetReducingTimePlayerSkillsRewardOnKill(float NewReducingTimePlayerSkillsRewardOnKill)
+    {
+        ReducingTimePlayerSkillsRewardOnKill = NewReducingTimePlayerSkillsRewardOnKill;
+    }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE bool IsEjectOnAttack() const { return bIsEjectOnAttack; }
