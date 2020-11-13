@@ -70,6 +70,8 @@ void ATrashEnemy::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
             LaunchForce *= WeaponShootForce;
             LaunchForce.Z = WeaponShootHeigthRatio * WeaponShootForce;
             pPlayer->LaunchAndStun(LaunchForce, true, true);
+            
+            OnStunPlayer.Broadcast();
         }
     }
 }

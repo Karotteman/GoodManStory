@@ -6,6 +6,8 @@
 #include "BaseEnemy.h"
 #include "TrashEnemy.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStunPlayerActionSignature);
+
 /**
  * 
  */
@@ -30,6 +32,9 @@ protected :
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats, meta=(EditCondition="bCanEjectPlayer"))
     float WeaponShootHeigthRatio = 1.f;
 
+    UPROPERTY(BlueprintAssignable)
+    FOnStunPlayerActionSignature OnStunPlayer;
+    
 public:
 
     ATrashEnemy();
