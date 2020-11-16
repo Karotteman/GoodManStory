@@ -6,6 +6,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] (BETA) - 2020-11-13
+### Added
+- Add blood decal on ground with flower shape
+- Add levelup particle
+- Rework main map (coline and catle died for caverne and tower)
+- Ocean kill now entities
+- Difficulty function that compute the boss level
+- Integrate sounds and musics
+- Add boss life bar
+- Add trail on hammer for the lavel 2
+- Add juicyness for ground attack
+- Add juicyness for fireball attack
+- Add juicyness for rage bar
+- Add juicyness for each fireball
+- Add lots of gamepad vibration and gamepad shake
+- Player unlock gold armor at level 4
+- Add start animation for the boss with AI delay
+- Create UX :
+    - Create main menu
+    - Create settings with abilty to change the sensibility, music sound, fx sound and invert axis
+    - Create in game sub menu
+    - Create win and loose HUD
+
+
+### Change
+- Use the mesh physical asset of the boss insteat of it's capusle callider (more presicion)
+- Rework boss AI (Can now try only one attack at time)
+- clean and optimize animBP
+
+### Fixed
+- Tourbilol inflict only 1 hit
+- Wave not reset on end of the wave
+- Crash error on battle fixe
+- Player canno't do tourbilol or other skills if he try during it
+- Animation of tourbilol tutter
+- Fixe waveManager warning
+- Player canno't unlock evile spell capacity
+- Fixe enemies can spawn on the floor
+- Boss is now alway is front of play on punsh and throw fire ball
+- Fixe speed and damage of ground attack don't work properly
+- Remove collision between camera and the boss
+- Fixe epileptique leg for the boss
+
+
 ## [0.1.4] - 2020-11-05
 ### Added
 - Create fire ball attack for the boss
