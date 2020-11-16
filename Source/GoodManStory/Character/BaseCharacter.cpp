@@ -56,6 +56,13 @@ void ABaseCharacter::TakeDamageCharacter(float dmg) noexcept
 	}
 }
 
+void ABaseCharacter::SetMaxLifeAndAddLifeDiff(float NewMaxLife)
+{
+	float DiffMaxLife = NewMaxLife - LifeMax;
+	LifeMax = NewMaxLife;
+	Life += DiffMaxLife;
+}
+
 void ABaseCharacter::TakeLife(float AdditionnalLife) noexcept
 {
 	if (Life + AdditionnalLife > LifeMax)

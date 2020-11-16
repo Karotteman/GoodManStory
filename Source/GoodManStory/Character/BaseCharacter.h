@@ -98,6 +98,9 @@ public :
     UFUNCTION(BlueprintCallable)
     void LaunchAndStun(const FVector& Force, bool bXYOverride, bool bZOverride);
 
+    UFUNCTION(BlueprintCallable)
+    void SetMaxLifeAndAddLifeDiff(float NewMaxLife);
+    
     /**
     * @brief Function to heal the player
     * @param dammage
