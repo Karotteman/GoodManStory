@@ -2,8 +2,16 @@
 
 #include "BaseCharacter.h"
 
+#include <Utility/Utility.h>
+
+
+
+#include "SkeletalMeshMerge.h"
+#include "SkeletalMeshMergerBPLibrary.h"
 #include "TimerManager.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
@@ -16,13 +24,58 @@ ABaseCharacter::ABaseCharacter()
 	GetCapsuleComponent()->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
 }
 
-
 // Called when the game starts or when spawned
 void ABaseCharacter::BeginPlay()
 {
 	Life = LifeMax;
 	
 	Super::BeginPlay();
+	
+	TArray<USkeletalMesh*> mergeMeshes;
+	
+	/*Choose random skin if possible*/
+	if (ListMeshRandomVisage.Num())
+		mergeMeshes.Add(ListMeshRandomVisage[FMath::RandHelper(ListMeshRandomVisage.Num())]);
+
+	if (ListMeshRandomHaire.Num())
+		mergeMeshes.Add(ListMeshRandomHaire[FMath::RandHelper(ListMeshRandomHaire.Num())]);
+
+	if (ListMeshRandomGlove.Num())
+		mergeMeshes.Add(ListMeshRandomGlove[FMath::RandHelper(ListMeshRandomGlove.Num())]);
+	
+	if (ListMeshRandomShoes.Num())
+		mergeMeshes.Add(ListMeshRandomShoes[FMath::RandHelper(ListMeshRandomShoes.Num())]);
+	
+	if (ListMeshRandomHeadGear.Num())
+		mergeMeshes.Add(ListMeshRandomHeadGear[FMath::RandHelper(ListMeshRandomHeadGear.Num())]);
+	
+	if (ListMeshRandomHeadShoulderPad.Num())
+		mergeMeshes.Add(ListMeshRandomHeadShoulderPad[FMath::RandHelper(ListMeshRandomHeadShoulderPad.Num())]);
+	
+	if (ListMeshRandomBackpack.Num())
+		mergeMeshes.Add(ListMeshRandomBackpack[FMath::RandHelper(ListMeshRandomBackpack.Num())]);
+	
+	if (ListMeshRandomBelt.Num())
+		mergeMeshes.Add(ListMeshRandomBelt[FMath::RandHelper(ListMeshRandomBelt.Num())]);
+	
+	if (ListMeshRandomCloth.Num())
+		mergeMeshes.Add(ListMeshRandomCloth[FMath::RandHelper(ListMeshRandomCloth.Num())]);
+
+	if (mergeMeshes.Num())
+	{
+		/*Create the new skeletal mesh*/
+		FSkeletalMeshMergeParams SkeletalMeshMergeParams;
+		SkeletalMeshMergeParams.MeshesToMerge = mergeMeshes;
+		SkeletalMeshMergeParams.Skeleton = GetMesh()->SkeletalMesh->Skeleton;
+
+		UClass* AnimClass = GetMesh()->GetAnimClass();
+		UPhysicsAsset* PhysicalAsset = GetMesh()->SkeletalMesh->PhysicsAsset;
+		
+		GetMesh()->SetSkeletalMesh(UMeshMergeFunctionLibrary::MergeMeshes(SkeletalMeshMergeParams));
+		GetMesh()->SetAnimClass(AnimClass);
+		GetMesh()->SkeletalMesh->PhysicsAsset = PhysicalAsset;
+	}
+
 	OnCharacterSpawn.Broadcast();
 }
 

@@ -48,6 +48,36 @@ public:
     UPROPERTY(BlueprintAssignable)
     FOnCharacterIsDestroyActionSignature OnCharacterIsDestroy;
 
+protected :
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Skin)
+    TArray<class USkeletalMesh*> ListMeshRandomVisage;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Skin)
+    TArray<class USkeletalMesh*> ListMeshRandomHaire;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Skin)
+    TArray<class USkeletalMesh*> ListMeshRandomGlove;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Skin)
+    TArray<class USkeletalMesh*> ListMeshRandomShoes;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Skin)
+    TArray<class USkeletalMesh*> ListMeshRandomHeadGear;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Skin)
+    TArray<class USkeletalMesh*> ListMeshRandomHeadShoulderPad;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Skin)
+    TArray<class USkeletalMesh*> ListMeshRandomBackpack;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Skin)
+    TArray<class USkeletalMesh*> ListMeshRandomBelt;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Skin)
+    TArray<class USkeletalMesh*> ListMeshRandomCloth;
+    
+    
 protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
