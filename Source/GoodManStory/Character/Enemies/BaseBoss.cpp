@@ -5,6 +5,8 @@
 
 #include <Utility/Utility.h>
 
+
+#include "BossAIController.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -111,9 +113,11 @@ void ABaseBoss::OnGroundAttackZoneEndOverlap(UPrimitiveComponent* OverlappedComp
 ABaseBoss::ABaseBoss()
 {
     GetCapsuleComponent()->SetGenerateOverlapEvents(false);
-    GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_CHANNEL_TRASH, ECollisionResponse::ECR_Ignore);
-    GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Ignore);
-    GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+    GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+    GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic,
+                                                         ECollisionResponse::ECR_Block);
+    GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic,
+                                                         ECollisionResponse::ECR_Block);
 
     GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
     GetMesh()->SetGenerateOverlapEvents(false);
@@ -126,12 +130,12 @@ ABaseBoss::ABaseBoss()
     HeadCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     HeadCollision->SetSphereRadius(32.f);
     HeadCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-    HeadCollision->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Overlap);
+    HeadCollision->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Block);
     HeadCollision->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
     HeadCollision->SetCollisionObjectType(COLLISION_CHANNEL_ENEMY);
     HeadCollision->ComponentTags.Add(TEXT("CharacterWeakZone"));
     HeadCollision->ComponentTags.Add(TEXT("Body"));
-    
+
     PunchZone = CreateDefaultSubobject<USphereComponent>("PunchZone");
     PunchZone->SetupAttachment(GetCapsuleComponent());
     PunchZone->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -246,20 +250,29 @@ ABaseBoss::ABaseBoss()
 void ABaseBoss::Punch() noexcept
 {
     bAttacking = true;
+    bCanPunch = false;
     PlayAnimMontage(PunchAttack, PunchSpeed);
     OnPunch.Broadcast();
+}
+
+void ABaseBoss::TryToResetAttacking() noexcept
+{
+    if (bCanThrowFireBall && bCanPunch && bCanGroundAttack)
+        bAttacking = false;
 }
 
 void ABaseBoss::GroundAttack() noexcept
 {
     bAttacking = true;
-    PlayAnimMontage(GroundAttackAnimMontage, PunchSpeed);
+    bCanGroundAttack = false;
+    PlayAnimMontage(GroundAttackAnimMontage, GroundAttackSpeed);
     OnGroundAttack.Broadcast();
 }
 
 void ABaseBoss::FireBallAttack() noexcept
 {
     bAttacking = true;
+    bCanThrowFireBall = false;
     PlayAnimMontage(FireBallAttackSpeedAnimMontage, FireBallAttackSpeed);
     OnFireBallAttackBegin.Broadcast();
 }
@@ -270,18 +283,18 @@ void ABaseBoss::ThrowFireBall() noexcept
     SpawnParams.Owner                          = nullptr;
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-    FVector SpawnLocation = GetMesh()->GetBoneLocation(FireBallSpawningBoneName, EBoneSpaces::WorldSpace) + GetActorForwardVector() * 100.f;
+    FVector SpawnLocation = GetMesh()->GetSocketLocation(FireBallSpawningBoneName);
 
     FVector  PlayerLoc            = GetWorld()->GetFirstPlayerController()->GetCharacter()->GetActorLocation();
     FRotator RotationTowardPlayer = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, PlayerLoc);
 
     AFireBall* NewFireBall = GetWorld()->SpawnActor<AFireBall>(FireBallType.Get(), SpawnLocation, RotationTowardPlayer,
-                                                              SpawnParams);
+                                                               SpawnParams);
 
     if (NewFireBall)
     {
         NewFireBall->SetDamage(FireBallDamage);
-        NewFireBall->SetRadius(FireBallScale * 32.f);
+        //NewFireBall->SetRadius(FireBallScale * 40.f);
         NewFireBall->SetActorScale3D(FVector{FireBallScale});
         NewFireBall->Throw(FireBallVelocity);
         OnFireBallThrow.Broadcast();
@@ -295,8 +308,6 @@ void ABaseBoss::ThrowFireBall() noexcept
 
 void ABaseBoss::DoChocWave() noexcept
 {
-    bAttacking = true;
-
     TArray<AActor*> pActorsOverllapingWithChocWave;
 
     ExternChocWaveZone->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -304,12 +315,15 @@ void ABaseBoss::DoChocWave() noexcept
     ExternChocWaveZone->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
     for (AActor* pActor : pActorsOverllapingWithChocWave)
-    {        
+    {
         ABaseCharacter* pCharacter = Cast<ABaseCharacter>(pActor);
 
-        FVector LaunchForce = pActor->GetActorLocation() - GetActorLocation();
-        const float ChocForceWithDistance = GroundAttackChocForce * (ChocForceDependingOfDistance ? 1.f : 1.f - (LaunchForce
-        .SizeSquared() / (ExternChocWaveZone->GetScaledSphereRadius() * ExternChocWaveZone->GetScaledSphereRadius())));
+        FVector     LaunchForce           = pActor->GetActorLocation() - GetActorLocation();
+        const float ChocForceWithDistance = GroundAttackChocForce * (ChocForceDependingOfDistance ? 1.f :
+                                                                         1.f - (LaunchForce.SizeSquared() / (
+                                                                             ExternChocWaveZone->GetScaledSphereRadius()
+                                                                             * ExternChocWaveZone->
+                                                                             GetScaledSphereRadius())));
         LaunchForce.Normalize();
         LaunchForce *= ChocForceWithDistance;
         LaunchForce.Z = GroundAttackChocForceHeightRatio * ChocForceWithDistance;
@@ -318,7 +332,7 @@ void ABaseBoss::DoChocWave() noexcept
 
         if (pPlayer)
         {
-            pPlayer->TakeDamageCharacter(Damage);
+            pPlayer->TakeDamageCharacter(GroundAttackDamage);
         }
 
         pCharacter->LaunchAndStun(LaunchForce, true, true);
@@ -333,35 +347,35 @@ void ABaseBoss::SetLevel(uint8 NewLevel) noexcept
 
     switch (Level) /*Cannot be reverse for optimize line numbers. Lower level must be execute before upper level*/
     {
-        case 0:
-            OnUpgradLevel1.Broadcast(Level);
-            break;
-            
         case 1:
             OnUpgradLevel1.Broadcast(Level);
-            OnUpgradLevel2.Broadcast(Level);
-        break;
+            break;
 
         case 2:
             OnUpgradLevel1.Broadcast(Level);
             OnUpgradLevel2.Broadcast(Level);
-            OnUpgradLevel3.Broadcast(Level);
-        break;
+            break;
 
         case 3:
             OnUpgradLevel1.Broadcast(Level);
             OnUpgradLevel2.Broadcast(Level);
             OnUpgradLevel3.Broadcast(Level);
-            OnUpgradLevel4.Broadcast(Level);
-        break;
+            break;
 
         case 4:
             OnUpgradLevel1.Broadcast(Level);
             OnUpgradLevel2.Broadcast(Level);
             OnUpgradLevel3.Broadcast(Level);
             OnUpgradLevel4.Broadcast(Level);
+            break;
+
+        case 5:
+            OnUpgradLevel1.Broadcast(Level);
+            OnUpgradLevel2.Broadcast(Level);
+            OnUpgradLevel3.Broadcast(Level);
+            OnUpgradLevel4.Broadcast(Level);
             OnUpgradLevel5.Broadcast(Level);
-        break;
+            break;
 
         default: ;
     }
@@ -386,5 +400,13 @@ void ABaseBoss::BeginPlay()
     });
     GroundZone->SetRelativeLocation(FVector{0.f, 0.f, -GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()});
 
+    
+    if(FirstAnimMontage != nullptr)
+    {
+        PlayAnimMontage(FirstAnimMontage);
+    }
+    else
+        Cast<ABossAIController>(GetController())->StartBehaviours();
+    
     //SetLevel(Cast<ABasePlayer>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0))->GetPlayerLevel());
 }

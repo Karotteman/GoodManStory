@@ -197,7 +197,7 @@ void AEnemiesManager::Spawn(float DeltaTime)
             continue;
         }
 
-        /*Generate rqandom scale if entity use RandomScale with limits*/
+        /*Generate random scale if entity use RandomScale with limits*/
         float Scale;
         if (NewEnemy->bRandomSize)
             Scale = FMath::RandRange(NewEnemy->GetSizeMin(), NewEnemy->GetSizeMax());
@@ -206,6 +206,10 @@ void AEnemiesManager::Spawn(float DeltaTime)
 
         FVector RandScale = FVector{Scale, Scale, Scale};
         NewEnemy->SetActorScale3D(RandScale);
+
+        /*Generate random rotation if entity use RandomScale with limits*/
+        FRotator Rotation = FRotator::MakeFromEuler(FVector(0.f, 0.f, FMath::RandRange(0.f, 360.f)));
+        NewEnemy->SetActorRotation(Rotation);
 
         /*Add function to move eneity on death contenor when it death*/
         NewEnemy->OnCharacterDeath.AddDynamic(this, &AEnemiesManager::MoveLivingEnemyOnDeathContainer);

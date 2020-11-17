@@ -92,6 +92,7 @@ ABasePlayer::ABasePlayer()
     BoxWeapon->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
     BoxWeapon->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Ignore);
     BoxWeapon->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+    BoxWeapon->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
     BoxWeapon->SetRelativeLocation({0.f, 70.f, 0.f});
     BoxWeapon->SetRelativeScale3D({1.f, 0.8f, 0.5f});
 
@@ -107,6 +108,9 @@ ABasePlayer::ABasePlayer()
 
     MonoHitBehavioursComponent = CreateDefaultSubobject<UMonoHitBehaviours>(TEXT("MonoHitBehavioursComponent"));
 
+    TourbilolCoolDownTimer = TourbilolCoolDown;
+    MaleficeCoolDownTimer = MaleficeCoolDown;
+    
     bIsStunable = false;
     // Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
     // are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
@@ -147,8 +151,9 @@ void ABasePlayer::Charge()
         return;
 
     bCanDoAction = false;
-    bCanAttack = false;
-    
+    bCanAttack   = false;
+
+
     /*Play animation and activate/Desactivate collider*/
     PlayAnimMontage(SlotAnimationsCharge);
 
@@ -157,23 +162,23 @@ void ABasePlayer::Charge()
 }
 
 void ABasePlayer::BasicAttack()
-{    
+{
     if (!bCanAttack && !bCanDoAction)
         return;
 
     bCanDoAction = false;
-    bCanAttack = false;
-    
+    bCanAttack   = false;
+
     PlayAnimMontage(SlotAnimationsAttackCombo[BasicAttackComboCount], BasicAttackSpeed);
     MonoHitBehavioursComponent->Reset();
 
     OnPlayerBeginBasicAttack.Broadcast(BasicAttackComboCount);
-    
+
     if (BasicAttackComboCount >= SlotAnimationsAttackCombo.Num() - 1)
         BasicAttackComboCount = 0;
     else
         BasicAttackComboCount++;
-    
+
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
                                          "BasicAttack combo:" + FString::FromInt(BasicAttackComboCount));
@@ -181,15 +186,17 @@ void ABasePlayer::BasicAttack()
 
 void ABasePlayer::TourbilolAttack()
 {
-    if (!bTourbillolIsUnlock || !bCanDoAction)
+    if (!bTourbillolIsUnlock || !bCanDoAction || !bCanDoTourbilol)
         return;
 
     bCanDoAction = false;
-    bCanAttack = false;
+    bCanAttack   = false;
     bDoTourbilol = true;
-    
+    bCanDoTourbilol = false;
+    TourbilolCoolDownTimer = 0.f;
+
     PlayAnimMontage(SlotAnimationsTourbillol);
-    
+
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("TourbilolAttack"));
 }
@@ -207,10 +214,13 @@ void ABasePlayer::EvilSpellCapacity()
 {
     if (!bEvilSpellCapacityIsUnlock)
         return;
-    
-    if (bCanEvilSpellCapacity)
+
+    if (!bDoEvilSpellCapacity && bCanEvilSpellCapacity)
     {
+        bDoEvilSpellCapacity = true;
         bCanEvilSpellCapacity = false;
+        MaleficeCoolDownTimer = 0.f;
+        Sensibility *= 1/WorldSlowingSpeedEvil;
         UGameplayStatics::SetGlobalTimeDilation(GetWorld(), WorldSlowingSpeedEvil);
         CustomTimeDilation = 1 - WorldSlowingSpeedEvil + PlayerSlowingSpeedEvil + 2;
         GetWorldTimerManager().SetTimer(MemberTimerEvilCapacity, this, &ABasePlayer::SetCanEvilCapacity,
@@ -225,23 +235,23 @@ void ABasePlayer::EvilSpellCapacity()
 
 void ABasePlayer::EvilHealing()
 {
-    Life+= Heal;
+    Life += Heal;
 }
 
 void ABasePlayer::SetCanEvilCapacity()
 {
-    bCanEvilSpellCapacity = true;
+    bDoEvilSpellCapacity = false;
     UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1);
     CustomTimeDilation = 1;
     GetWorldTimerManager().ClearTimer(MemberTimerEvilCapacity);
-
+    Sensibility /= 1/WorldSlowingSpeedEvil;
     OnPlayerEndEvilCapacity.Broadcast();
 }
 
 void ABasePlayer::SwitchCameraMode()
 {
     CameraBoom->InterpolateOffSet(FVector::ZeroVector);
-    
+
     OnPlayerBeginSwitchCamera.Broadcast();
 }
 
@@ -270,7 +280,7 @@ void ABasePlayer::LookUpAtRate(float Rate)
 void ABasePlayer::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-    
+
     CameraBoom->Update(DeltaTime);
 
     TArray<AActor*> othersOverllaping;
@@ -280,6 +290,8 @@ void ABasePlayer::Tick(float DeltaTime)
     {
         Push(other);
     }
+    
+    ReduceCoolDownTimerForSkills(DeltaTime);
 }
 
 void ABasePlayer::MoveForward(float Value)
@@ -326,9 +338,9 @@ void ABasePlayer::SetCanAttack(bool bNewCanAttack)
 void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
                                                 const FHitResult&    SweepResult)
-{    
+{
     if (OtherComp->ComponentHasTag("Body"))
-    {        
+    {
         ABaseEnemy* Enemy = Cast<ABaseEnemy>(OtherActor);
 
         if (UNLIKELY(!Enemy))
@@ -337,12 +349,12 @@ void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
         /*Add the actor on if is has not already hit*/
         if (UNLIKELY(!bDoTourbilol && MonoHitBehavioursComponent->CheckIfAlreadyExistAndAdd(OtherActor)))
             return;
-        
+
         if (UNLIKELY(OtherComp->ComponentHasTag(TEXT("CharacterWeakZone"))))
             Enemy->TakeDamageCharacter(Damage * WeakZoneDamageMultiplicator);
         else
             Enemy->TakeDamageCharacter(Damage);
-            
+
         if (LIKELY(Enemy->IsEjectOnAttack()))
         {
             FVector LaunchForce = OtherActor->GetActorLocation() - OverlappedComp->GetComponentLocation();
@@ -356,7 +368,53 @@ void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
         {
             AddScore(Enemy->GetScoreRewardOnKill());
             TakeRage(Enemy->GetRageRewardOnKill());
+            ReduceCoolDownTimerForSkills(Enemy->GetReducingTimePlayerSkillsRewardOnKill());
         }
+    }
+}
+
+void ABasePlayer::SetRage(float NewRage) noexcept
+{
+    Rage = NewRage;
+}
+
+void ABasePlayer::SetLevel(int NewLevel) noexcept
+{
+    Level = NewLevel;
+
+    switch (Level) /*Cannot be reverse for optimize line numbers. Lower level must be execute before upper level*/
+    {
+        case 1:
+            OnPlayerUpgradLevel1.Broadcast(Level);
+            break;
+
+        case 2:
+            OnPlayerUpgradLevel1.Broadcast(Level);
+            OnPlayerUpgradLevel2.Broadcast(Level);
+            break;
+
+        case 3:
+            OnPlayerUpgradLevel1.Broadcast(Level);
+            OnPlayerUpgradLevel2.Broadcast(Level);
+            OnPlayerUpgradLevel3.Broadcast(Level);
+            break;
+
+        case 4:
+            OnPlayerUpgradLevel1.Broadcast(Level);
+            OnPlayerUpgradLevel2.Broadcast(Level);
+            OnPlayerUpgradLevel3.Broadcast(Level);
+            OnPlayerUpgradLevel4.Broadcast(Level);
+            break;
+
+        case 5:
+            OnPlayerUpgradLevel1.Broadcast(Level);
+            OnPlayerUpgradLevel2.Broadcast(Level);
+            OnPlayerUpgradLevel3.Broadcast(Level);
+            OnPlayerUpgradLevel4.Broadcast(Level);
+            OnPlayerUpgradLevel5.Broadcast(Level);
+            break;
+
+        default: ;
     }
 }
 
@@ -372,39 +430,54 @@ void ABasePlayer::TakeRage(float AdditionnalRage) noexcept
         Rage += AdditionnalRage;
         OnPlayerTakeRage.Broadcast(Rage, AdditionnalRage, AdditionnalRage);
     }
-    
+
     float RageRate = Rage / MaxRage * 100.f;
 
     switch (Level)
     {
         case 0:
-            if (RageRate < RageToUnlockLevel1)
-                break;
-            while (GetPlayerLevel() < 1)
+            if (RageRate >= RageToUnlockLevel1)
                 LevelUp();
-        
         case 1:
-            if (RageRate < RageToUnlockLevel2)
-                break;
-            while (GetPlayerLevel() < 2)
+            if (RageRate >= RageToUnlockLevel2)
                 LevelUp();
         case 2:
-            if (RageRate < RageToUnlockLevel3)
-                break;
-            while (GetPlayerLevel() < 3)
+            if (RageRate >= RageToUnlockLevel3)
                 LevelUp();
         case 3:
-            if (RageRate < RageToUnlockLevel4)
-                break;
-            while (GetPlayerLevel() < 4)
+            if (RageRate >= RageToUnlockLevel4)
                 LevelUp();
         case 4:
-            if (RageRate < RageToUnlockLevel5)
-                break;
-            while (GetPlayerLevel() < 5)
+            if (RageRate >= RageToUnlockLevel5)
                 LevelUp();
+
         default: ;
     }
+}
+
+void ABasePlayer::ReduceCoolDownTimerForSkills(float ReducingTime)
+{
+    if (!bCanEvilSpellCapacity)
+    {
+        MaleficeCoolDownTimer += ReducingTime;
+
+        if (MaleficeCoolDownTimer >= MaleficeCoolDown)
+        {
+            bCanEvilSpellCapacity = true;
+            MaleficeCoolDownTimer = MaleficeCoolDown;
+        }
+    }
+
+    if (!bCanDoTourbilol)
+    {
+        TourbilolCoolDownTimer += ReducingTime;
+
+        if (TourbilolCoolDownTimer >= TourbilolCoolDown)
+        {
+            bCanDoTourbilol = true;
+            TourbilolCoolDownTimer = TourbilolCoolDown;
+        }
+    }    
 }
 
 void ABasePlayer::LevelUp() noexcept
@@ -455,7 +528,7 @@ void ABasePlayer::OnChargeBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
         if (pEnemy && pEnemy->IsEjectOnCharge())
         {
             OnPlayerChargeHit.Broadcast(pEnemy);
-            
+
             FVector LaunchForce = OtherActor->GetActorLocation() - GetActorLocation();
             LaunchForce.Normalize();
             LaunchForce *= pEnemy->ForceEjection;
@@ -524,18 +597,16 @@ void ABasePlayer::Kill()
 
 void ABasePlayer::Turn(float Val)
 {
-    if(!bInvertedAxisY)
-    AddControllerYawInput(Val*Sensibility*GetWorld()->DeltaTimeSeconds);
+    if (!bInvertedAxisY)
+        AddControllerYawInput(Val * Sensibility * GetWorld()->DeltaTimeSeconds);
     else
-        AddControllerYawInput(Val*Sensibility*GetWorld()->DeltaTimeSeconds*-1);
-
+        AddControllerYawInput(Val * Sensibility * GetWorld()->DeltaTimeSeconds * -1);
 }
 
 void ABasePlayer::LookUp(float Val)
 {
-    if(!bInvertedAxisX)
-        AddControllerPitchInput(Val*Sensibility*GetWorld()->DeltaTimeSeconds);
+    if (!bInvertedAxisX)
+        AddControllerPitchInput(Val * Sensibility * GetWorld()->DeltaTimeSeconds);
     else
-        AddControllerPitchInput(Val*Sensibility*GetWorld()->DeltaTimeSeconds*-1);
-
+        AddControllerPitchInput(Val * Sensibility * GetWorld()->DeltaTimeSeconds * -1);
 }
