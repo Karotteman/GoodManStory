@@ -87,7 +87,7 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float LifeMax = 100.f;
 
-    UPROPERTY(EditAnywhere, Category = Stats)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float Life = LifeMax;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stats)
