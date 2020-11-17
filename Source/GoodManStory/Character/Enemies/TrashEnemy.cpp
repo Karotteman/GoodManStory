@@ -80,3 +80,14 @@ void ATrashEnemy::Kill()
 {
     Super::Kill();
 }
+
+void ATrashEnemy::BasicAttack()
+{
+    if (!bCanAttack)
+        return;
+    
+    bAttacking = true;
+    bCanAttack = false;
+    
+    PlayAnimMontage(Attack);
+}

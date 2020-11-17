@@ -48,6 +48,36 @@ public:
     UPROPERTY(BlueprintAssignable)
     FOnCharacterIsDestroyActionSignature OnCharacterIsDestroy;
 
+protected :
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Skin)
+    TArray<class USkeletalMesh*> ListMeshRandomVisage;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Skin)
+    TArray<class USkeletalMesh*> ListMeshRandomHaire;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Skin)
+    TArray<class USkeletalMesh*> ListMeshRandomGlove;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Skin)
+    TArray<class USkeletalMesh*> ListMeshRandomShoes;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Skin)
+    TArray<class USkeletalMesh*> ListMeshRandomHeadGear;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Skin)
+    TArray<class USkeletalMesh*> ListMeshRandomHeadShoulderPad;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Skin)
+    TArray<class USkeletalMesh*> ListMeshRandomBackpack;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Skin)
+    TArray<class USkeletalMesh*> ListMeshRandomBelt;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Skin)
+    TArray<class USkeletalMesh*> ListMeshRandomCloth;
+    
+    
 protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
@@ -98,6 +128,9 @@ public :
     UFUNCTION(BlueprintCallable)
     void LaunchAndStun(const FVector& Force, bool bXYOverride, bool bZOverride);
 
+    UFUNCTION(BlueprintCallable)
+    void SetMaxLifeAndAddLifeDiff(float NewMaxLife);
+    
     /**
     * @brief Function to heal the player
     * @param dammage
