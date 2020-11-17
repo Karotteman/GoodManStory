@@ -16,7 +16,7 @@ class GOODMANSTORY_API ATrashEnemy : public ABaseEnemy
 {
     GENERATED_BODY()
 
-public :
+protected :
 
     UPROPERTY(EditAnywhere,BlueprintReadOnly, Category=Attack)
     class UAnimMontage* Attack;
@@ -34,12 +34,19 @@ protected :
 
     UPROPERTY(BlueprintAssignable)
     FOnStunPlayerActionSignature OnStunPlayer;
-    
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool bCanAttack = true;
+
 public:
 
     ATrashEnemy();
 
     virtual void Kill() override;
+
+    UFUNCTION(BlueprintCallable)
+    void BasicAttack();
+    
 
 protected:
 

@@ -28,7 +28,7 @@ protected :
     UPROPERTY(Category = Stats, EditAnywhere)
     float AvoidanceLimitDistance = 1000.f;
 
-    UPROPERTY(Category = Stats, EditAnywhere)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float TimeToNextAttack = 3.f;
 
     UPROPERTY(Category = Stats, EditAnywhere)
