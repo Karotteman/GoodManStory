@@ -74,6 +74,9 @@ protected:
     UAnimMontage* SlotAnimationsTourbillol;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
+    UAnimMontage* SlotAnimationsMalefice;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
     float TourbilolCoolDown = 7.f;
     float TourbilolCoolDownTimer = 0.f;
 
@@ -445,6 +448,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     void SetDoTourbilol(bool bNewDoTourbilol) { bDoTourbilol = bNewDoTourbilol; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetDoMalefice(bool bNewDoMalefice) { bDoEvilSpellCapacity = bNewDoMalefice; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     void AddScore(int32 AdditionalScore) noexcept;
