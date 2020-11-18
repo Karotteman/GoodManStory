@@ -74,6 +74,7 @@ void ABaseCharacter::BeginPlay()
 		GetMesh()->SetSkeletalMesh(UMeshMergeFunctionLibrary::MergeMeshes(SkeletalMeshMergeParams));
 		GetMesh()->SetAnimClass(AnimClass);
 		GetMesh()->SkeletalMesh->PhysicsAsset = PhysicalAsset;
+		RefreshSkelMeshOnPhysicsAssetChange(GetMesh()->SkeletalMesh);
 	}
 
 	OnCharacterSpawn.Broadcast();
