@@ -483,6 +483,22 @@ void ABasePlayer::ReduceCoolDownTimerForSkills(float ReducingTime)
     }    
 }
 
+void ABasePlayer::SetTourbillolIsUnlock(bool bNewTourbillolIsUnlock)
+{
+    if (bNewTourbillolIsUnlock)
+        TourbilolCoolDownTimer = TourbilolCoolDown;
+    
+    bTourbillolIsUnlock = bNewTourbillolIsUnlock;
+}
+
+void ABasePlayer::SetEvilSpellCapacityIsUnlock(bool bNewEvilSpellCapacityIsUnlock)
+{
+    if (bNewEvilSpellCapacityIsUnlock)
+        MaleficeCoolDownTimer = MaleficeCoolDown;
+    
+    bEvilSpellCapacityIsUnlock = bNewEvilSpellCapacityIsUnlock;
+}
+
 void ABasePlayer::LevelUp() noexcept
 {
     if (Level + 1 > MaxLevel)

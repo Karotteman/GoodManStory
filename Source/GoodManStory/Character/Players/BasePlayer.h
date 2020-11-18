@@ -406,11 +406,10 @@ public:
     void ReduceCoolDownTimerForSkills(float ReducingTime);
 
     UFUNCTION(BlueprintCallable, Category = Stats)
-    void SetTourbillolIsUnlock(bool bNewTourbillolIsUnlock) { bTourbillolIsUnlock = bNewTourbillolIsUnlock; }
+    void SetTourbillolIsUnlock(bool bNewTourbillolIsUnlock);
 
     UFUNCTION(BlueprintCallable, Category = Stats)
-    void SetEvilSpellCapacityIsUnlock(bool bNewEvilSpellCapacityIsUnlock) { bEvilSpellCapacityIsUnlock = 
-    bNewEvilSpellCapacityIsUnlock; }
+    void SetEvilSpellCapacityIsUnlock(bool bNewEvilSpellCapacityIsUnlock);
     
     /*
         UFUNCTION(BlueprintCallable, Category = Stats)
