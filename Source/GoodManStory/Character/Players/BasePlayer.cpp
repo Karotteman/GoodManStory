@@ -212,22 +212,25 @@ void ABasePlayer::EvilSpellAttack()
 
 void ABasePlayer::EvilSpellCapacity()
 {
-    if (!bEvilSpellCapacityIsUnlock)
+    if (!bEvilSpellCapacityIsUnlock || !bCanDoAction || !bCanEvilSpellCapacity)
         return;
+    
+    bDoEvilSpellCapacity = true;
+    bCanEvilSpellCapacity = false;
+    bCanDoAction = false;
+    bCanAttack   = false;
+    MaleficeCoolDownTimer = 0.f;
 
-    if (!bDoEvilSpellCapacity && bCanEvilSpellCapacity)
-    {
-        bDoEvilSpellCapacity = true;
-        bCanEvilSpellCapacity = false;
-        MaleficeCoolDownTimer = 0.f;
-        Sensibility *= 1/WorldSlowingSpeedEvil;
-        UGameplayStatics::SetGlobalTimeDilation(GetWorld(), WorldSlowingSpeedEvil);
-        CustomTimeDilation = 1 - WorldSlowingSpeedEvil + PlayerSlowingSpeedEvil + 2;
-        GetWorldTimerManager().SetTimer(MemberTimerEvilCapacity, this, &ABasePlayer::SetCanEvilCapacity,
-                                        DurationOfTheSlowdownEvil, false, 1);
+    PlayAnimMontage(SlotAnimationsMalefice);
+    
+    Sensibility *= 1/WorldSlowingSpeedEvil;
+    UGameplayStatics::SetGlobalTimeDilation(GetWorld(), WorldSlowingSpeedEvil);
+    CustomTimeDilation = 1 - WorldSlowingSpeedEvil + PlayerSlowingSpeedEvil + 2;
+    GetWorldTimerManager().SetTimer(MemberTimerEvilCapacity, this, &ABasePlayer::SetCanEvilCapacity,
+                                    DurationOfTheSlowdownEvil, false, 1);
 
-        OnPlayerBeginEvilCapacity.Broadcast();
-    }
+    OnPlayerBeginEvilCapacity.Broadcast();
+    
     if (GEngine)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("EvilSpellCapcity"));
 }
