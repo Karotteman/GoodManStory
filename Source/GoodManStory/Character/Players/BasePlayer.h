@@ -74,6 +74,9 @@ protected:
     UAnimMontage* SlotAnimationsTourbillol;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
+    UAnimMontage* SlotAnimationsMalefice;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
     float TourbilolCoolDown = 7.f;
     float TourbilolCoolDownTimer = 0.f;
 
@@ -403,11 +406,10 @@ public:
     void ReduceCoolDownTimerForSkills(float ReducingTime);
 
     UFUNCTION(BlueprintCallable, Category = Stats)
-    void SetTourbillolIsUnlock(bool bNewTourbillolIsUnlock) { bTourbillolIsUnlock = bNewTourbillolIsUnlock; }
+    void SetTourbillolIsUnlock(bool bNewTourbillolIsUnlock);
 
     UFUNCTION(BlueprintCallable, Category = Stats)
-    void SetEvilSpellCapacityIsUnlock(bool bNewEvilSpellCapacityIsUnlock) { bEvilSpellCapacityIsUnlock = 
-    bNewEvilSpellCapacityIsUnlock; }
+    void SetEvilSpellCapacityIsUnlock(bool bNewEvilSpellCapacityIsUnlock);
     
     /*
         UFUNCTION(BlueprintCallable, Category = Stats)
@@ -445,6 +447,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     void SetDoTourbilol(bool bNewDoTourbilol) { bDoTourbilol = bNewDoTourbilol; }
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void SetDoMalefice(bool bNewDoMalefice) { bDoEvilSpellCapacity = bNewDoMalefice; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
     void AddScore(int32 AdditionalScore) noexcept;
