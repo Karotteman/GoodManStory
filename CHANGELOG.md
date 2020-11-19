@@ -6,6 +6,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2020-11-19
+### Added
+- Add tourbilol sound
+- Add executable icon
+- Add cooldown feature witch can be descreas when the player killed enemies
+- Add cooldown for skill GUI
+- Add tutorial in menu and in submenu
+- Add tutorial in game when player unlock skills
+- Change the attack type of the tank. Tank is now more epic and more fighter
+- Add modular skins for all character. Trash spawn now with procedural skin.
+- Boss spawn now with procedural skin in function of his level
+- Add polish button for the UI with sounds
+- Add teleporter feedback (particle, camera shake, gamepade shake, floating system)
+- Add animation and screen effect for the malefice capacity
+- Add blood screen when player is hit
+- Improve the death screen
+- Improve submenu
+- Add hit animation when trash mob take degas
+- Change the church aspect
+- Improve te boss navigation (double navmesh for the boss)
+- Player can now navigate in the menu with gamepad
+
+### Change
+- Loop the musics
+- Active fire trail on tourbilol
+- Ennemies spawn now with random rotation
+- Change the respawn method of the player on the boss level (Do no restard the wave)
+- Replace the main menu from scene to image
+- Increase the metallicness of the armor
+- Blood splatch is now less fluo or and less dark
+- Increase the walk animation of the trash
+- Replace the victory sound
+- Set music and fx sound at half
+- Change the dash animation
+- Rework decoration on main map and fixe some bug with trash
+- Improve enmeis damage and rebalance lots of variable for the character
+- Improve aircontrole of the player
+- On the boss map, fire ball do not collide with the platform
+
+### Fixed
+- Malefice reduce the camera sensibilty
+- Restart button and back to menu do not restart the player stats
+- Fixe life bar reduce on the player's level 1
+- Tank and trash wait the attack cooldown before attacking the player
+- Player play hit sound after the teleportation and call hit callback
+- Fixe music is stopping when volume is set to 0
+- Fixe residual sound and music when volume is set at 0
+- Fixe trask can walk 5 meter
+
 ## [0.2.0] (BETA) - 2020-11-13
 ### Added
 - Add blood decal on ground with flower shape
