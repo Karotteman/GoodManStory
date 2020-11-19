@@ -109,7 +109,8 @@ void ABaseCharacter::TakeDamageCharacter(float dmg) noexcept
 		OnCharacterTakeDamage.Broadcast(this, dmg, dmg);
 	}
 
-	PlayAnimMontage(SlotAnimationsHit);
+	if (!GetCurrentMontage())
+		PlayAnimMontage(SlotAnimationsHit);
 }
 
 void ABaseCharacter::SetMaxLifeAndAddLifeDiff(float NewMaxLife)
