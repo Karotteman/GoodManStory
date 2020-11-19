@@ -549,7 +549,10 @@ void ABasePlayer::OnChargeBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
             OnPlayerChargeHit.Broadcast(pEnemy);
 
             FVector LaunchForce = OtherActor->GetActorLocation() - GetActorLocation();
-            LaunchForce.Normalize();
+            if (!LaunchForce.Normalize())
+            {
+                LaunchForce = FVector::ForwardVector;
+            }
             LaunchForce *= pEnemy->ForceEjection;
             LaunchForce.Z = ChargeExpulseHeigthRatio * ChargeExpulseForce;
 
@@ -564,14 +567,18 @@ void ABasePlayer::Push(AActor* other)
     if (pEnemy && pEnemy->IsPushable())
     {
         FVector Direction = other->GetActorLocation() - GetActorLocation();
-        Direction.Normalize();
+        if (!Direction.Normalize())
+        {
+            Direction = FVector::ForwardVector;
+        }
+        
         Direction.Z = 0.f;
 
         //pEnemy->SetActorLocation(GetActorLocation() + Direction * (pEnemy->GetCapsuleComponent()->GetScaledCapsuleRadius() + 
         //GetCapsuleComponent()->GetScaledCapsuleRadius()));
         //pEnemy->GetCharacterMovement()->AddForce(Direction * PushForce);
         //pEnemy->GetCharacterMovement()->AddImpulse(Direction * PushForce, true);
-        pEnemy->LaunchCharacter(Direction * PushForce, true, true);
+        pEnemy->LaunchCharacter(Direction * PushForce, false, false);
     }
 }
 
