@@ -328,6 +328,9 @@ public :
     }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
+    void EnableCollisionWithPlayer(bool bNewFlag);
+
+    UFUNCTION(BlueprintCallable, Category = Stats)
     float GetFireBallAttackSpeed() const { return FireBallAttackSpeed; }
 
     UFUNCTION(BlueprintCallable, Category = Stats)
