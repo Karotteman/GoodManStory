@@ -76,7 +76,9 @@ protected :
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Skin)
     TArray<class USkeletalMesh*> ListMeshRandomCloth;
-    
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UAnimMontage* SlotAnimationsHit;
     
 protected:
     // Called when the game starts or when spawned

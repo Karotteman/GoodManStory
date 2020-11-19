@@ -221,7 +221,7 @@ void ABasePlayer::EvilSpellCapacity()
     bCanAttack   = false;
     MaleficeCoolDownTimer = 0.f;
 
-    PlayAnimMontage(SlotAnimationsMalefice);
+    PlayAnimMontage(SlotAnimationsMalefice, MaleficeAnimSpeed);
     
     Sensibility *= 1/WorldSlowingSpeedEvil;
     UGameplayStatics::SetGlobalTimeDilation(GetWorld(), WorldSlowingSpeedEvil);
