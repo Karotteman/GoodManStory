@@ -78,7 +78,8 @@ ABasePlayer::ABasePlayer()
     LeftHandObject = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
     LeftHandObject->SetupAttachment(GetMesh(), "hand_l");
     LeftHandObject->SetRelativeScale3D({1.5f, 1.5f, 1.f});
-    LeftHandObject->SetRelativeRotation({0.f, 0.f, 20.f});
+    LeftHandObject->SetRelativeRotation({100.f, -20.f, 16.f});
+    LeftHandObject->SetRelativeLocation({13.f, -6.f, 1.5f});
     LeftHandObject->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     LeftHandObject->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
     LeftHandObject->SetCollisionResponseToChannel(COLLISION_CHANNEL_TRASH_MOB, ECollisionResponse::ECR_Overlap);
