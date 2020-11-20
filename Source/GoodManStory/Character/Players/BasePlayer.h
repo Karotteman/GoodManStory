@@ -75,6 +75,9 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
     UAnimMontage* SlotAnimationsMalefice;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack, meta=(UIMin = "0.0"))
+    float MaleficeAnimSpeed = 1.0f;
     
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack)
     float TourbilolCoolDown = 7.f;

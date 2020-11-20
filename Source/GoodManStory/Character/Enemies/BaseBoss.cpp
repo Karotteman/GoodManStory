@@ -381,6 +381,18 @@ void ABaseBoss::SetLevel(uint8 NewLevel) noexcept
     }
 }
 
+void ABaseBoss::EnableCollisionWithPlayer(bool bNewFlag)
+{
+    if (bNewFlag)
+    {
+        GetMesh()->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Block);
+    }
+    else
+    {
+        GetMesh()->SetCollisionResponseToChannel(COLLISION_CHANNEL_PLAYER, ECollisionResponse::ECR_Overlap);
+    }
+}
+
 void ABaseBoss::BeginPlay()
 {
     Super::BeginPlay();
