@@ -109,7 +109,7 @@ void ABaseCharacter::TakeDamageCharacter(float dmg) noexcept
 		OnCharacterTakeDamage.Broadcast(this, dmg, dmg);
 	}
 
-	if (!GetCurrentMontage())
+	if (!GetCurrentMontage() && !bIsStun)
 		PlayAnimMontage(SlotAnimationsHit);
 }
 
