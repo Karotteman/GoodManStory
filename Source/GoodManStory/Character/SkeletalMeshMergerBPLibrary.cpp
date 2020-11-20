@@ -3,6 +3,8 @@
 
 #include "SkeletalMeshMergerBPLibrary.h"
 
+#include "GenericPlatform/GenericPlatformMisc.h"
+
 static void ToMergeParams1(const TArray<FSkelMeshMergeSectionMapping_BP>& InSectionMappings, TArray<FSkelMeshMergeSectionMapping>& OutSectionMappings)
 {
 	if (InSectionMappings.Num() > 0)
@@ -61,6 +63,7 @@ USkeletalMesh* UMeshMergeFunctionLibrary::MergeMeshes(const FSkeletalMeshMergePa
 	{
 		BaseMesh->Skeleton = Params.Skeleton;
 		bRunDuplicateCheck = true;
+
 		for (USkeletalMeshSocket* Socket : BaseMesh->GetMeshOnlySocketList())
 		{
 			if (Socket)
@@ -68,6 +71,7 @@ USkeletalMesh* UMeshMergeFunctionLibrary::MergeMeshes(const FSkeletalMeshMergePa
 				UE_LOG(LogTemp, Warning, TEXT("SkelMeshSocket: %s"), *(Socket->SocketName.ToString()));
 			}
 		}
+
 		for (USkeletalMeshSocket* Socket : BaseMesh->Skeleton->Sockets)
 		{
 			if (Socket)
@@ -82,6 +86,7 @@ USkeletalMesh* UMeshMergeFunctionLibrary::MergeMeshes(const FSkeletalMeshMergePa
 		UE_LOG(LogTemp, Warning, TEXT("Merge failed!"));
 		return nullptr;
 	}
+	
 	if (Params.Skeleton && !Params.bSkeletonBefore)
 	{
 		BaseMesh->Skeleton = Params.Skeleton;
@@ -116,5 +121,7 @@ USkeletalMesh* UMeshMergeFunctionLibrary::MergeMeshes(const FSkeletalMeshMergePa
 		UE_LOG(LogTemp, Warning, TEXT("SkelMeshSocketCount: %d | SkelSocketCount: %d | Combined: %d"), UniqueSkelMeshSockets.Num(), UniqueSkelSockets.Num(), UniqueTotal);
 		UE_LOG(LogTemp, Warning, TEXT("Found Duplicates: %s"), *((Total != UniqueTotal) ? FString("True") : FString("False")));
 	}
+
+	BaseMesh->RebuildSocketMap();
 	return BaseMesh;
 };
