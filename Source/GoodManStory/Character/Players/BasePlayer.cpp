@@ -354,7 +354,10 @@ void ABasePlayer::OnRightHandObjectBeginOverlap(UPrimitiveComponent* OverlappedC
             return;
 
         if (UNLIKELY(OtherComp->ComponentHasTag(TEXT("CharacterWeakZone"))))
+        {
             Enemy->TakeDamageCharacter(Damage * WeakZoneDamageMultiplicator);
+            Enemy->TakeDamageOnWeakZone(); //TODO : Merge both function
+        }
         else
             Enemy->TakeDamageCharacter(Damage);
 

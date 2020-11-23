@@ -6,6 +6,8 @@
 #include "GoodManStory/Character/BaseWarrior.h"
 #include "BaseEnemy.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTakeDamageOnWeakZoneActionSignature);
+
 /**
  * 
  */
@@ -51,6 +53,9 @@ protected :
     
     UPROPERTY(Category = Stats, EditAnywhere)
     float ReducingTimePlayerSkillsRewardOnKill = 1.f;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnTakeDamageOnWeakZoneActionSignature OnTakeDamageOnWeakZone;
     
 public:
 
@@ -123,6 +128,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = Stats)
     FORCEINLINE bool IsEjectOnAttack() const { return bIsEjectOnAttack; }
 
+    UFUNCTION(BlueprintCallable, Category = Stats)
+    void TakeDamageOnWeakZone() { OnTakeDamageOnWeakZone.Broadcast(); }
+    
     UFUNCTION(Category = Stats)
     void SetIsEjectOnAttack(bool NewIsEjectOnAttack) { bIsEjectOnAttack = NewIsEjectOnAttack; }
 

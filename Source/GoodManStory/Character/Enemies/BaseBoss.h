@@ -36,7 +36,7 @@ protected :
     UPROPERTY(EditAnywhere,BlueprintReadOnly)
     class UAnimMontage* FirstAnimMontage = nullptr;
     
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     class USphereComponent* HeadCollision;
     
     UPROPERTY(EditAnywhere, Category= "Punch | Attack")
