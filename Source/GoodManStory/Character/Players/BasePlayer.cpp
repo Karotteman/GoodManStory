@@ -131,7 +131,6 @@ void ABasePlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
     PlayerInputComponent->BindAction("Charge", IE_Pressed, this, &ABasePlayer::Charge);
     PlayerInputComponent->BindAction("BasicAttack", IE_Pressed, this, &ABasePlayer::BasicAttack);
     PlayerInputComponent->BindAction("TourbilolAttack", IE_Pressed, this, &ABasePlayer::TourbilolAttack);
-    PlayerInputComponent->BindAction("EvilSpellAttack", IE_Pressed, this, &ABasePlayer::EvilSpellAttack);
     PlayerInputComponent->BindAction("EvilSpellCapcity", IE_Pressed, this, &ABasePlayer::EvilSpellCapacity);
     PlayerInputComponent->BindAction("SwitchCameraMode", IE_Pressed, this, &ABasePlayer::SwitchCameraMode);
 

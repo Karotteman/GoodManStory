@@ -136,7 +136,7 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
     int32 Score = 0;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Stats)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
     float DurationOfTheSlowdownEvil = 5.f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
