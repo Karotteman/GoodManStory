@@ -31,12 +31,11 @@ A Good Man's Stroy is a third person brawler. It's a single player game.
 
 The player embodies a strong and evil knight whose mission is to kill every single villager of a pretty little town to upset their god. Once he achieved his slaughter, the player will face the god, an impressive giant with great power and force. Will you be strong enough to kill the god? 
 
-
-![](ScreenShoot/Introduction.gif)
-![](ScreenShoot/Skills.gif)
-
-
-![](ScreenShoot/Boss.gif)
+<div style="text-align:center">
+    <img src="ScreenShoot/Introduction.gif"/>
+    <img src="ScreenShoot/Skills.gif"/>
+    <img src="ScreenShoot/Boss.gif"/>
+</div>
 
 ## Command :
 ### Keyboard :

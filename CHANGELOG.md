@@ -6,6 +6,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] (GOLD) - 2020-11-23
+### Added
+- Possibility to go back with touch B
+
+### Change
+- Improve readme
+- Improve evile spell duration and effect
+- Add collision between player and tank
+- Improve carnage bar FX
+- change the color on axe and on player
+- Add and change more sound
+
+### Fixed
+- Hit animation is hit when trash tank is stun
+- Fixe socket missing at the build
+- Add blur on setting
+
 ## [0.2.1] - 2020-11-19
 ### Added
 - Add tourbilol sound
