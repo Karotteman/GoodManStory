@@ -227,7 +227,7 @@ void ABasePlayer::EvilSpellCapacity()
     UGameplayStatics::SetGlobalTimeDilation(GetWorld(), WorldSlowingSpeedEvil);
     CustomTimeDilation = 1 - WorldSlowingSpeedEvil + PlayerSlowingSpeedEvil + 2;
     GetWorldTimerManager().SetTimer(MemberTimerEvilCapacity, this, &ABasePlayer::SetCanEvilCapacity,
-                                    DurationOfTheSlowdownEvil, false, 1);
+                                    DurationOfTheSlowdownEvil * WorldSlowingSpeedEvil, false, -1);
 
     OnPlayerBeginEvilCapacity.Broadcast();
     
