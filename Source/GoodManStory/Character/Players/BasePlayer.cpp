@@ -238,7 +238,7 @@ void ABasePlayer::EvilSpellCapacity()
 
 void ABasePlayer::EvilHealing()
 {
-    Life += Heal;
+    TakeLife(Heal);
 }
 
 void ABasePlayer::SetCanEvilCapacity()

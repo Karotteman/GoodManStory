@@ -103,10 +103,10 @@ bool AEnemiesManager::IsAllEnemiesDied()
 
     for (int i = 0; i < EnemiesStatsContainer.Num() && bRst; ++i)
     {
-        bRst &= EnemiesStatsContainer[i].LivingEnemyContainer.Num() == 0;
+        bRst &= EnemiesStatsContainer[i].LivingEnemyContainer.Num() <= 2;
 
         //ultime protection if enemy is destroy for any reason
-        if (EnemiesStatsContainer[i].LivingEnemyContainer.Num() != 0 && !IsValid(EnemiesStatsContainer[i].LivingEnemyContainer[0]))
+        if (EnemiesStatsContainer[i].LivingEnemyContainer.Num() > 2 && !IsValid(EnemiesStatsContainer[i].LivingEnemyContainer[0]))
         {
             EnemiesStatsContainer[i].LivingEnemyContainer.RemoveAt(0);
         }
