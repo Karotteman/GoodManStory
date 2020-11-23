@@ -6,13 +6,15 @@
 -----
 
 > Game designers :
-> Andrieux Theophile
-> Richer Baptiste
+> Andrieux Theophile, 
+> Richer Baptiste, 
 > Trinquet Roseanne
+
 > Game programmers :
-> Francillonne Tristan
+> Francillonne Tristan,
 > Six Jonathan
-> Octobre - Novembre 2029
+
+> Octobre - Novembre 2020
 
 ## Summary
 - [Description](##Description "Goto description part")
@@ -24,7 +26,11 @@
 - [Credit](##Credit "Goto credit part")
 - [License](##License "Goto license part")
 
-Projet Unreal avec 3 GD et 2 GP
+## Description :
+A Good Man's Stroy is a third person brawler. It's a single player game. 
+
+The player embodies a strong and evil knight whose mission is to kill every single villager of a pretty little town to upset their god. Once he achieved his slaughter, the player will face the god, an impressive giant with great power and force. Will you be strong enough to kill the god? 
+
 
 ![](ScreenShoot/Introduction.gif)
 ![](ScreenShoot/Skills.gif)
@@ -36,10 +42,33 @@ Projet Unreal avec 3 GD et 2 GP
 ### Keyboard :
 Command | Action
 ------------- | -------------
-P           | Pause (on/off)
-Esc         | Exit
+P            | Pause (on/off)
+Esc          | Exit
+Space        | Jump
+Right Click  | Charge
+Left Click   | Basic Attack
+E            | Hurricane Attack
+F            | Evil Spell
+Tab          | Switch Camera
+Mouse move   | Camera Rotation
+W            | Move forward
+S            | Move Backward
+A            | Move to the left
+D            | Move to the right
+
 
 ### Gamepad :
+Command | Action
+------------- | -------------
+A                 | Select / Jump
+B                 | Return / Charge
+X                 | Basic Attack
+Y                 | Hurricane Attack
+LT                | Evil Spell
+Left Stick        | Player Movement
+Right Stick       | Camera Rotation
+Right Stick Click | Switch Camera
+Pause             | Pause
 
 ## License
 MIT License
